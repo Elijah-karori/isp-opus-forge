@@ -114,6 +114,10 @@ class ApiClient {
     const query = new URLSearchParams(params as any).toString();
     return this.request(`/api/v1/hr/payouts/pending?${query}`);
   }
+
+  async getCurrentUser(): Promise<any> {
+    return this.request<any>('/api/v1/auth/me');
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

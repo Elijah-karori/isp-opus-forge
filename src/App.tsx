@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
@@ -13,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
 import HR from "./pages/HR";
+import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,15 +28,65 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/performance" element={<Performance />} />
-              <Route path="/finance" element={<Finance />} />
-              <Route path="/hr" element={<HR />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/projects" 
+                element={
+                  <ProtectedRoute roles={['admin', 'finance', 'procurement', 'technician']}>
+                    <Projects />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/tasks" 
+                element={
+                  <ProtectedRoute roles={['admin', 'technician', 'finance']}>
+                    <Tasks />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/inventory" 
+                element={
+                  <ProtectedRoute roles={['admin', 'procurement', 'finance']}>
+                    <Inventory />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/performance" 
+                element={
+                  <ProtectedRoute roles={['admin', 'finance', 'hr']}>
+                    <Performance />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/finance" 
+                element={
+                  <ProtectedRoute roles={['admin', 'finance']}>
+                    <Finance />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/hr" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'finance']}>
+                    <HR />
+                  </ProtectedRoute>
+                } 
+              />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

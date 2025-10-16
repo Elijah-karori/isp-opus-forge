@@ -11,24 +11,38 @@ import {
   DollarSign,
   LogOut,
   Menu,
-  X
+  X,
+  ClipboardList
 } from 'lucide-react';
 import { useState } from 'react';
 
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: FolderKanban, label: 'Projects', path: '/projects' },
-  { icon: ListTodo, label: 'Tasks', path: '/tasks' },
-  { icon: Package, label: 'Inventory', path: '/inventory' },
-  { icon: TrendingUp, label: 'Performance', path: '/performance' },
-  { icon: DollarSign, label: 'Finance', path: '/finance' },
-  { icon: Users, label: 'HR', path: '/hr' },
+interface NavItem {
+  icon: any;
+  label: string;
+  path: string;
+  roles?: string[];
+}
+
+const navItems: NavItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: [] }, // All roles
+  { icon: FolderKanban, label: 'Projects', path: '/projects', roles: ['admin', 'finance', 'procurement', 'technician'] },
+  { icon: ClipboardList, label: 'Tasks', path: '/tasks', roles: ['admin', 'technician', 'finance'] },
+  { icon: Package, label: 'Inventory', path: '/inventory', roles: ['admin', 'procurement', 'finance'] },
+  { icon: TrendingUp, label: 'Performance', path: '/performance', roles: ['admin', 'finance', 'hr'] },
+  { icon: DollarSign, label: 'Finance', path: '/finance', roles: ['admin', 'finance'] },
+  { icon: Users, label: 'HR', path: '/hr', roles: ['admin', 'hr', 'finance'] },
 ];
 
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Filter navigation items based on user roles
+  const filteredNavItems = navItems.filter(item => {
+    if (!item.roles || item.roles.length === 0) return true; // Show to all
+    return item.roles.some(role => user?.roles?.includes(role) || user?.role === role);
+  });
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -54,7 +68,7 @@ export const Layout = () => {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 p-4">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
@@ -83,6 +97,11 @@ export const Layout = () => {
                   {user?.full_name}
                 </p>
                 <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
+                {user?.roles && user.roles.length > 0 && (
+                  <p className="text-xs text-sidebar-foreground/50 truncate capitalize mt-1">
+                    {user.roles.join(', ')}
+                  </p>
+                )}
               </div>
               <Button
                 variant="ghost"

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { apiClient } from '@/lib/api';
 
 interface User {
@@ -6,6 +7,13 @@ interface User {
   email: string;
   full_name: string;
   role: string;
+  roles: string[];
+}
+
+interface JWTPayload {
+  sub: string;
+  roles?: string[];
+  exp: number;
 }
 
 interface AuthContextType {
@@ -23,18 +31,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      // In a real app, validate token and fetch user data
-      setUser({ id: 1, email: 'demo@isp.com', full_name: 'Demo User', role: 'admin' });
-    }
-    setIsLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          // Decode JWT to get roles
+          const decoded = jwtDecode<JWTPayload>(token);
+          
+          // Check if token is expired
+          if (decoded.exp * 1000 < Date.now()) {
+            apiClient.clearToken();
+            setUser(null);
+          } else {
+            // Fetch current user profile with roles
+            try {
+              const profile: any = await apiClient.getCurrentUser();
+              setUser({
+                id: profile.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                role: profile.role,
+                roles: decoded.roles || [profile.role] // Use decoded roles or fallback to profile role
+              });
+            } catch (error) {
+              // If /auth/me fails, use decoded token data as fallback
+              setUser({
+                id: parseInt(decoded.sub),
+                email: '',
+                full_name: 'User',
+                role: decoded.roles?.[0] || 'user',
+                roles: decoded.roles || ['user']
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Auth initialization error:', error);
+          apiClient.clearToken();
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const login = async (username: string, password: string) => {
-    await apiClient.login({ username, password });
-    // In a real app, fetch user data after login
-    setUser({ id: 1, email: username, full_name: 'Demo User', role: 'admin' });
+    const response = await apiClient.login({ username, password });
+    const token = response.access_token;
+    
+    // Decode JWT to get roles
+    const decoded = jwtDecode<JWTPayload>(token);
+    
+    // Fetch user profile
+    try {
+      const profile: any = await apiClient.getCurrentUser();
+      setUser({
+        id: profile.id,
+        email: profile.email,
+        full_name: profile.full_name,
+        role: profile.role,
+        roles: decoded.roles || [profile.role]
+      });
+    } catch (error) {
+      // Fallback to decoded token data
+      setUser({
+        id: parseInt(decoded.sub),
+        email: username,
+        full_name: 'User',
+        role: decoded.roles?.[0] || 'user',
+        roles: decoded.roles || ['user']
+      });
+    }
   };
 
   const logout = () => {
