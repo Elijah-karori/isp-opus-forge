@@ -118,6 +118,68 @@ class ApiClient {
   async getCurrentUser(): Promise<any> {
     return this.request<any>('/api/v1/auth/me');
   }
+
+  // Finance Actions
+  async approveVariance(varianceId: number, data: { approved: boolean; approver_id: number; notes?: string }) {
+    return this.request(`/api/v1/finance/variances/${varianceId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async detectTaskVariances(taskId: number) {
+    return this.request(`/api/v1/finance/tasks/${taskId}/detect-variances`, {
+      method: 'POST',
+    });
+  }
+
+  async getProjectFinancials(projectId: number) {
+    return this.request(`/api/v1/finance/projects/${projectId}/financials`);
+  }
+
+  // HR Actions
+  async approvePayout(payoutId: number, data: { approved: boolean; notes?: string }) {
+    return this.request(`/api/v1/hr/payouts/${payoutId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async markPayoutPaid(payoutId: number, paymentMethod: string, paymentReference: string) {
+    const query = new URLSearchParams({ payment_method: paymentMethod, payment_reference: paymentReference }).toString();
+    return this.request(`/api/v1/hr/payouts/${payoutId}/mark-paid?${query}`, {
+      method: 'POST',
+    });
+  }
+
+  async investigateComplaint(complaintId: number, data: { is_valid: boolean; investigation_notes: string; resolution?: string }) {
+    const query = new URLSearchParams({
+      is_valid: data.is_valid.toString(),
+      investigation_notes: data.investigation_notes,
+      ...(data.resolution && { resolution: data.resolution }),
+    }).toString();
+    return this.request(`/api/v1/hr/complaints/${complaintId}/investigate?${query}`, {
+      method: 'POST',
+    });
+  }
+
+  async getPendingComplaints(limit: number = 50) {
+    return this.request(`/api/v1/hr/complaints/pending?limit=${limit}`);
+  }
+
+  // Task Actions
+  async updateTaskBOM(taskId: number, data: any) {
+    return this.request(`/api/v1/tasks/${taskId}/update-bom`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async approveTaskBOM(taskId: number) {
+    return this.request(`/api/v1/tasks/${taskId}/approve-bom`, {
+      method: 'POST',
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

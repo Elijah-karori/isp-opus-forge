@@ -1,12 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, DollarSign, Clock } from 'lucide-react';
+import { Loader2, Users, DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const HR = () => {
+  const queryClient = useQueryClient();
+
   const { data: employees, isLoading: loadingEmployees } = useQuery({
     queryKey: ['employees'],
     queryFn: () => apiClient.getEmployees(),
@@ -15,6 +18,18 @@ const HR = () => {
   const { data: payouts, isLoading: loadingPayouts } = useQuery({
     queryKey: ['pending-payouts'],
     queryFn: () => apiClient.getPendingPayouts(),
+  });
+
+  const approvePayoutMutation = useMutation({
+    mutationFn: ({ payoutId, approved, notes }: { payoutId: number; approved: boolean; notes?: string }) =>
+      apiClient.approvePayout(payoutId, { approved, notes }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-payouts'] });
+      toast.success('Payout decision recorded');
+    },
+    onError: () => {
+      toast.error('Failed to process payout');
+    },
   });
 
   const isLoading = loadingEmployees || loadingPayouts;
@@ -157,8 +172,32 @@ const HR = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Approve</Button>
-                      <Button size="sm" variant="outline">Reject</Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => approvePayoutMutation.mutate({
+                          payoutId: payout.id,
+                          approved: true,
+                          notes: 'Approved for payment',
+                        })}
+                        disabled={approvePayoutMutation.isPending}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => approvePayoutMutation.mutate({
+                          payoutId: payout.id,
+                          approved: false,
+                          notes: 'Rejected',
+                        })}
+                        disabled={approvePayoutMutation.isPending}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Reject
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

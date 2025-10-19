@@ -2,12 +2,20 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { apiClient } from '@/lib/api';
 
+interface MenuItem {
+  title: string;
+  path: string;
+  icon: string;
+  roles: string[];
+}
+
 interface User {
   id: number;
   email: string;
   full_name: string;
   role: string;
   roles: string[];
+  menu_items?: MenuItem[];
 }
 
 interface JWTPayload {
@@ -51,7 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 email: profile.email,
                 full_name: profile.full_name,
                 role: profile.role,
-                roles: decoded.roles || [profile.role] // Use decoded roles or fallback to profile role
+                roles: decoded.roles || [profile.role],
+                menu_items: profile.menu_items || []
               });
             } catch (error) {
               // If /auth/me fails, use decoded token data as fallback
@@ -91,7 +100,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: profile.email,
         full_name: profile.full_name,
         role: profile.role,
-        roles: decoded.roles || [profile.role]
+        roles: decoded.roles || [profile.role],
+        menu_items: profile.menu_items || []
       });
     } catch (error) {
       // Fallback to decoded token data

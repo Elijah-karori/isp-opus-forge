@@ -1,15 +1,36 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import { Loader2, DollarSign, TrendingUp, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Finance = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const { data: variances, isLoading } = useQuery({
     queryKey: ['pending-variances'],
     queryFn: () => apiClient.getPendingVariances(),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: ({ varianceId, approved, notes }: { varianceId: number; approved: boolean; notes?: string }) =>
+      apiClient.approveVariance(varianceId, {
+        approved,
+        approver_id: user?.id || 0,
+        notes,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-variances'] });
+      toast.success('Variance decision recorded');
+    },
+    onError: () => {
+      toast.error('Failed to process variance');
+    },
   });
 
   if (isLoading) {
@@ -108,8 +129,32 @@ const Finance = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Approve</Button>
-                      <Button size="sm" variant="outline">Reject</Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => approveMutation.mutate({
+                          varianceId: variance.id,
+                          approved: true,
+                          notes: 'Approved by finance',
+                        })}
+                        disabled={approveMutation.isPending}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => approveMutation.mutate({
+                          varianceId: variance.id,
+                          approved: false,
+                          notes: 'Rejected by finance',
+                        })}
+                        disabled={approveMutation.isPending}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Reject
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
