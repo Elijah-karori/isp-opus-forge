@@ -15,6 +15,7 @@ import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
 import HR from "./pages/HR";
 import Attendance from "./pages/Attendance";
+import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -101,6 +102,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Attendance />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/approvals" 
+                element={
+                  <ProtectedRoute roles={['admin', 'finance', 'hr', 'procurement']}>
+                    <Approvals />
                   </ProtectedRoute>
                 } 
               />
