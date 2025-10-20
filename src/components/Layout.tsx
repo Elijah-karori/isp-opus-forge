@@ -12,37 +12,39 @@ import {
   LogOut,
   Menu,
   X,
-  ClipboardList
+  ClipboardList,
+  Home,
+  BarChart3,
+  CheckSquare,
+  MessageSquare,
+  Search
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface NavItem {
-  icon: any;
-  label: string;
-  path: string;
-  roles?: string[];
-}
-
-const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: [] }, // All roles
-  { icon: FolderKanban, label: 'Projects', path: '/projects', roles: ['admin', 'finance', 'procurement', 'technician'] },
-  { icon: ClipboardList, label: 'Tasks', path: '/tasks', roles: ['admin', 'technician', 'finance'] },
-  { icon: Package, label: 'Inventory', path: '/inventory', roles: ['admin', 'procurement', 'finance'] },
-  { icon: TrendingUp, label: 'Performance', path: '/performance', roles: ['admin', 'finance', 'hr'] },
-  { icon: DollarSign, label: 'Finance', path: '/finance', roles: ['admin', 'finance'] },
-  { icon: Users, label: 'HR', path: '/hr', roles: ['admin', 'hr', 'finance'] },
-];
+// Icon mapping for dynamic backend menus
+const iconMap: Record<string, any> = {
+  LayoutDashboard,
+  Home,
+  FolderKanban,
+  ClipboardList,
+  ListTodo,
+  CheckSquare,
+  Package,
+  TrendingUp,
+  BarChart3,
+  Users,
+  DollarSign,
+  MessageSquare,
+  Search,
+};
 
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Filter navigation items based on user roles
-  const filteredNavItems = navItems.filter(item => {
-    if (!item.roles || item.roles.length === 0) return true; // Show to all
-    return item.roles.some(role => user?.roles?.includes(role) || user?.role === role);
-  });
+  // Use dynamic menu items from backend (fetched via /api/v1/auth/me)
+  const menuItems = user?.menu_items || [];
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -68,8 +70,8 @@ export const Layout = () => {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 p-4">
-            {filteredNavItems.map((item) => {
-              const Icon = item.icon;
+            {menuItems.map((item) => {
+              const Icon = iconMap[item.icon] || Home;
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -83,7 +85,7 @@ export const Layout = () => {
                   }`}
                 >
                   <Icon className="h-5 w-5" />
-                  {item.label}
+                  {item.title}
                 </Link>
               );
             })}
