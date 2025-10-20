@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 full_name: profile.full_name,
                 role: profile.role,
                 roles: decoded.roles || [profile.role],
-                menu_items: profile.menu_items || []
+                menu_items: profile.menus || profile.menu_items || []
               });
             } catch (error) {
               // If /auth/me fails, use decoded token data as fallback
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         full_name: profile.full_name,
         role: profile.role,
         roles: decoded.roles || [profile.role],
-        menu_items: profile.menu_items || []
+        menu_items: profile.menus || profile.menu_items || []
       });
     } catch (error) {
       // Fallback to decoded token data
