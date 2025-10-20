@@ -14,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
 import HR from "./pages/HR";
+import Attendance from "./pages/Attendance";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -84,6 +85,22 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'finance']}>
                     <HR />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/technician/attendance" 
+                element={
+                  <ProtectedRoute>
+                    <Attendance />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/technician/reports" 
+                element={
+                  <ProtectedRoute>
+                    <Attendance />
                   </ProtectedRoute>
                 } 
               />
