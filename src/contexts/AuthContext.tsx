@@ -3,10 +3,11 @@ import { jwtDecode } from 'jwt-decode';
 import { apiClient } from '@/lib/api';
 
 interface MenuItem {
-  title: string;
+  key: string;
+  label: string;
   path: string;
-  icon: string;
-  roles: string[];
+  icon?: string;
+  roles?: string[];
 }
 
 interface User {

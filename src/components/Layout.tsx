@@ -21,21 +21,22 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-// Icon mapping for dynamic backend menus
+// Icon mapping for dynamic backend menus (by menu key)
 const iconMap: Record<string, any> = {
-  LayoutDashboard,
-  Home,
-  FolderKanban,
-  ClipboardList,
-  ListTodo,
-  CheckSquare,
-  Package,
-  TrendingUp,
-  BarChart3,
-  Users,
-  DollarSign,
-  MessageSquare,
-  Search,
+  dashboard: LayoutDashboard,
+  home: Home,
+  projects: FolderKanban,
+  tasks: ListTodo,
+  'task-board': ClipboardList,
+  checklist: CheckSquare,
+  inventory: Package,
+  performance: TrendingUp,
+  reports: BarChart3,
+  hr: Users,
+  finance: DollarSign,
+  marketing: MessageSquare,
+  search: Search,
+  attendance: ClipboardList,
 };
 
 export const Layout = () => {
@@ -71,7 +72,7 @@ export const Layout = () => {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 p-4">
             {menuItems.map((item) => {
-              const Icon = iconMap[item.icon] || Home;
+              const Icon = iconMap[item.key] || Home;
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -85,7 +86,7 @@ export const Layout = () => {
                   }`}
                 >
                   <Icon className="h-5 w-5" />
-                  {item.title}
+                  {item.label}
                 </Link>
               );
             })}
