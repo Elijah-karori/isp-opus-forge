@@ -548,6 +548,13 @@ class ApiClient {
   // -------------------------------------------------------------------
   // WORKFLOWS & APPROVALS
   // -------------------------------------------------------------------
+
+async commentWorkflow(instanceId: number, comment: string) {
+  return this.request(`/api/v1/workflows/workflows/${instanceId}/comment`, {
+    method: 'POST',
+    body: JSON.stringify({ comment }),
+  });
+}
   async getPendingWorkflows() {
     return this.request("/api/v1/workflows/workflows/pending");
   }
