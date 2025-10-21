@@ -34,7 +34,8 @@ import {
   BarChart3,
   ClipboardList,
   TrendingUp,
-  MapPin
+  MapPin,
+  List // Add this import
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { TaskBoard } from '@/components/tasks/TaskBoard';
