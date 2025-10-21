@@ -10,9 +10,12 @@ export const menusByRole: Record<string, any[]> = {
     { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Tasks", path: "/tasks", icon: "ListTodo" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
+    { label: "Suppliers", path: "/suppliers", icon: "Building" },
+    { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
     { label: "Marketing", path: "/marketing", icon: "Megaphone" },
     { label: "Workflows", path: "/workflows", icon: "GitBranch" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
+    { label: "Users", path: "/users", icon: "UserCog" },
   ],
 
   finance: [
@@ -49,6 +52,8 @@ export const menusByRole: Record<string, any[]> = {
   procurement: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
     { label: "Purchase Orders", path: "/procurement", icon: "ShoppingCart" },
+    { label: "Suppliers", path: "/suppliers", icon: "Building" },
+    { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
     { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },

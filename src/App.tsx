@@ -21,6 +21,9 @@ import NotFound from "./pages/NotFound";
 import Workflows from "@/pages/Workflows";
 import Procurement from "@/pages/Procurement";
 import Marketing from "@/pages/Marketing";
+import Users from "@/pages/Users";
+import Suppliers from "@/pages/Suppliers";
+import PriceMonitoring from "@/pages/PriceMonitoring";
 
 const queryClient = new QueryClient();
 
@@ -116,6 +119,30 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'finance', 'hr', 'procurement']}>
                     <Approvals />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/users" 
+                element={
+                  <ProtectedRoute roles={['admin']}>
+                    <Users />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/suppliers" 
+                element={
+                  <ProtectedRoute roles={['admin', 'procurement']}>
+                    <Suppliers />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/price-monitoring" 
+                element={
+                  <ProtectedRoute roles={['admin', 'procurement', 'finance']}>
+                    <PriceMonitoring />
                   </ProtectedRoute>
                 } 
               />
