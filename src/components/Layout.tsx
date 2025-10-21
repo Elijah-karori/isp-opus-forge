@@ -1,8 +1,4 @@
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
-import { menusByRole } from "@/lib/menus_by_role";
-import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
-import * as Icons from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
@@ -48,17 +44,11 @@ export const Layout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Use dynamic menu items from backend (fetched via /api/v1/auth/me)
-  //const menuItems = user?.menu_items || [];
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  export function Sidebar() {
-  const { user } = useAuth();
-  const role = user?.role || "technician"; // fallback
-  const menus = menusByRole[role] || [];
+  const menuItems = user?.menu_items || [];
 
   return (
     <div className="flex h-screen bg-background">
@@ -79,21 +69,23 @@ export const Layout = () => {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3">
-        {menus.map((item) => {
-          const Icon = Icons[item.icon] || Icons.Circle;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800"
-            >
-              <Icon className="w-4 h-4" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+          <nav className="flex-1 space-y-1 px-3 py-3">
+            {menuItems.map((item) => {
+              const Icon = iconMap[item.key] || Home;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${
+                    location.pathname === item.path ? 'bg-sidebar-accent' : ''
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
           {/* User section */}
           <div className="border-t border-sidebar-border p-4">

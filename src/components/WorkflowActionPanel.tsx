@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { approveWorkflowAction } from "@/api/workflow"; // backend integration
+import { performWorkflowAction } from "@/api/workflow"; // backend integration
 
 export function WorkflowActionPanel({ instanceId }: { instanceId: number }) {
   const [comment, setComment] = useState("");
@@ -10,10 +10,10 @@ export function WorkflowActionPanel({ instanceId }: { instanceId: number }) {
   const handleAction = async (action: "approve" | "reject" | "comment") => {
     setLoading(true);
     try {
-      await approveWorkflowAction({ instanceId, action, comment });
+      await performWorkflowAction({ instance_id: instanceId, action, comment });
       alert(`Action '${action}' completed successfully`);
       setComment("");
-    } catch (err) {
+    } catch (err: any) {
       alert("Failed: " + err.message);
     } finally {
       setLoading(false);
