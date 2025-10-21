@@ -32,17 +32,24 @@ import {
   Package
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApprovalOverlay } from '@/components/ApprovalOverlay';
 import { FinanceDashboard } from '@/components/finance/FinanceDashboard';
-import { VarianceApprovalPanel } from '@/components/finance/VarianceApprovalPanel';
+import { WorkflowOverlay } from '@/components/WorkflowOverlay';
+import { useWorkflow } from '@/hooks/useWorkflow';
 
 const Finance = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedVariance, setSelectedVariance] = useState<BOMVariance | null>(null);
-  const [showApprovalOverlay, setShowApprovalOverlay] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Use the workflow hook for overlay management
+  const {
+    selectedWorkflow,
+    isOverlayOpen,
+    openWorkflowOverlay,
+    closeWorkflowOverlay,
+    refreshWorkflows
+  } = useWorkflow();
 
   // Fetch financial data
   const { data: pendingVariances, isLoading: variancesLoading } = useQuery({
@@ -60,47 +67,43 @@ const Finance = () => {
     queryFn: () => getFinancialSummary(),
   });
 
-  // Approve variance mutation
-  const approveVarianceMutation = useMutation({
-    mutationFn: ({ varianceId, data }: { varianceId: number; data: any }) =>
-      approveVariance(varianceId, data),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Variance action completed successfully",
-      });
-      setShowApprovalOverlay(false);
-      setSelectedVariance(null);
-      queryClient.invalidateQueries({ queryKey: ['pending-variances'] });
-      queryClient.invalidateQueries({ queryKey: ['finance-dashboard-stats'] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to process variance",
-        variant: "destructive",
-      });
-    },
+  // Get workflow instances for variances
+  const { data: varianceWorkflows, isLoading: workflowsLoading } = useQuery({
+    queryKey: ['variance-workflows'],
+    queryFn: () => apiClient.getPendingWorkflows(),
+    select: (data) => data.filter((workflow: any) => workflow.module === 'finance')
   });
 
-  const handleVarianceAction = (variance: BOMVariance) => {
-    setSelectedVariance(variance);
-    setShowApprovalOverlay(true);
+  // Create a mapping of variance IDs to workflow instances
+  const varianceToWorkflowMap = new Map();
+  varianceWorkflows?.forEach((workflow: any) => {
+    varianceToWorkflowMap.set(workflow.item_id, workflow);
+  });
+
+  const handleVarianceReview = (variance: BOMVariance) => {
+    // Find the workflow instance for this variance
+    const workflow = varianceToWorkflowMap.get(variance.id);
+    if (workflow) {
+      openWorkflowOverlay(workflow);
+    } else {
+      // Fallback to direct approval if no workflow exists
+      toast({
+        title: "Workflow Not Found",
+        description: "No approval workflow found for this variance",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleApprovalSubmit = (action: 'approve' | 'reject', notes?: string) => {
-    if (!selectedVariance || !user) return;
-
-    const data = {
-      approved: action === 'approve',
-      approver_id: user.id,
-      notes: notes || '',
-    };
-
-    approveVarianceMutation.mutate({ varianceId: selectedVariance.id, data });
+  const handleWorkflowActionComplete = () => {
+    // Refresh all relevant data after workflow action
+    queryClient.invalidateQueries({ queryKey: ['pending-variances'] });
+    queryClient.invalidateQueries({ queryKey: ['finance-dashboard-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['variance-workflows'] });
+    refreshWorkflows();
   };
 
-  const isLoading = variancesLoading || statsLoading || summaryLoading;
+  const isLoading = variancesLoading || statsLoading || summaryLoading || workflowsLoading;
 
   if (isLoading) {
     return (
@@ -253,67 +256,88 @@ const Finance = () => {
                       <TableHead>Cost Impact</TableHead>
                       <TableHead>Technician</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Workflow</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {varianceList.map((variance: BOMVariance) => (
-                      <TableRow key={variance.id} className={
-                        Math.abs(variance.variance_qty) > 10 ? 'bg-red-50' : 'bg-orange-50'
-                      }>
-                        <TableCell className="font-medium">
-                          <div className="max-w-[200px] truncate">
-                            {variance.task?.title || `Task #${variance.task_id}`}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {variance.task?.project_name}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{variance.product?.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            SKU: {variance.product?.sku}
-                          </div>
-                        </TableCell>
-                        <TableCell>{variance.expected_qty}</TableCell>
-                        <TableCell>{variance.actual_qty}</TableCell>
-                        <TableCell>
-                          <div className={`font-semibold ${
-                            variance.variance_qty > 0 ? 'text-red-600' : 'text-green-600'
-                          }`}>
-                            {variance.variance_qty > 0 ? '+' : ''}{variance.variance_qty}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {variance.variance_percent}%
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className={`font-semibold ${
-                            parseFloat(variance.variance_cost) > 0 ? 'text-red-600' : 'text-green-600'
-                          }`}>
-                            ${Math.abs(parseFloat(variance.variance_cost)).toFixed(2)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {variance.task?.technician_name || 'Unknown'}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(variance.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 px-2"
-                              onClick={() => handleVarianceAction(variance)}
-                            >
-                              Review
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {varianceList.map((variance: BOMVariance) => {
+                      const workflow = varianceToWorkflowMap.get(variance.id);
+                      const hasWorkflow = !!workflow;
+                      const isPendingApproval = workflow?.status === 'pending';
+                      
+                      return (
+                        <TableRow key={variance.id} className={
+                          Math.abs(variance.variance_qty) > 10 ? 'bg-red-50' : 'bg-orange-50'
+                        }>
+                          <TableCell className="font-medium">
+                            <div className="max-w-[200px] truncate">
+                              {variance.task?.title || `Task #${variance.task_id}`}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {variance.task?.project_name}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{variance.product?.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              SKU: {variance.product?.sku}
+                            </div>
+                          </TableCell>
+                          <TableCell>{variance.expected_qty}</TableCell>
+                          <TableCell>{variance.actual_qty}</TableCell>
+                          <TableCell>
+                            <div className={`font-semibold ${
+                              variance.variance_qty > 0 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {variance.variance_qty > 0 ? '+' : ''}{variance.variance_qty}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {variance.variance_percent}%
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className={`font-semibold ${
+                              parseFloat(variance.variance_cost) > 0 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              ${Math.abs(parseFloat(variance.variance_cost)).toFixed(2)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {variance.task?.technician_name || 'Unknown'}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(variance.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {hasWorkflow ? (
+                              <Badge variant={
+                                workflow.status === 'pending' ? 'secondary' :
+                                workflow.status === 'approved' ? 'default' :
+                                'destructive'
+                              }>
+                                {workflow.status}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline">No Workflow</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 px-2"
+                                onClick={() => handleVarianceReview(variance)}
+                                disabled={!hasWorkflow || !isPendingApproval}
+                              >
+                                {hasWorkflow ? 'Review' : 'No Workflow'}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               ) : (
@@ -340,18 +364,15 @@ const Finance = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Approval Overlay */}
-      {showApprovalOverlay && selectedVariance && (
-        <ApprovalOverlay
-          title="Review BOM Variance"
-          item={selectedVariance}
-          onClose={() => {
-            setShowApprovalOverlay(false);
-            setSelectedVariance(null);
-          }}
-          onSubmit={handleApprovalSubmit}
-          isLoading={approveVarianceMutation.isPending}
-          type="variance"
+      {/* Workflow Overlay */}
+      {selectedWorkflow && (
+        <WorkflowOverlay
+          isOpen={isOverlayOpen}
+          onClose={closeWorkflowOverlay}
+          workflow={selectedWorkflow}
+          module="finance"
+          item={selectedWorkflow.item_data}
+          onActionComplete={handleWorkflowActionComplete}
         />
       )}
     </div>
