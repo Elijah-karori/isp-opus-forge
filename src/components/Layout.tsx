@@ -91,6 +91,7 @@ export const Layout = () => {
           <div className="border-t border-sidebar-border p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
+                <Link to="/profile" className="block hover:underline">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
                   {user?.full_name}
                 </p>
@@ -100,6 +101,7 @@ export const Layout = () => {
                     {user.roles.join(', ')}
                   </p>
                 )}
+                  </Link>
               </div>
               <Button
                 variant="ghost"
