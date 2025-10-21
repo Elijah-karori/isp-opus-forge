@@ -18,6 +18,9 @@ import Attendance from "./pages/Attendance";
 import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
+import Workflows from "@/pages/Workflows";
+import Procurement from "@/pages/Procurement";
+import Marketing from "@/pages/Marketing";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route path="/procurement" element={<Procurement />} />
+              <Route path="/marketing" element={<Marketing />} />
               <Route 
                 path="/projects" 
                 element={
