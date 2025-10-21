@@ -1,4 +1,4 @@
-// src/api/workflow.ts
+// src/api/workflow.ts - Workflow API functions
 import api from "./axios";
 
 export type WorkflowActionPayload = {
