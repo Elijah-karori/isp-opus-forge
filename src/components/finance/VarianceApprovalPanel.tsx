@@ -117,3 +117,10 @@ export function VarianceApprovalPanel({ variance, onApprove, isLoading }: Varian
             >
               <XCircle className="h-4 w-4 mr-2" />
               Reject Variance
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
