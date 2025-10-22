@@ -392,8 +392,8 @@ const Employees = () => {
             <div className="grid gap-2">
               <Label htmlFor="user_id">User Account *</Label>
               <Select
-                value={formData.user_id?.toString()}
-                onValueChange={(value) => setFormData({ ...formData, user_id: parseInt(value) })}
+                value={formData.user_id?.toString() ?? ''}
+                onValueChange={(value) => setFormData({ ...formData, user_id: value ? parseInt(value) : undefined })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select user" />
