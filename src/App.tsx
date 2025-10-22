@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
@@ -26,12 +25,12 @@ import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
-
-const queryClient = new QueryClient();
+import Leaves from "./pages/Leaves";
+import Complaints from "./pages/Complaints";
+import Technicians from "./pages/Technicians";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+  <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -150,13 +149,36 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/hr/leaves" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <Leaves />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/hr/complaints" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <Complaints />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/technicians" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'operations']}>
+                    <Technicians />
+                  </ProtectedRoute>
+                } 
+              />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
-  </QueryClientProvider>
 );
 
 export default App;
