@@ -160,7 +160,8 @@ const Employees = () => {
   };
 
   const employeeList = Array.isArray(employees?.data) ? employees.data : [];
-  const userList = Array.isArray(users?.data) ? users.data : [];
+  const userList = Array.isArray(users?.data) ? users.data.filter((user: any) => user.id != null && user.id !== "") 
+    : [];
 
   const filteredEmployees = employeeList.filter((emp: Employee) => {
     const searchLower = searchTerm.toLowerCase();
