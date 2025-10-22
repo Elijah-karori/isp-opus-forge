@@ -53,12 +53,12 @@ const Technicians = () => {
 
   const { data: recentAttendance, isLoading: attendanceLoading } = useQuery({
     queryKey: ['recent-attendance'],
-    queryFn: () => getAttendanceRecords(),
+    queryFn: () => getAttendance(),
   });
 
   const { data: satisfactionData, isLoading: satisfactionLoading } = useQuery({
     queryKey: ['customer-satisfaction'],
-    queryFn: () => getCustomerSatisfaction(),
+    queryFn: () => getCustomerSatisfactionReviews(),
   });
 
   const isLoading = techLoading || leaderboardLoading || attendanceLoading || satisfactionLoading;
@@ -201,7 +201,7 @@ const Technicians = () => {
                         <div>
                           <div className="font-medium">{tech.full_name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {tech.designation} • {tech.employee_code}
+                            {tech.designation || tech.specialization || 'Technician'} • {tech.employee_code || `#${tech.id}`}
                           </div>
                         </div>
                       </div>
@@ -210,7 +210,7 @@ const Technicians = () => {
                           Active
                         </Badge>
                         <div className="text-sm text-muted-foreground mt-1">
-                          {tech.certification_level}
+                          {tech.certification_level || (tech.certifications && tech.certifications.length > 0 ? tech.certifications[0] : 'Certified')}
                         </div>
                       </div>
                     </div>
@@ -229,8 +229,8 @@ const Technicians = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {leaderboardData.slice(0, 5).map((kpi: TechnicianKPI, index) => (
-                    <div key={kpi.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  {leaderboardData.slice(0, 5).map((tech: any, index: number) => (
+                    <div key={tech.id || index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
                           index === 0 ? 'bg-yellow-500' :
@@ -241,14 +241,14 @@ const Technicians = () => {
                           {index + 1}
                         </div>
                         <div>
-                          <div className="font-medium">{kpi.technician?.full_name}</div>
+                          <div className="font-medium">{tech.full_name || tech.technician?.full_name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {kpi.tasks_completed} tasks • {kpi.completion_rate}% rate
+                            {tech.completed_tasks || tech.tasks_completed || 0} tasks • {tech.completion_rate || 0}% rate
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-green-600">{kpi.total_score}</div>
+                        <div className="font-bold text-green-600">{tech.rating || tech.total_score || 0}</div>
                         <div className="text-sm text-muted-foreground">Score</div>
                       </div>
                     </div>
@@ -271,7 +271,45 @@ const Technicians = () => {
 
         {/* Reviews Tab */}
         <TabsContent value="reviews" className="space-y-6">
-          <SatisfactionReviews />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Customer Satisfaction Reviews
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {satisfactionList.length > 0 ? (
+                  satisfactionList.map((review: CustomerSatisfaction) => (
+                    <div key={review.id} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`h-4 w-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {review.feedback && (
+                        <p className="text-sm text-muted-foreground">{review.feedback}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No customer reviews yet</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

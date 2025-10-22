@@ -9,6 +9,9 @@ export interface Technician {
   phone?: string;
   specialization?: string;
   certifications?: string[];
+  certification_level?: string;
+  designation?: string;
+  employee_code?: string;
   rating?: number;
   total_tasks: number;
   completed_tasks: number;
@@ -40,6 +43,12 @@ export interface AttendanceRecord {
   check_in_location?: string;
   check_out_location?: string;
   notes?: string;
+  hours_worked?: number;
+  technician?: {
+    id: number;
+    full_name: string;
+    employee_code?: string;
+  };
   created_at: string;
 }
 

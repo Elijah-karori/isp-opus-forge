@@ -311,15 +311,39 @@ const Projects = () => {
         />
       )}
 
-      {/* Project Details Modal */}
+      {/* Project Details Modal - Coming Soon */}
       {selectedProject && (
-        <ProjectDetails 
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-          onUpdate={() => {
-            queryClient.invalidateQueries({ queryKey: ['projects'] });
-          }}
-        />
+        <Card className="fixed inset-4 z-50 overflow-auto">
+          <CardHeader>
+            <CardTitle>Project Details</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setSelectedProject(null)}
+              className="absolute top-4 right-4"
+            >
+              Close
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold">{selectedProject.name}</h3>
+                <p className="text-sm text-muted-foreground">{selectedProject.customer_name}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <p className="text-sm">{selectedProject.status}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Priority</label>
+                  <p className="text-sm">{selectedProject.priority}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

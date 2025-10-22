@@ -27,7 +27,7 @@ export function AttendanceTracker() {
 
   const { data: attendance, isLoading } = useQuery({
     queryKey: ['attendance', selectedDate],
-    queryFn: () => getAttendanceRecords({ 
+    queryFn: () => getAttendance({ 
       start_date: selectedDate, 
       end_date: selectedDate 
     }),

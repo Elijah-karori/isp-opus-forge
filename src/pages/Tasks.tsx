@@ -287,7 +287,20 @@ const Tasks = () => {
 
         {/* Performance Tab */}
         <TabsContent value="performance" className="space-y-6">
-          <TechnicianPerformance />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Technician Performance
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Performance metrics coming soon</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -307,17 +320,42 @@ const Tasks = () => {
         />
       )}
 
-      {/* Task Details Modal */}
+      {/* Task Details Modal - Coming Soon */}
       {showTaskDetails && selectedTask && (
-        <TaskDetails 
-          task={selectedTask}
-          onClose={() => {
-            setShowTaskDetails(false);
-            setSelectedTask(null);
-          }}
-          onStatusUpdate={handleStatusUpdate}
-          onComplete={handleCompleteTask}
-        />
+        <Card className="fixed inset-4 z-50 overflow-auto">
+          <CardHeader>
+            <CardTitle>Task Details</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                setShowTaskDetails(false);
+                setSelectedTask(null);
+              }}
+              className="absolute top-4 right-4"
+            >
+              Close
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold">{selectedTask.title}</h3>
+                <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <p className="text-sm">{selectedTask.status}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Technician</label>
+                  <p className="text-sm">{selectedTask.technician?.full_name || 'Unassigned'}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
