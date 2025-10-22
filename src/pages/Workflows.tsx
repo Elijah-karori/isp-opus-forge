@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { GitBranch } from "lucide-react";
 
 export default function Workflows() {
-  const { data: instances = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["workflows"],
     queryFn: getPendingWorkflows,
   });
+
+  const instances = Array.isArray(data) ? data : (data?.data || []);
 
   if (isLoading) {
     return (

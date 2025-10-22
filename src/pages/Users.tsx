@@ -25,7 +25,7 @@ import {
   Loader2, 
   Plus, 
   Search, 
-  Users, 
+  Users as UsersIcon, 
   UserPlus,
   Shield,
   Activity,
@@ -41,10 +41,10 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserManagement } from '@/components/users/UserManagement';
-import { RolesManagement } from '@/components/users/RolesManagement';
-import { UserActivity } from '@/components/users/UserActivity';
+// import { RolesManagement } from '@/components/users/RolesManagement';
+// import { UserActivity } from '@/components/users/UserActivity';
 import { CreateUserDialog } from '@/components/users/CreateUserDialog';
-import { EditUserDialog } from '@/components/users/EditUserDialog';
+// import { EditUserDialog } from '@/components/users/EditUserDialog';
 
 const Users = () => {
   const { user: currentUser } = useAuth();
@@ -270,7 +270,7 @@ const Users = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <UsersIcon className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userList.length}</div>
@@ -324,7 +324,7 @@ const Users = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="users" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
+            <UsersIcon className="h-4 w-4" />
             Users
             <Badge variant="outline" className="ml-1 h-5 w-5 p-0 flex items-center justify-center">
               {userList.length}
@@ -358,12 +358,22 @@ const Users = () => {
 
         {/* Roles Tab */}
         <TabsContent value="roles" className="space-y-6">
-          <RolesManagement />
+          {/* <RolesManagement /> */}
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-center">Roles management coming soon</p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Activity Tab */}
         <TabsContent value="activity" className="space-y-6">
-          <UserActivity />
+          {/* <UserActivity /> */}
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-muted-foreground text-center">Activity logs coming soon</p>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -379,7 +389,7 @@ const Users = () => {
       )}
 
       {/* Edit User Dialog */}
-      {showEditDialog && selectedUser && (
+      {/* {showEditDialog && selectedUser && (
         <EditUserDialog 
           user={selectedUser}
           onClose={() => {
@@ -392,7 +402,7 @@ const Users = () => {
             setSelectedUser(null);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

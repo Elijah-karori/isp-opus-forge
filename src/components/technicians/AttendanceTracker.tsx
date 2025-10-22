@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { 
-  getAttendanceRecords, 
+  getAttendance, 
   recordAttendance,
   type AttendanceRecord 
 } from '@/api/technicians';

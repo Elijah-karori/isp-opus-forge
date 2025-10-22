@@ -17,6 +17,12 @@ interface User {
   role: string;
   roles: string[];
   menu_items?: MenuItem[];
+  phone?: string;
+  is_active?: boolean;
+  department?: string;
+  position?: string;
+  created_at?: string;
+  last_login?: string;
 }
 
 interface JWTPayload {
@@ -27,6 +33,7 @@ interface JWTPayload {
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -122,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

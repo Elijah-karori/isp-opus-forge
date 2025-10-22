@@ -428,7 +428,7 @@ const PricingIntelligence = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {priceDrops?.data?.slice(0, 10).map((drop: any) => (
+                {(Array.isArray(priceDrops) ? priceDrops : (Array.isArray((priceDrops as any)?.data) ? (priceDrops as any).data : [])).slice(0, 10).map((drop: any) => (
                   <TableRow key={drop.id}>
                     <TableCell className="font-medium">{drop.product_name}</TableCell>
                     <TableCell>{drop.supplier_name}</TableCell>

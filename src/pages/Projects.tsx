@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectDashboard } from '@/components/projects/ProjectDashboard';
-import { ProjectDetails } from '@/components/projects/ProjectDetails';
+// import { ProjectDetails } from '@/components/projects/ProjectDetails';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 
 const Projects = () => {

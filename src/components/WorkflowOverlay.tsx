@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { performWorkflowAction, type WorkflowInstance } from '@/api/workflows';
+import { performWorkflowAction, type WorkflowInstance } from '@/api/workflow';
 
 interface WorkflowOverlayProps {
   isOpen: boolean;

@@ -68,15 +68,18 @@ const Finance = () => {
   });
 
   // Get workflow instances for variances
-  const { data: varianceWorkflows, isLoading: workflowsLoading } = useQuery({
+  const { data: varianceWorkflowsData, isLoading: workflowsLoading } = useQuery({
     queryKey: ['variance-workflows'],
     queryFn: () => apiClient.getPendingWorkflows(),
-    select: (data) => data.filter((workflow: any) => workflow.module === 'finance')
   });
+
+  const varianceWorkflows = Array.isArray(varianceWorkflowsData) 
+    ? varianceWorkflowsData.filter((workflow: any) => workflow.module === 'finance')
+    : (Array.isArray((varianceWorkflowsData as any)?.data) ? (varianceWorkflowsData as any).data : []).filter((workflow: any) => workflow.module === 'finance');
 
   // Create a mapping of variance IDs to workflow instances
   const varianceToWorkflowMap = new Map();
-  varianceWorkflows?.forEach((workflow: any) => {
+  (varianceWorkflows || []).forEach((workflow: any) => {
     varianceToWorkflowMap.set(workflow.item_id, workflow);
   });
 

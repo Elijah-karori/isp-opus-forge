@@ -2,7 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateUser, changeUserPassword, type User } from '@/api/users';
+import { updateUser, changeUserPassword } from '@/api/users';
+import type { User as UserType } from '@/api/users';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Loader2, 
-  User, 
-  Shield, 
+  User as UserIcon, 
+  Shield,
   Mail, 
   Phone, 
   Calendar,
@@ -160,7 +161,7 @@ const Profile = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
+            <UserIcon className="h-4 w-4" />
             Profile Information
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
@@ -174,7 +175,7 @@ const Profile = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+                <UserIcon className="h-5 w-5" />
                 Personal Information
               </CardTitle>
             </CardHeader>
@@ -184,7 +185,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <Label htmlFor="full_name">Full Name</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
                         id="full_name"
                         value={profileData.full_name}

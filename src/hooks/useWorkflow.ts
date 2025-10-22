@@ -5,7 +5,7 @@ import {
   getPendingWorkflows, 
   getMyPendingApprovals,
   type WorkflowInstance 
-} from '@/api/workflows';
+} from '@/api/workflow';
 
 export function useWorkflow() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowInstance | null>(null);

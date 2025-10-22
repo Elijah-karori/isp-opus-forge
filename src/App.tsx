@@ -25,7 +25,6 @@ import Users from "@/pages/Users";
 import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 const queryClient = new QueryClient();

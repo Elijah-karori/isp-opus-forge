@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { 
   getTechnicians, 
   getTechnicianLeaderboard,
-  getAttendanceRecords,
-  getCustomerSatisfaction,
+  getAttendance,
+  getCustomerSatisfactionReviews,
   type Technician,
-  type TechnicianKPI,
   type AttendanceRecord,
   type CustomerSatisfaction
 } from '@/api/technicians';
@@ -34,7 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { TechnicianPerformance } from '@/components/technicians/TechnicianPerformance';
 import { AttendanceTracker } from '@/components/technicians/AttendanceTracker';
-import { SatisfactionReviews } from '@/components/technicians/SatisfactionReviews';
+// import { SatisfactionReviews } from '@/components/technicians/SatisfactionReviews';
 
 const Technicians = () => {
   const { toast } = useToast();

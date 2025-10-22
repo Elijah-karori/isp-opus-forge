@@ -39,9 +39,9 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { TaskBoard } from '@/components/tasks/TaskBoard';
-import { TechnicianPerformance } from '@/components/tasks/TechnicianPerformance';
+// import { TechnicianPerformance } from '@/components/tasks/TechnicianPerformance';
 import { BOMEditor } from '@/components/tasks/BOMEditor';
-import { TaskDetails } from '@/components/tasks/TaskDetails';
+// import { TaskDetails } from '@/components/tasks/TaskDetails';
 
 const Tasks = () => {
   const { user } = useAuth();

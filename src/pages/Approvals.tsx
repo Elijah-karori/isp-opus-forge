@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useWorkflow } from '@/hooks/useWorkflow';
 import { WorkflowOverlay } from '@/components/WorkflowOverlay';
-import { getMyPendingApprovals, type WorkflowInstance } from '@/api/workflows';
+import { getMyPendingApprovals, type WorkflowInstance } from '@/api/workflow';
 
 const Approvals = () => {
   const {

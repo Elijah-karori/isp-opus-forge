@@ -236,7 +236,7 @@ class ApiClient {
     });
   }
 
-  async recordCustomerSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
+  async recordTechnicianSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
     return this.request(`/api/v1/technicians/satisfaction`, {
       method: "POST",
       body: JSON.stringify(data),

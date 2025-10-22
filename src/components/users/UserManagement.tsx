@@ -11,7 +11,8 @@ import {
   Mail,
   Phone,
   Calendar,
-  MoreVertical
+  MoreVertical,
+  Users as UsersIcon
 } from 'lucide-react';
 import { type User } from '@/api/users';
 import {
@@ -199,7 +200,7 @@ export function UserManagement({
 
         {users.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <UsersIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No users found</p>
             <p className="text-sm">Try adjusting your search or filters</p>
           </div>

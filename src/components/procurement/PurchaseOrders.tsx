@@ -22,15 +22,15 @@ import {
   Calendar
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { ApprovalOverlay } from '@/components/ApprovalOverlay';
+import { useWorkflow } from '@/hooks/useWorkflow';
+import { WorkflowOverlay } from '@/components/WorkflowOverlay';
 
 export function PurchaseOrders() {
-  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
-  const [showApprovalOverlay, setShowApprovalOverlay] = useState(false);
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [workflowInstance, setWorkflowInstance] = useState(null);
 
   const { data: purchaseOrders, isLoading } = useQuery({
     queryKey: ['purchase-orders'],
@@ -45,7 +45,7 @@ export function PurchaseOrders() {
         title: "Order Updated",
         description: "Purchase order action completed successfully",
       });
-      setShowApprovalOverlay(false);
+      setIsOverlayOpen(false);
       setSelectedOrder(null);
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
     },
@@ -58,20 +58,9 @@ export function PurchaseOrders() {
     },
   });
 
-  const handleApproveAction = (order: PurchaseOrder) => {
+  const handleReviewOrder = (order: PurchaseOrder) => {
     setSelectedOrder(order);
-    setShowApprovalOverlay(true);
-  };
-
-  const handleApprovalSubmit = (action: 'approve' | 'reject', notes?: string) => {
-    if (!selectedOrder || !user) return;
-
-    const data = {
-      approved: action === 'approve',
-      notes: notes || '',
-    };
-
-    approveOrderMutation.mutate({ orderId: selectedOrder.id, data });
+    setIsOverlayOpen(true);
   };
 
   const getStatusBadge = (status: PurchaseOrder['status']) => {
@@ -179,7 +168,7 @@ export function PurchaseOrders() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleApproveAction(order)}
+                            onClick={() => handleReviewOrder(order)}
                           >
                             {order.status === 'submitted' ? 'Review' : 'Edit'}
                           </Button>
@@ -205,18 +194,21 @@ export function PurchaseOrders() {
         </CardContent>
       </Card>
 
-      {/* Approval Overlay */}
-      {showApprovalOverlay && selectedOrder && (
-        <ApprovalOverlay
-          title="Review Purchase Order"
-          item={selectedOrder}
+      {/* Workflow Overlay */}
+      {selectedOrder && workflowInstance && (
+        <WorkflowOverlay
+          isOpen={isOverlayOpen}
           onClose={() => {
-            setShowApprovalOverlay(false);
+            setIsOverlayOpen(false);
             setSelectedOrder(null);
+            setWorkflowInstance(null);
           }}
-          onSubmit={handleApprovalSubmit}
-          isLoading={approveOrderMutation.isPending}
-          type="purchase-order"
+          workflow={workflowInstance}
+          module="procurement"
+          item={selectedOrder}
+          onActionComplete={() => {
+            queryClient.invalidateQueries({ queryKey: ['purchase-orders'] });
+          }}
         />
       )}
     </div>
