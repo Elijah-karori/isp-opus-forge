@@ -28,6 +28,9 @@ import Register from "./pages/Register";
 import Leaves from "./pages/Leaves";
 import Complaints from "./pages/Complaints";
 import Technicians from "./pages/Technicians";
+import Employees from "./pages/Employees";
+import HRReports from "./pages/HRReports";
+import FinanceReports from "./pages/FinanceReports";
 
 const App = () => (
   <AuthProvider>
@@ -165,13 +168,37 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/technicians" 
+              <Route
+                path="/technicians"
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'operations']}>
                     <Technicians />
                   </ProtectedRoute>
-                } 
+                }
+              />
+              <Route
+                path="/hr/employees"
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <Employees />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr/reports"
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'finance']}>
+                    <HRReports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/finance/reports"
+                element={
+                  <ProtectedRoute roles={['admin', 'finance']}>
+                    <FinanceReports />
+                  </ProtectedRoute>
+                }
               />
             </Route>
             <Route path="*" element={<NotFound />} />
