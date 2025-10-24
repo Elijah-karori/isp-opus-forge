@@ -115,6 +115,13 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+  
+  async createProjectFromLead(leadId: number, data: any) {
+    return this.request(`/api/v1/projects/`, {
+        method: 'POST',
+        body: JSON.stringify({ ...data, lead_id: leadId }),
+    });
+  }
 
   async getTasks(params?: {
     skip?: number;
@@ -261,9 +268,8 @@ class ApiClient {
   // -------------------------------------------------------------------
   // FINANCE
   // -------------------------------------------------------------------
-  async getPendingVariances(params?: { limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/finance/variances/pending?${query}`);
+  async getPendingVariances(limit = 50) {
+    return this.request(`/api/v1/finance/variances/pending?limit=${limit}`);
   }
 
   async getVarianceHistory(params?: {
@@ -294,6 +300,10 @@ class ApiClient {
 
   async getProjectFinancials(projectId: number) {
     return this.request(`/api/v1/finance/projects/${projectId}/financials`);
+  }
+  
+  async markPayoutAsPaid(payoutId: number) {
+    return this.request(`/api/v1/hr/payouts/${payoutId}/mark-paid`, { method: 'POST' });
   }
 
   async getProjectsFinancialSummary(params?: {
@@ -508,16 +518,16 @@ class ApiClient {
     const query = new URLSearchParams(params as any).toString();
     return this.request(`/api/v1/marketing/leads?${query}`);
   }
-
-  async approveCampaign(campaignId: number, data: { approved: boolean; notes?: string }) {
-    return this.request(`/api/v1/marketing/campaigns/${campaignId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
+  
+  async createLead(data: any) {
+    return this.request(`/api/v1/marketing/leads`, {
+        method: 'POST',
+        body: JSON.stringify(data),
     });
   }
 
-  async recordCustomerSatisfaction(data: { rating: number; feedback?: string; customerId: number; }) {
-    return this.request(`/api/v1/marketing/customers/${customerId}/satisfaction`, {
+  async approveCampaign(campaignId: number, data: { approved: boolean; notes?: string }) {
+    return this.request(`/api/v1/marketing/campaigns/${campaignId}/approve`, {
       method: "POST",
       body: JSON.stringify(data),
     });

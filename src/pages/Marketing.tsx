@@ -1,72 +1,41 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getCampaigns } from "@/api/marketing";
-import { WorkflowActionPanel } from "@/components/WorkflowActionPanel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Megaphone } from "lucide-react";
+import { NavLink, Outlet } from 'react-router-dom';
+import { Megaphone, Users, BarChart3, FolderKanban } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export default function Marketing() {
-  const { data: campaigns = [], isLoading } = useQuery({
-    queryKey: ["campaigns"],
-    queryFn: getCampaigns,
-  });
+const navItems = [
+    { name: 'Campaigns', href: '/marketing/campaigns', icon: Megaphone },
+    { name: 'Leads', href: '/marketing/leads', icon: Users },
+    { name: 'Analytics', href: '/marketing/analytics', icon: BarChart3 },
+    { name: 'Projects', href: '/projects', icon: FolderKanban },
+];
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-6">
-        <p>Loading campaigns...</p>
-      </div>
-    );
-  }
-
+const MarketingPage = () => {
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Megaphone className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">Marketing Campaigns</h1>
-      </div>
-
-      <div className="grid gap-4">
-        {campaigns.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground text-center">No campaigns found</p>
-            </CardContent>
-          </Card>
-        ) : (
-          campaigns.map((campaign: any) => (
-            <Card key={campaign.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>{campaign.name}</CardTitle>
-                    <CardDescription>{campaign.description}</CardDescription>
-                  </div>
-                  <Badge variant={campaign.status === "active" ? "default" : "secondary"}>
-                    {campaign.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">Budget:</span> ${campaign.budget}
-                  </div>
-                  <div>
-                    <span className="font-medium">Conversions:</span>{" "}
-                    {campaign.actual_conversions} / {campaign.target_leads}
-                  </div>
-                </div>
-
-                {campaign.workflow_instance_id && (
-                  <WorkflowActionPanel instanceId={campaign.workflow_instance_id} />
-                )}
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+    <div className="grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] gap-6">
+      <aside className="hidden md:flex flex-col gap-2">
+        <h2 className="text-lg font-semibold tracking-tight px-2">Marketing Menu</h2>
+        <nav className="flex flex-col gap-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              end={item.href === '/marketing'}
+              className={({ isActive }) => cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                isActive && 'bg-muted text-primary font-semibold'
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
-}
+};
+
+export default MarketingPage;

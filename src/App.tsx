@@ -11,8 +11,13 @@ import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
-import Finance from "./pages/Finance";
-import {HRPage, HRDashboard} from "./pages/HR";
+import FinancePage from "./pages/Finance";
+import FinanceDashboard from "./pages/finance/FinanceDashboard";
+import ProjectFinancials from "./pages/finance/ProjectFinancials";
+import BOMVariances from "./pages/finance/BOMVariances";
+import FinancePayouts from "./pages/finance/FinancePayouts";
+import FinanceReports from "./pages/FinanceReports";
+import { HRPage, HRDashboard } from "./pages/HR";
 import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
 import { EmployeeList } from "./components/hr/EmployeeList";
 import { AttendanceLogs } from "./components/hr/AttendanceLogs";
@@ -27,14 +32,16 @@ import FinanceWorkflows from "@/pages/workflows/FinanceWorkflows";
 import HRWorkflows from "@/pages/workflows/HRWorkflows";
 import ProcurementWorkflows from "@/pages/workflows/ProcurementWorkflows";
 import Procurement from "@/pages/Procurement";
-import Marketing from "@/pages/Marketing";
+import MarketingPage from "@/pages/Marketing";
+import Campaigns from "@/pages/marketing/Campaigns";
+import Leads from "@/pages/marketing/Leads";
+import Analytics from "@/pages/marketing/Analytics";
 import Users from "@/pages/Users";
 import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import TechnicianTools from "./pages/TechnicianTools";
-import FinanceReports from "./pages/FinanceReports";
 
 const App = () => (
   <AuthProvider>
@@ -83,11 +90,24 @@ const App = () => (
                 } 
               />
               <Route path="/procurement" element={<Procurement />} />
-              <Route path="/marketing" element={<Marketing />} />
+              
+              <Route 
+                path="/marketing" 
+                element={
+                  <ProtectedRoute roles={['admin', 'marketing']}>
+                    <MarketingPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="campaigns" element={<Campaigns />} />
+                <Route path="leads" element={<Leads />} />
+                <Route path="analytics" element={<Analytics />} />
+              </Route>
+
               <Route 
                 path="/projects" 
                 element={
-                  <ProtectedRoute roles={['admin', 'finance', 'procurement', 'technician']}>
+                  <ProtectedRoute roles={['admin', 'finance', 'procurement', 'technician', 'marketing']}>
                     <Projects />
                   </ProtectedRoute>
                 } 
@@ -116,14 +136,22 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              
               <Route 
                 path="/finance" 
                 element={
                   <ProtectedRoute roles={['admin', 'finance']}>
-                    <Finance />
+                    <FinancePage />
                   </ProtectedRoute>
-                } 
-              />
+                }
+              >
+                <Route index element={<FinanceDashboard />} />
+                <Route path="projects/:id" element={<ProjectFinancials />} />
+                <Route path="variances" element={<BOMVariances />} />
+                <Route path="payouts" element={<FinancePayouts />} />
+                <Route path="reports" element={<FinanceReports />} />
+              </Route>
+
               <Route 
                 path="/hr" 
                 element={
@@ -184,14 +212,6 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'technician']}>
                     <TechnicianTools />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/finance/reports"
-                element={
-                  <ProtectedRoute roles={['admin', 'finance']}>
-                    <FinanceReports />
                   </ProtectedRoute>
                 }
               />
