@@ -1,6 +1,23 @@
 import { apiClient } from '@/lib/api';
 
 // Based on OpenAPI spec
+
+export enum EngagementType {
+  FullTime = "FULL_TIME",
+  Contract = "CONTRACT",
+  TaskBased = "TASK_BASED",
+  ServiceBased = "SERVICE_BASED",
+  Hybrid = "HYBRID",
+}
+
+export enum PaymentStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Paid = 'paid',
+  Rejected = 'rejected',
+  Disputed = 'disputed',
+}
+
 export interface Employee {
   id: number;
   user_id: number;
@@ -62,6 +79,53 @@ export interface ComplaintCreate {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
+export interface RateCard {
+  id: number;
+  employee_id: number;
+  engagement_type: EngagementType;
+  base_rate: string;
+  rate_unit: string;
+  skill_multiplier?: string;
+  certification_bonus?: string;
+  overtime_rate?: string;
+  tax_rate?: string;
+  insurance_deduction?: string;
+  valid_from: string;
+  valid_to?: string;
+  is_active: boolean;
+  notes?: string;
+}
+
+export interface RateCardCreate {
+  employee_id: number;
+  engagement_type: EngagementType;
+  base_rate: number | string;
+  rate_unit: string;
+  skill_multiplier?: number | string;
+  certification_bonus?: number | string;
+  overtime_rate?: number | string;
+  tax_rate?: number | string;
+  insurance_deduction?: number | string;
+  valid_from: string;
+  valid_to?: string;
+  is_active?: boolean;
+  notes?: string;
+}
+
+export interface Payout {
+  id: number;
+  employee_id: number;
+  gross_amount: string;
+  net_amount: string;
+  status: PaymentStatus;
+  period_start: string;
+  period_end: string;
+  approved_by?: number;
+  payment_method?: string;
+  payment_reference?: string;
+  paid_at?: string;
+}
+
 export interface PayrollSummary {
   period_start: string;
   period_end: string;
@@ -103,6 +167,12 @@ export const updateEmployee = (employeeId: number, data: Partial<Employee>) =>
 export const deleteEmployee = (employeeId: number) =>
   apiClient.delete(`/api/v1/hr/employees/${employeeId}`);
 
+// Rate Card Management
+export const getRateCards = (employeeId: number) => 
+  apiClient.get(`/api/v1/hr/rate-cards/${employeeId}`);
+
+export const createRateCard = (data: RateCardCreate) =>
+  apiClient.post('/api/v1/hr/rate-cards', data);
 
 // Attendance management
 export const getAttendance = (params?: { employee_id?: number; date?: string; start_date?: string; end_date?: string; }) =>
@@ -113,6 +183,22 @@ export const recordAttendance = (data: AttendanceRecordCreate) =>
 
 export const getEmployeeAttendance = (employeeId: number, params: { start_date: string; end_date: string; }) =>
   apiClient.get(`/api/v1/hr/attendance/${employeeId}`, { params });
+
+// Payroll Management
+export const calculatePayout = (data: { employee_id: number; period_start: string; period_end: string; }) =>
+  apiClient.post('/api/v1/hr/payouts/calculate', data);
+
+export const getPendingPayouts = (limit: number = 50) =>
+  apiClient.get('/api/v1/hr/payouts/pending', { params: { limit } });
+
+export const getEmployeePayouts = (employeeId: number, limit: number = 10) =>
+  apiClient.get(`/api/v1/hr/payouts/employee/${employeeId}`, { params: { limit } });
+
+export const approvePayout = (payoutId: number, data: { approved: boolean; notes?: string }) =>
+  apiClient.post(`/api/v1/hr/payouts/${payoutId}/approve`, data);
+
+export const markPayoutPaid = (payoutId: number, payment_method: string, payment_reference: string) =>
+  apiClient.post(`/api/v1/hr/payouts/${payoutId}/mark-paid?payment_method=${payment_method}&payment_reference=${payment_reference}`);
 
 
 // Complaint management
