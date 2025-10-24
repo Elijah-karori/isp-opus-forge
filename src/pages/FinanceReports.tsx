@@ -66,7 +66,7 @@ const FinanceReports = () => {
     new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
   );
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedProject, setSelectedProject] = useState<string>('');
+  const [selectedProject, setSelectedProject] = useState<string>('all');
   const [groupBy, setGroupBy] = useState<'day' | 'week' | 'month'>('month');
 
   const { data: financialSummary, isLoading: summaryLoading } = useQuery({
@@ -87,7 +87,7 @@ const FinanceReports = () => {
 
   const { data: budgetVsActual, isLoading: budgetLoading } = useQuery({
     queryKey: ['budget-vs-actual', selectedProject],
-    queryFn: () => getBudgetVsActualReport(selectedProject ? parseInt(selectedProject) : undefined),
+    queryFn: () => getBudgetVsActualReport(selectedProject !== 'all' ? parseInt(selectedProject) : undefined),
     enabled: selectedTab === 'budget',
   });
 
@@ -97,7 +97,7 @@ const FinanceReports = () => {
       getVarianceHistory({
         start_date: startDate,
         end_date: endDate,
-        project_id: selectedProject ? parseInt(selectedProject) : undefined,
+        project_id: selectedProject !== 'all' ? parseInt(selectedProject) : undefined,
         limit: 50,
       }),
     enabled: selectedTab === 'variances',
@@ -485,7 +485,7 @@ const FinanceReports = () => {
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Projects</SelectItem>
+                <SelectItem value="all">All Projects</SelectItem>
                 {projectList.map((project: any) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}
@@ -588,7 +588,7 @@ const FinanceReports = () => {
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Projects</SelectItem>
+                <SelectItem value="all">All Projects</SelectItem>
                 {projectList.map((project: any) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.name}
