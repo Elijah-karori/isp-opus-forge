@@ -42,6 +42,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper to fix menu paths
+const correctMenuPaths = (menuItems: MenuItem[]): MenuItem[] => {
+  return menuItems.map(item => {
+    if (item.path === '/hr/employees') {
+      return { ...item, path: '/hr' };
+    }
+    return item;
+  });
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,27 +61,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('auth_token');
       if (token) {
         try {
-          // Decode JWT to get roles
           const decoded = jwtDecode<JWTPayload>(token);
-          
-          // Check if token is expired
           if (decoded.exp * 1000 < Date.now()) {
             apiClient.clearToken();
             setUser(null);
           } else {
-            // Fetch current user profile with roles
             try {
               const profile: any = await apiClient.getCurrentUser();
+              const menuItems = profile.menus || profile.menu_items || [];
               setUser({
-                id: profile.id,
-                email: profile.email,
-                full_name: profile.full_name,
-                role: profile.role,
+                ...profile,
                 roles: decoded.roles || [profile.role],
-                menu_items: profile.menus || profile.menu_items || []
+                menu_items: correctMenuPaths(menuItems)
               });
             } catch (error) {
-              // If /auth/me fails, use decoded token data as fallback
               setUser({
                 id: parseInt(decoded.sub),
                 email: '',
@@ -96,23 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     const response = await apiClient.login({ username, password });
     const token = response.access_token;
-    
-    // Decode JWT to get roles
     const decoded = jwtDecode<JWTPayload>(token);
     
-    // Fetch user profile
     try {
       const profile: any = await apiClient.getCurrentUser();
+      const menuItems = profile.menus || profile.menu_items || [];
       setUser({
-        id: profile.id,
-        email: profile.email,
-        full_name: profile.full_name,
-        role: profile.role,
+        ...profile,
         roles: decoded.roles || [profile.role],
-        menu_items: profile.menus || profile.menu_items || []
+        menu_items: correctMenuPaths(menuItems)
       });
     } catch (error) {
-      // Fallback to decoded token data
       setUser({
         id: parseInt(decoded.sub),
         email: username,
