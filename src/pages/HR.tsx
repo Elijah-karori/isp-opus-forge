@@ -1,79 +1,43 @@
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { NavLink, Outlet } from 'react-router-dom';
 import { Users, Calendar, DollarSign, Flag, BarChart2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Import HR-related components
-import { EmployeeList } from '@/components/hr/EmployeeList';
-import { AttendanceLogs } from '@/components/hr/AttendanceLogs';
-import { PayoutsManager } from '@/components/hr/PayoutsManager';
-import { ComplaintsManager } from '@/components/hr/ComplaintsManager';
-import { HRReports } from '@/components/hr/HRReports';
+const navItems = [
+  { name: 'Employees', href: '/hr', icon: Users, exact: true },
+  { name: 'Attendance', href: '/hr/attendance', icon: Calendar },
+  { name: 'Payouts', href: '/hr/payouts', icon: DollarSign },
+  { name: 'Complaints', href: '/hr/complaints', icon: Flag },
+  { name: 'Reports', href: '/hr/reports', icon: BarChart2 },
+];
 
 const HRPage = () => {
-  const [activeTab, setActiveTab] = useState('employees');
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Human Resources</h1>
-          <p className="text-muted-foreground">
-            Manage employees, attendance, payroll, and performance.
-          </p>
-        </div>
-      </div>
+    <div className="grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] gap-6">
+      {/* Sidebar Navigation */}
+      <aside className="hidden md:flex flex-col gap-2">
+        <h2 className="text-lg font-semibold tracking-tight px-2">HR Menu</h2>
+        <nav className="flex flex-col gap-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              end={item.exact}
+              className={({ isActive }) => cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                isActive && 'bg-muted text-primary font-semibold'
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-          <TabsTrigger value="employees" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Employees
-          </TabsTrigger>
-          <TabsTrigger value="attendance" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Attendance
-          </TabsTrigger>
-          <TabsTrigger value="payouts" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Payouts
-          </TabsTrigger>
-          <TabsTrigger value="complaints" className="flex items-center gap-2">
-            <Flag className="h-4 w-4" />
-            Complaints
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <BarChart2 className="h-4 w-4" />
-            Reports
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Employees Tab */}
-        <TabsContent value="employees" className="space-y-6">
-          <EmployeeList />
-        </TabsContent>
-
-        {/* Attendance Tab */}
-        <TabsContent value="attendance" className="space-y-6">
-          <AttendanceLogs />
-        </TabsContent>
-
-        {/* Payouts Tab */}
-        <TabsContent value="payouts" className="space-y-6">
-          <PayoutsManager />
-        </TabsContent>
-
-        {/* Complaints Tab */}
-        <TabsContent value="complaints" className="space-y-6">
-          <ComplaintsManager />
-        </TabsContent>
-
-        {/* Reports Tab */}
-        <TabsContent value="reports" className="space-y-6">
-          <HRReports />
-        </TabsContent>
-      </Tabs>
+      {/* Main Content */}
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
 };

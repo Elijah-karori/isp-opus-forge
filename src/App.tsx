@@ -14,7 +14,11 @@ import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
 import HRPage from "./pages/HR";
 import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
-import Attendance from "./pages/Attendance";
+import { EmployeeList } from "./components/hr/EmployeeList";
+import { AttendanceLogs } from "./components/hr/AttendanceLogs";
+import { PayoutsManager } from "./components/hr/PayoutsManager";
+import { ComplaintsManager } from "./components/hr/ComplaintsManager";
+import { HRReports } from "./components/hr/HRReports";
 import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
@@ -29,10 +33,7 @@ import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
-import Leaves from "./pages/Leaves";
-import Complaints from "./pages/Complaints";
-import Technicians from "./pages/Technicians";
-import CreateTechnician from "./pages/Technicians/Create";
+import TechnicianTools from "./pages/TechnicianTools";
 import FinanceReports from "./pages/FinanceReports";
 
 const App = () => (
@@ -130,28 +131,18 @@ const App = () => (
                     <HRPage />
                   </ProtectedRoute>
                 } 
-              />
+              >
+                <Route index element={<EmployeeList />} />
+                <Route path="attendance" element={<AttendanceLogs />} />
+                <Route path="payouts" element={<PayoutsManager />} />
+                <Route path="complaints" element={<ComplaintsManager />} />
+                <Route path="reports" element={<HRReports />} />
+              </Route>
               <Route 
                 path="/hr/employees/:id" 
                 element={
                   <ProtectedRoute roles={['admin', 'hr']}>
                     <EmployeeProfile />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/technician/attendance" 
-                element={
-                  <ProtectedRoute>
-                    <Attendance />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/technician/reports" 
-                element={
-                  <ProtectedRoute>
-                    <Attendance />
                   </ProtectedRoute>
                 } 
               />
@@ -187,35 +178,11 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/hr/leaves" 
-                element={
-                  <ProtectedRoute roles={['admin', 'hr']}>
-                    <Leaves />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/hr/complaints" 
-                element={
-                  <ProtectedRoute roles={['admin', 'hr']}>
-                    <Complaints />
-                  </ProtectedRoute>
-                } 
-              />
               <Route
-                path="/technicians"
+                path="/technician-tools"
                 element={
-                  <ProtectedRoute roles={['admin', 'hr', 'operations']}>
-                    <Technicians />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/technicians/create"
-                element={
-                  <ProtectedRoute roles={['admin', 'hr', 'operations']}>
-                    <CreateTechnician />
+                  <ProtectedRoute roles={['admin', 'technician']}>
+                    <TechnicianTools />
                   </ProtectedRoute>
                 }
               />
