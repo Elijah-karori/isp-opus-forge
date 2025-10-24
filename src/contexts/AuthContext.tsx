@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { apiClient } from '@/lib/api';
 
@@ -40,7 +40,7 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const legacyPathCorrections: Record<string, string> = {
   '/hr/employees': '/hr',
@@ -53,16 +53,13 @@ const legacyPathCorrections: Record<string, string> = {
   '/technician/reports': '/technician-tools',
 };
 
-// Helper to fix menu paths
 const correctMenuPaths = (menuItems: MenuItem[]): MenuItem[] => {
   const correctedItems: MenuItem[] = [];
   const seenPaths = new Set<string>();
 
   menuItems.forEach(item => {
-    // Correct the path if it is a known legacy path
     const correctedPath = legacyPathCorrections[item.path] || item.path;
 
-    // Only add the item if its corrected path hasn't been seen before
     if (!seenPaths.has(correctedPath)) {
       correctedItems.push({ ...item, path: correctedPath });
       seenPaths.add(correctedPath);
@@ -71,7 +68,6 @@ const correctMenuPaths = (menuItems: MenuItem[]): MenuItem[] => {
 
   return correctedItems;
 };
-
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -151,12 +147,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
