@@ -26,7 +26,7 @@ import {
   Megaphone
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { performWorkflowAction, type WorkflowInstance } from '@/api/workflow';
 import { VarianceApprovalPanel } from '@/components/finance/VarianceApprovalPanel';
 
