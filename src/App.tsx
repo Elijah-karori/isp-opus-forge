@@ -18,6 +18,9 @@ import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import Workflows from "@/pages/Workflows";
+import FinanceWorkflows from "@/pages/workflows/FinanceWorkflows";
+import HRWorkflows from "@/pages/workflows/HRWorkflows";
+import ProcurementWorkflows from "@/pages/workflows/ProcurementWorkflows";
 import Procurement from "@/pages/Procurement";
 import Marketing from "@/pages/Marketing";
 import Users from "@/pages/Users";
@@ -54,6 +57,30 @@ const App = () => (
                 } 
               />
               <Route path="/workflows" element={<Workflows />} />
+              <Route 
+                path="/workflows/finance" 
+                element={
+                  <ProtectedRoute roles={['admin', 'finance']}>
+                    <FinanceWorkflows />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/workflows/hr" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <HRWorkflows />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/workflows/procurement" 
+                element={
+                  <ProtectedRoute roles={['admin', 'operations', 'procurement']}>
+                    <ProcurementWorkflows />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/procurement" element={<Procurement />} />
               <Route path="/marketing" element={<Marketing />} />
               <Route 

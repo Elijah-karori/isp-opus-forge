@@ -28,6 +28,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { performWorkflowAction, type WorkflowInstance } from '@/api/workflow';
+import { VarianceApprovalPanel } from '@/components/finance/VarianceApprovalPanel';
 
 interface WorkflowOverlayProps {
   isOpen: boolean;
@@ -180,14 +181,25 @@ export function WorkflowOverlay({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Item Details */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {renderItemDetails(module, workflow.item_data || item)}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Item Details - Use specific components when available */}
+          {module === 'finance' && (workflow.item_data || item) ? (
+            <VarianceApprovalPanel
+              variance={workflow.item_data || item}
+              onApprove={(approved, notes) => {
+                setComment(notes || '');
+                actionMutation.mutate(approved ? 'approve' : 'reject');
+              }}
+              isLoading={actionMutation.isPending}
+            />
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  {renderItemDetails(module, workflow.item_data || item)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Approval Progress */}
           <Card>
@@ -286,8 +298,8 @@ export function WorkflowOverlay({
             </CardContent>
           </Card>
 
-          {/* Action Section */}
-          {workflow.status === 'pending' && (
+          {/* Action Section - Only show if not using specific component */}
+          {workflow.status === 'pending' && module !== 'finance' && (
             <Card>
               <CardContent className="pt-6">
                 <h3 className="font-semibold mb-4">Your Action</h3>
