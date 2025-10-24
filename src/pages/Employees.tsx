@@ -271,12 +271,12 @@ const Employees = () => {
                 className="pl-9"
               />
             </div>
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <Select value={departmentFilter} onValueChange={(value) => setDepartmentFilter(value === 'all' ? '' : value)}>
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="All Departments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
+                <SelectItem value="all">All Departments</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept} value={dept}>
                     {dept}
@@ -284,12 +284,12 @@ const Employees = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)}>
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 {statuses.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status.replace('_', ' ').toUpperCase()}
@@ -401,7 +401,7 @@ const Employees = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {userList.map((user: any) => (
-                    <SelectItem key={user.id} value={user.id}>
+                    <SelectItem key={user.id} value={user.id.toString()}>
                       {user.full_name} ({user.email})
                     </SelectItem>
                   ))}
