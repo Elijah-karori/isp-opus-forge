@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
+import { getPendingPayouts, markPayoutPaid } from '@/api/hr';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -10,11 +10,11 @@ const FinancePayouts = () => {
 
   const { data: payouts, isLoading } = useQuery({
     queryKey: ['pending-payouts'],
-    queryFn: () => apiClient.getPendingPayouts(),
+    queryFn: () => getPendingPayouts(),
   });
 
   const markPaidMutation = useMutation({
-    mutationFn: (payoutId: number) => apiClient.markPayoutAsPaid(payoutId),
+    mutationFn: (payoutId: number) => markPayoutPaid(payoutId, 'electronic', 'tx12345'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-payouts'] });
     },
@@ -43,7 +43,7 @@ const FinancePayouts = () => {
               {isLoading ? (
                 <TableRow><TableCell colSpan={5}>Loading payouts...</TableCell></TableRow>
               ) : (
-                payouts?.map((payout: any) => (
+                payouts?.data?.map((payout: any) => (
                   <TableRow key={payout.id}>
                     <TableCell>{payout.id}</TableCell>
                     <TableCell>{payout.recipient_name}</TableCell>
