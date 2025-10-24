@@ -61,25 +61,24 @@ export function AttendanceTracker() {
     return variants[status];
   };
 
-  const handleCheckIn = (technicianId: number) => {
+  const handleCheckIn = (employeeId: number) => {
     const now = new Date().toISOString();
     recordAttendanceMutation.mutate({
-      technician_id: technicianId,
+      employee_id: employeeId,
       date: selectedDate,
       check_in: now,
       status: 'present',
-      check_in_location: 'Field Office', // This would come from GPS in real app
+      check_in_location: 'Field Office', // This would come from GPS in a real app
     });
   };
 
-  const handleCheckOut = (recordId: number) => {
+  const handleCheckOut = (record: AttendanceRecord) => {
     const now = new Date().toISOString();
     recordAttendanceMutation.mutate({
-      technician_id: 0, // This would be the actual technician ID
-      date: selectedDate,
+      ...record,
       check_out: now,
-      status: 'present',
-      check_out_location: 'Field Office',
+      status: 'present', // Or determine status based on hours worked
+      check_out_location: 'Field Office', // This would come from GPS in a real app
     });
   };
 
@@ -170,8 +169,8 @@ export function AttendanceTracker() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {record.hours_worked > 0 ? (
-                          <span className="font-medium">{record.hours_worked}h</span>
+                        {record.hours_worked && record.hours_worked > 0 ? (
+                          <span className="font-medium">{record.hours_worked.toFixed(2)}h</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
@@ -195,7 +194,7 @@ export function AttendanceTracker() {
                           {!record.check_in && (
                             <Button
                               size="sm"
-                              onClick={() => handleCheckIn(record.technician?.id || 0)}
+                              onClick={() => handleCheckIn(record.employee_id)}
                               disabled={recordAttendanceMutation.isPending}
                             >
                               Check In
@@ -205,7 +204,7 @@ export function AttendanceTracker() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleCheckOut(record.id)}
+                              onClick={() => handleCheckOut(record)}
                               disabled={recordAttendanceMutation.isPending}
                             >
                               Check Out

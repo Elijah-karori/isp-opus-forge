@@ -1,77 +1,78 @@
-// src/api/technicians.ts
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+// TypeScript interfaces based on the blueprint
+export interface TechnicianKPI {
+  technician_id: number;
+  tasks_assigned: number;
+  tasks_completed: number;
+  on_time_rate: number;
+  csat_score: number;
+  total_score: number;
+  altitude_level: number;
+  description: string;
+}
+
+export interface CustomerSatisfaction {
+  id: number;
+  task_id: number;
+  technician_id: number;
+  rating: number;
+  feedback?: string;
+  created_at: string;
+}
 
 export interface Technician {
   id: number;
-  user_id: number;
   full_name: string;
-  email: string;
-  phone?: string;
-  specialization?: string;
-  certifications?: string[];
-  certification_level?: string;
-  designation?: string;
-  employee_code?: string;
-  rating?: number;
-  total_tasks: number;
-  completed_tasks: number;
-  active_tasks: number;
+  employee_code: string;
   is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-}
-
-export interface TechnicianCreate {
-  user_id: number;
-  specialization?: string;
-  certifications?: string[];
-  certification_level?: string;
   designation?: string;
+  specialization?: string;
+  certification_level?: string;
+  certifications?: string[];
 }
 
-export interface TechnicianPerformance {
-  technician_id: number;
-  period_start: string;
-  period_end: string;
-  tasks_completed: number;
-  tasks_assigned: number;
-  avg_completion_time: number;
-  customer_satisfaction: number;
-  on_time_completion_rate: number;
-  revenue_generated: number;
-}
+// API hooks based on the blueprint
 
+/**
+ * Fetch detailed performance KPIs for a technician.
+ * @param technicianId The ID of the technician.
+ * @param params Optional date range.
+ */
+export const getTechnicianPerformance = (technicianId: number, params?: { period_start?: string; period_end?: string }) => 
+  apiClient.get<TechnicianKPI>(`/api/v1/technicians/${technicianId}/performance`, { params });
+
+/**
+ * Fetch all customer reviews for a specific technician.
+ * @param technicianId The ID of the technician.
+ */
+export const getCustomerSatisfactionReviews = (technicianId: number) => 
+  apiClient.get<CustomerSatisfaction[]>(`/api/v1/technicians/satisfaction?technician_id=${technicianId}`);
+
+/**
+ * Record customer satisfaction feedback for a task.
+ * @param data The satisfaction data.
+ */
+export const recordCustomerSatisfaction = (data: { task_id: number; rating: number; feedback?: string }) => 
+  apiClient.post('/api/v1/technicians/satisfaction', data);
+
+/**
+ * Fetch the technician leaderboard.
+ * @param params Optional query parameters like limit.
+ */
+export const getTechnicianLeaderboard = (params?: { limit?: number }) => 
+  apiClient.get('/api/v1/technicians/leaderboard', { params });
+
+/**
+ * Get a list of technicians.
+ * @param params Optional parameters like active_only.
+ */
 export const getTechnicians = (params?: { active_only?: boolean }) =>
-  axios.get("/technicians", { params });
+  apiClient.get('/api/v1/technicians', { params });
 
-export const getTechnician = (technicianId: number) =>
-  axios.get(`/technicians/${technicianId}`);
-  
-export const createTechnician = (data: TechnicianCreate) =>
-  axios.post("/technicians", data);
-
-export const getTechnicianLeaderboard = (params?: { limit?: number }) => {
-  return axios.get("/technicians/leaderboard", { params });
-};
-
-export const getTechnicianPerformance = (
-  technicianId: number,
-  params?: { period_start?: string; period_end?: string }
-) => {
-  return axios.get(`/technicians/${technicianId}/performance`, { params });
-};
-
-export const approveTaskCompletion = (
-  taskId: number,
-  data: { approved: boolean; notes?: string }
-) => {
-  return axios.post(`/technicians/tasks/${taskId}/approve`, data);
-};
-
-export const recordTechnicianSatisfaction = (data: {
-  task_id: number;
-  rating: number;
-  feedback?: string;
-}) => {
-  return axios.post(`/technicians/satisfaction`, data);
-};
+/**
+ * Get a technician's altitude level and permissions.
+ * @param technicianId The ID of the technician.
+ */
+export const getTechnicianAltitude = (technicianId: number) =>
+  apiClient.get(`/api/v1/technicians/${technicianId}/altitude`);

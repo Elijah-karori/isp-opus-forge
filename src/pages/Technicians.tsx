@@ -1,19 +1,15 @@
 // src/pages/Technicians.tsx
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   getTechnicians, 
   getTechnicianLeaderboard,
-  getCustomerSatisfactionReviews,
   type Technician,
-  type CustomerSatisfaction
 } from '@/api/technicians';
 import { getAttendance, type AttendanceRecord } from '@/api/hr';
-import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -23,24 +19,16 @@ import {
   Calendar,
   Star,
   MapPin,
-  Clock,
   CheckCircle,
-  AlertTriangle,
   UserPlus,
   Download,
-  BarChart3
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { TechnicianPerformance } from '@/components/technicians/TechnicianPerformance';
 import { AttendanceTracker } from '@/components/technicians/AttendanceTracker';
-// import { SatisfactionReviews } from '@/components/technicians/SatisfactionReviews';
 
 const Technicians = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Fetch technicians data
   const { data: technicians, isLoading: techLoading } = useQuery({
     queryKey: ['technicians'],
     queryFn: () => getTechnicians({ active_only: true }),
@@ -48,7 +36,7 @@ const Technicians = () => {
 
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery({
     queryKey: ['technician-leaderboard'],
-    queryFn: () => apiClient.getTechnicianLeaderboard({ limit: 10 }),
+    queryFn: () => getTechnicianLeaderboard({ limit: 10 }),
   });
 
   const { data: recentAttendance, isLoading: attendanceLoading } = useQuery({
@@ -56,12 +44,7 @@ const Technicians = () => {
     queryFn: () => getAttendance({}),
   });
 
-  const { data: satisfactionData, isLoading: satisfactionLoading } = useQuery({
-    queryKey: ['customer-satisfaction'],
-    queryFn: () => getCustomerSatisfactionReviews(),
-  });
-
-  const isLoading = techLoading || leaderboardLoading || attendanceLoading || satisfactionLoading;
+  const isLoading = techLoading || leaderboardLoading || attendanceLoading;
 
   if (isLoading) {
     return (
@@ -74,7 +57,6 @@ const Technicians = () => {
   const technicianList = technicians?.data || [];
   const leaderboardData = Array.isArray(leaderboard) ? leaderboard : [];
   const attendanceList = recentAttendance?.data || [];
-  const satisfactionList = satisfactionData?.data || [];
 
   const activeTechnicians = technicianList.filter((tech: Technician) => tech.is_active);
   const onDutyTechnicians = attendanceList.filter((att: AttendanceRecord) => 
@@ -162,7 +144,7 @@ const Technicians = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Overview
@@ -174,10 +156,6 @@ const Technicians = () => {
           <TabsTrigger value="attendance" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             Attendance
-          </TabsTrigger>
-          <TabsTrigger value="reviews" className="flex items-center gap-2">
-            <Star className="h-4 w-4" />
-            Customer Reviews
           </TabsTrigger>
         </TabsList>
 
@@ -269,49 +247,6 @@ const Technicians = () => {
         {/* Attendance Tab */}
         <TabsContent value="attendance" className="space-y-6">
           <AttendanceTracker />
-        </TabsContent>
-
-        {/* Reviews Tab */}
-        <TabsContent value="reviews" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5" />
-                Customer Satisfaction Reviews
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {satisfactionList.length > 0 ? (
-                  satisfactionList.map((review: CustomerSatisfaction) => (
-                    <div key={review.id} className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`h-4 w-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(review.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {review.feedback && (
-                        <p className="text-sm text-muted-foreground">{review.feedback}</p>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No customer reviews yet</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

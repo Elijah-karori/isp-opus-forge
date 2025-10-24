@@ -15,6 +15,9 @@ interface AuthToken {
 }
 
 class ApiClient {
+  get(arg0: string, arg1: { params: { department?: string; status?: string; skip?: number; limit?: number; }; }) {
+    throw new Error('Method not implemented.');
+  }
   private baseUrl: string;
   private token: string | null = null;
 
@@ -205,7 +208,7 @@ class ApiClient {
   }
 
   // -------------------------------------------------------------------
-  // TECHNICIANS
+  // TECHNICIANS & SATISFACTION
   // -------------------------------------------------------------------
   async getTechnicians(params?: { active_only?: boolean }) {
     const query = new URLSearchParams(params as any).toString();
@@ -243,7 +246,12 @@ class ApiClient {
     });
   }
 
-  async recordTechnicianSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
+  async getCustomerSatisfaction(params?: { technician_id?: number; task_id?: number; limit?: number }) {
+    const query = new URLSearchParams(params as any).toString();
+    return this.request(`/api/v1/technicians/satisfaction?${query}`);
+  }
+
+  async recordCustomerSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
     return this.request(`/api/v1/technicians/satisfaction`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -508,10 +516,7 @@ class ApiClient {
     });
   }
 
-  async recordCustomerSatisfaction(
-    customerId: number,
-    data: { rating: number; feedback?: string }
-  ) {
+  async recordCustomerSatisfaction(data: { rating: number; feedback?: string; customerId: number; }) {
     return this.request(`/api/v1/marketing/customers/${customerId}/satisfaction`, {
       method: "POST",
       body: JSON.stringify(data),
