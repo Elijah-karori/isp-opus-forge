@@ -43,6 +43,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const legacyPathCorrections: Record<string, string> = {
+  '/finance/payments': '/finance/payouts',
   '/hr/employees': '/hr',
   '/hr/payouts': '/hr',
   '/hr/complaints': '/hr',
