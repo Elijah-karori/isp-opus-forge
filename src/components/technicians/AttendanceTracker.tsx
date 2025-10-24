@@ -2,10 +2,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { 
-  getAttendance, 
+  getAttendance,
   recordAttendance,
   type AttendanceRecord 
-} from '@/api/technicians';
+} from '@/api/hr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -28,8 +28,7 @@ export function AttendanceTracker() {
   const { data: attendance, isLoading } = useQuery({
     queryKey: ['attendance', selectedDate],
     queryFn: () => getAttendance({ 
-      start_date: selectedDate, 
-      end_date: selectedDate 
+      date: selectedDate,
     }),
   });
 

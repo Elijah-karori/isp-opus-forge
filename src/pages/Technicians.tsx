@@ -5,12 +5,11 @@ import { Link } from 'react-router-dom';
 import { 
   getTechnicians, 
   getTechnicianLeaderboard,
-  getAttendance,
   getCustomerSatisfactionReviews,
   type Technician,
-  type AttendanceRecord,
   type CustomerSatisfaction
 } from '@/api/technicians';
+import { getAttendance, type AttendanceRecord } from '@/api/hr';
 import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,7 +53,7 @@ const Technicians = () => {
 
   const { data: recentAttendance, isLoading: attendanceLoading } = useQuery({
     queryKey: ['recent-attendance'],
-    queryFn: () => getAttendance(),
+    queryFn: () => getAttendance({}),
   });
 
   const { data: satisfactionData, isLoading: satisfactionLoading } = useQuery({
