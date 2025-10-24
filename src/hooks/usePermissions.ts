@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export const usePermissions = () => {
   const { user } = useAuth();
@@ -39,19 +39,9 @@ export const usePermissions = () => {
     return hasRole('hr');
   };
 
-  const isProcurement = (): boolean => {
-    return hasRole('procurement');
+  const isMarketing = (): boolean => {
+    return hasRole('marketing');
   };
 
-  return {
-    hasRole,
-    hasAnyRole,
-    hasAllRoles,
-    isAdmin,
-    isFinance,
-    isTechnician,
-    isHR,
-    isProcurement,
-    user,
-  };
+  return { user, hasRole, hasAnyRole, hasAllRoles, isAdmin, isFinance, isTechnician, isHR, isMarketing };
 };
