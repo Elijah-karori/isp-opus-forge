@@ -31,6 +31,7 @@ import Register from "./pages/Register";
 import Leaves from "./pages/Leaves";
 import Complaints from "./pages/Complaints";
 import Technicians from "./pages/Technicians";
+import CreateTechnician from "./pages/Technicians/Create";
 import Employees from "./pages/Employees";
 import HRReports from "./pages/HRReports";
 import FinanceReports from "./pages/FinanceReports";
@@ -200,6 +201,14 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'operations']}>
                     <Technicians />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/technicians/create"
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'operations']}>
+                    <CreateTechnician />
                   </ProtectedRoute>
                 }
               />

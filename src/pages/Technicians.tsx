@@ -1,6 +1,7 @@
 // src/pages/Technicians.tsx
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   getTechnicians, 
   getTechnicianLeaderboard,
@@ -96,10 +97,12 @@ const Technicians = () => {
             <Download className="h-4 w-4" />
             Export Reports
           </Button>
-          <Button className="flex items-center gap-2">
-            <UserPlus className="h-4 w-4" />
-            Add Technician
-          </Button>
+          <Link to="/technicians/create">
+            <Button className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              Add Technician
+            </Button>
+          </Link>
         </div>
       </div>
 

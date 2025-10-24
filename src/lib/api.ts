@@ -216,6 +216,13 @@ class ApiClient {
     return this.request(`/api/v1/technicians/${technicianId}`);
   }
 
+  async createTechnician(data: any) {
+    return this.request("/api/v1/technicians", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
   async getTechnicianLeaderboard(params?: { limit?: number }) {
     const query = new URLSearchParams(params as any).toString();
     return this.request(`/api/v1/technicians/leaderboard?${query}`);
