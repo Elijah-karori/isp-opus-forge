@@ -594,18 +594,18 @@ async commentWorkflow(instanceId: number, comment: string) {
   // USERS & PERMISSIONS
   // -------------------------------------------------------------------
   async getUsers() {
-    return this.request("/api/v1/users/users/");
+    return this.request("/api/v1/users/");
   }
 
   async createUser(data: any) {
-    return this.request("/api/v1/users/users/", {
+    return this.request("/api/v1/users/", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async updateUser(userId: number, data: any) {
-    return this.request(`/api/v1/users/users/${userId}`, {
+    return this.request(`/api/v1/users/${userId}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
