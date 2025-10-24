@@ -18,7 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { register } from '@/api/auth';
+import { apiClient } from '@/lib/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -73,7 +73,7 @@ const Register = () => {
 
     try {
       const { confirm_password, ...payload } = formData;
-      await register(payload);
+      await apiClient.createUser(payload);
 
       toast({
         title: "Registration Request Sent",
@@ -83,7 +83,7 @@ const Register = () => {
     } catch (error: any) {
       toast({
         title: "Registration Failed",
-        description: error.response?.data?.detail || error.message || "Failed to submit registration request",
+        description: error.message || "Failed to submit registration request",
         variant: "destructive",
       });
     } finally {
