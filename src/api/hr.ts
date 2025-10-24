@@ -32,6 +32,15 @@ export interface Employee {
   };
 }
 
+export interface EmployeeCreate {
+  user_id: number;
+  employee_code?: string;
+  department: string;
+  designation: string;
+  date_of_joining: string;
+  status?: 'active' | 'inactive' | 'on_leave' | 'terminated';
+}
+
 export interface AttendanceRecord {
   id: number;
   employee_id: number;
@@ -156,20 +165,20 @@ export const getEmployees = (params?: { department?: string; status?: string; sk
   apiClient.get('/api/v1/hr/employees', { params });
 
 export const getEmployee = (employeeId: number) =>
-  apiClient.get(`/api/v1/hr/employees/${employeeId}`);
+  apiClient.get(`/api/v1/hr/employees/${''''''' + employeeId}`);
 
-export const createEmployee = (data: Partial<Employee>) =>
+export const createEmployee = (data: EmployeeCreate) =>
   apiClient.post('/api/v1/hr/employees', data);
 
 export const updateEmployee = (employeeId: number, data: Partial<Employee>) =>
-  apiClient.patch(`/api/v1/hr/employees/${employeeId}`, data);
+  apiClient.patch(`/api/v1/hr/employees/${''''''' + employeeId}`, data);
 
 export const deleteEmployee = (employeeId: number) =>
-  apiClient.delete(`/api/v1/hr/employees/${employeeId}`);
+  apiClient.delete(`/api/v1/hr/employees/${''''''' + employeeId}`);
 
 // Rate Card Management
 export const getRateCards = (employeeId: number) => 
-  apiClient.get(`/api/v1/hr/rate-cards/${employeeId}`);
+  apiClient.get(`/api/v1/hr/rate-cards/${''''''' + employeeId}`);
 
 export const createRateCard = (data: RateCardCreate) =>
   apiClient.post('/api/v1/hr/rate-cards', data);
@@ -182,7 +191,7 @@ export const recordAttendance = (data: AttendanceRecordCreate) =>
   apiClient.post('/api/v1/hr/attendance', data);
 
 export const getEmployeeAttendance = (employeeId: number, params: { start_date: string; end_date: string; }) =>
-  apiClient.get(`/api/v1/hr/attendance/${employeeId}`, { params });
+  apiClient.get(`/api/v1/hr/attendance/${''''''' + employeeId}`, { params });
 
 // Payroll Management
 export const calculatePayout = (data: { employee_id: number; period_start: string; period_end: string; }) =>
@@ -192,13 +201,13 @@ export const getPendingPayouts = (limit: number = 50) =>
   apiClient.get('/api/v1/hr/payouts/pending', { params: { limit } });
 
 export const getEmployeePayouts = (employeeId: number, limit: number = 10) =>
-  apiClient.get(`/api/v1/hr/payouts/employee/${employeeId}`, { params: { limit } });
+  apiClient.get(`/api/v1/hr/payouts/employee/${''''''' + employeeId}`, { params: { limit } });
 
 export const approvePayout = (payoutId: number, data: { approved: boolean; notes?: string }) =>
-  apiClient.post(`/api/v1/hr/payouts/${payoutId}/approve`, data);
+  apiClient.post(`/api/v1/hr/payouts/${''''''' + payoutId}/approve`, data);
 
 export const markPayoutPaid = (payoutId: number, payment_method: string, payment_reference: string) =>
-  apiClient.post(`/api/v1/hr/payouts/${payoutId}/mark-paid?payment_method=${payment_method}&payment_reference=${payment_reference}`);
+  apiClient.post(`/api/v1/hr/payouts/${''''''' + payoutId}/mark-paid?payment_method=${''''''' + payment_method}&payment_reference=${''''''' + payment_reference}`);
 
 
 // Complaint management
@@ -212,19 +221,19 @@ export const getPendingComplaints = (limit: number = 50) =>
   apiClient.get('/api/v1/hr/complaints/pending', { params: { limit } });
 
 export const investigateComplaint = (complaintId: number, data: { is_valid: boolean; investigation_notes: string; resolution?: string; }) =>
-  apiClient.post(`/api/v1/hr/complaints/${complaintId}/investigate`, data);
+  apiClient.post(`/api/v1/hr/complaints/${''''''' + complaintId}/investigate`, data);
 
 // Reports
 export const getPayrollSummary = (params: { period_start: string; period_end: string; }) =>
   apiClient.get('/api/v1/hr/reports/payroll-summary', { params });
 
 export const getEmployeePerformance = (employeeId: number, params: { period_start: string; period_end: string; }) =>
-  apiClient.get(`/api/v1/hr/reports/employee-performance/${employeeId}`, { params });
+  apiClient.get(`/api/v1/hr/reports/employee-performance/${''''''' + employeeId}`, { params });
 
 
 // Export Functions
 export const exportEmployees = (format: 'csv' | 'excel' = 'csv') =>
-  apiClient.get(`/api/v1/hr/employees/export?format=${format}`, { responseType: 'blob' });
+  apiClient.get(`/api/v1/hr/employees/export?format=${''''''' + format}`, { responseType: 'blob' });
 
 export const exportAttendance = (params: { start_date: string; end_date: string; format?: 'csv' | 'excel'; }) =>
   apiClient.get('/api/v1/hr/attendance/export', { params, responseType: 'blob' });
