@@ -128,7 +128,7 @@ export default function Dashboard() {
             <CardDescription>You have {payouts.length} payouts awaiting approval</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/hr">
+            <Link to="/hr/payouts">
               <Button variant="default">
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 Review Payouts
@@ -137,38 +137,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <Link to="/projects">
-            <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start">
-              <div className="font-medium">Manage Projects</div>
-              <div className="text-xs text-muted-foreground">View and create projects</div>
-            </Button>
-          </Link>
-          <Link to="/tasks">
-            <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start">
-              <div className="font-medium">Manage Tasks</div>
-              <div className="text-xs text-muted-foreground">Assign and track work</div>
-            </Button>
-          </Link>
-          <Link to="/inventory">
-            <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start">
-              <div className="font-medium">Check Inventory</div>
-              <div className="text-xs text-muted-foreground">Monitor stock levels</div>
-            </Button>
-          </Link>
-          <Link to="/performance">
-            <Button variant="outline" className="w-full h-auto p-4 flex flex-col items-start">
-              <div className="font-medium">View Performance</div>
-              <div className="text-xs text-muted-foreground">Technician metrics</div>
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 }

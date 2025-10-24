@@ -12,7 +12,7 @@ import Tasks from "./pages/Tasks";
 import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
-import HRPage from "./pages/HR";
+import {HRPage, HRDashboard} from "./pages/HR";
 import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
 import { EmployeeList } from "./components/hr/EmployeeList";
 import { AttendanceLogs } from "./components/hr/AttendanceLogs";
@@ -132,7 +132,8 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               >
-                <Route index element={<EmployeeList />} />
+                <Route index element={<HRDashboard />} />
+                <Route path="employees" element={<EmployeeList />} />
                 <Route path="attendance" element={<AttendanceLogs />} />
                 <Route path="payouts" element={<PayoutsManager />} />
                 <Route path="complaints" element={<ComplaintsManager />} />

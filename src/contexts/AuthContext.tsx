@@ -42,38 +42,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const legacyPathCorrections: Record<string, string> = {
+  '/hr/employees': '/hr',
+  '/hr/payouts': '/hr',
+  '/hr/complaints': '/hr',
+  '/hr/leaves': '/hr',
+  '/finance/reports': '/finance',
+  '/users/management': '/users',
+  '/technician/attendance': '/technician-tools',
+  '/technician/reports': '/technician-tools',
+};
+
 // Helper to fix menu paths
 const correctMenuPaths = (menuItems: MenuItem[]): MenuItem[] => {
-  const legacyHrPaths = ['/hr/employees', '/hr/payouts'];
-  
-  // Check if a canonical /hr link already exists.
-  const hasCanonicalHrLink = menuItems.some(item => item.path === '/hr');
-  
-  // Filter out all the legacy HR links.
-  const filteredItems = menuItems.filter(item => !legacyHrPaths.includes(item.path));
-  
-  // Determine if there were any legacy links in the original array.
-  const hadLegacyLinks = menuItems.some(item => legacyHrPaths.includes(item.path));
-
-  // If there was no canonical /hr link but there were legacy ones, add a new /hr link.
-  if (!hasCanonicalHrLink && hadLegacyLinks) {
-    const originalItem = menuItems.find(item => legacyHrPaths.includes(item.path));
-    if (originalItem) {
-      filteredItems.unshift({ ...originalItem, path: '/hr', label: 'HR', key: 'hr' });
-    }
-  }
-
-  // To be safe, ensure no duplicate paths made it through.
-  const finalItems: MenuItem[] = [];
+  const correctedItems: MenuItem[] = [];
   const seenPaths = new Set<string>();
-  for (const item of filteredItems) {
-    if (!seenPaths.has(item.path)) {
-      finalItems.push(item);
-      seenPaths.add(item.path);
-    }
-  }
 
-  return finalItems;
+  menuItems.forEach(item => {
+    // Correct the path if it is a known legacy path
+    const correctedPath = legacyPathCorrections[item.path] || item.path;
+
+    // Only add the item if its corrected path hasn't been seen before
+    if (!seenPaths.has(correctedPath)) {
+      correctedItems.push({ ...item, path: correctedPath });
+      seenPaths.add(correctedPath);
+    }
+  });
+
+  return correctedItems;
 };
 
 

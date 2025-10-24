@@ -17,7 +17,8 @@ import {
   BarChart3,
   CheckSquare,
   MessageSquare,
-  Search
+  Search,
+  Wrench
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -37,6 +38,7 @@ const iconMap: Record<string, any> = {
   marketing: MessageSquare,
   search: Search,
   attendance: ClipboardList,
+  'technician-tools': Wrench,
 };
 
 export const Layout = () => {
@@ -49,6 +51,9 @@ export const Layout = () => {
   }
 
   const menuItems = user?.menu_items || [];
+  const userRoles = user?.roles || [];
+
+  const hasTechnicianRole = userRoles.includes('technician');
 
   return (
     <div className="flex h-screen bg-background">
@@ -85,6 +90,17 @@ export const Layout = () => {
                 </Link>
               );
             })}
+            {hasTechnicianRole && (
+              <Link
+                to="/technician-tools"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${
+                  location.pathname === '/technician-tools' ? 'bg-sidebar-accent' : ''
+                }`}
+              >
+                <Wrench className="h-5 w-5" />
+                <span>Technician Tools</span>
+              </Link>
+            )}
           </nav>
 
           {/* User section */}
