@@ -62,6 +62,31 @@ export interface ComplaintCreate {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
+export interface PayrollSummary {
+  period_start: string;
+  period_end: string;
+  total_employees: number;
+  total_gross: number;
+  total_deductions: number;
+  total_net: number;
+  pending_count: number;
+  paid_count: number;
+}
+
+export interface EmployeePerformance {
+  employee_id: number;
+  employee_name: string;
+  department: string;
+  tasks_completed: number;
+  tasks_assigned: number;
+  completion_rate: number;
+  avg_rating: number;
+  total_revenue: number;
+  complaints_count: number;
+  attendance_rate: number;
+  on_time_rate: number;
+}
+
 // Employee management
 export const getEmployees = (params?: { department?: string; status?: string; skip?: number; limit?: number }) =>
   apiClient.get('/api/v1/hr/employees', { params });
@@ -94,9 +119,6 @@ export const getEmployeeAttendance = (employeeId: number, params: { start_date: 
 export const getComplaints = (params?: { employee_id?: number; status?: string; }) =>
   apiClient.get('/api/v1/hr/complaints', { params });
 
-/**
- * Submits an HR complaint or support request.
- */
 export const recordComplaint = (data: ComplaintCreate) =>
   apiClient.post('/api/v1/hr/complaints', data);
 
@@ -105,6 +127,14 @@ export const getPendingComplaints = (limit: number = 50) =>
 
 export const investigateComplaint = (complaintId: number, data: { is_valid: boolean; investigation_notes: string; resolution?: string; }) =>
   apiClient.post(`/api/v1/hr/complaints/${complaintId}/investigate`, data);
+
+// Reports
+export const getPayrollSummary = (params: { period_start: string; period_end: string; }) =>
+  apiClient.get('/api/v1/hr/reports/payroll-summary', { params });
+
+export const getEmployeePerformance = (employeeId: number, params: { period_start: string; period_end: string; }) =>
+  apiClient.get(`/api/v1/hr/reports/employee-performance/${employeeId}`, { params });
+
 
 // Export Functions
 export const exportEmployees = (format: 'csv' | 'excel' = 'csv') =>
