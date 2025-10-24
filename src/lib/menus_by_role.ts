@@ -1,65 +1,74 @@
-// ============================================================================
-// FILE: src/lib/menus_by_role.ts
-// ============================================================================
-
+// src/lib/menus_by_role.ts
 export const menusByRole: Record<string, any[]> = {
   admin: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
+    { label: "Finance", path: "/finance", icon: "DollarSign" },
+    { label: "Procurement", path: "/procurement", icon: "ShoppingCart" },
+    { label: "HR", path: "/hr", icon: "Users" },
     { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Tasks", path: "/tasks", icon: "ListTodo" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
     { label: "Suppliers", path: "/suppliers", icon: "Building" },
-    { label: "Procurement", path: "/procurement", icon: "ShoppingCart" },
-    { label: "Finance", path: "/finance", icon: "DollarSign" },
-    { label: "HR", path: "/hr", icon: "Users" },
+    { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
     { label: "Marketing", path: "/marketing", icon: "Megaphone" },
     { label: "Workflows", path: "/workflows", icon: "GitBranch" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
     { label: "Users", path: "/users", icon: "UserCog" },
-    { label: "Reports", path: "/reports", icon: "BarChart3" },
   ],
 
   finance: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
-    { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Finance", path: "/finance", icon: "DollarSign" },
-    { label: "Pending Variances", path: "/finance/variances", icon: "ClipboardList" },
+    { label: "Projects", path: "/projects", icon: "FolderKanban" },
+    { label: "Tasks", path: "/tasks", icon: "ListTodo" },
+    { label: "Inventory", path: "/inventory", icon: "Package" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
-    { label: "Reports", path: "/finance/reports", icon: "BarChart3" },
   ],
 
   hr: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
-    { label: "Employees", path: "/hr/employees", icon: "Users" },
+    { label: "HR", path: "/hr", icon: "Users" },
     { label: "Attendance", path: "/hr/attendance", icon: "CalendarCheck" },
-    { label: "Payouts", path: "/hr/payouts", icon: "DollarSign" },
-    { label: "Complaints", path: "/hr/complaints", icon: "AlertCircle" },
+    { label: "Performance", path: "/performance", icon: "TrendingUp" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
-    { label: "Reports", path: "/hr/reports", icon: "TrendingUp" },
   ],
 
   technician: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
     { label: "Tasks", path: "/tasks", icon: "ClipboardCheck" },
     { label: "Attendance", path: "/technician/attendance", icon: "CalendarCheck" },
-    { label: "Reports", path: "/technician/reports", icon: "FileBarChart" },
-    { label: "Performance", path: "/technician/performance", icon: "TrendingUp" },
+    { label: "Reports", path: "/technician/reports", icon: "BarChart3" },
+    { label: "Performance", path: "/performance", icon: "TrendingUp" },
   ],
 
   marketing: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
-    { label: "Campaigns", path: "/marketing/campaigns", icon: "Megaphone" },
-    { label: "Leads", path: "/marketing/leads", icon: "Users" },
-    { label: "Analytics", path: "/marketing/analytics", icon: "BarChart3" },
+    { label: "Campaigns", path: "/marketing", icon: "Megaphone" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
   ],
 
   procurement: [
     { label: "Dashboard", path: "/dashboard", icon: "Home" },
-    { label: "Purchase Orders", path: "/procurement/purchases", icon: "ShoppingCart" },
-    { label: "Suppliers", path: "/procurement/suppliers", icon: "Building" },
-    { label: "Price Monitoring", path: "/procurement/price-monitoring", icon: "TrendingDown" },
+    { label: "Purchase Orders", path: "/procurement", icon: "ShoppingCart" },
+    { label: "Suppliers", path: "/suppliers", icon: "Building" },
+    { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
+    { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
+    { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
+  ],
+
+  project_manager: [
+    { label: "Dashboard", path: "/dashboard", icon: "Home" },
+    { label: "Projects", path: "/projects", icon: "FolderKanban" },
+    { label: "Tasks", path: "/tasks", icon: "ListTodo" },
+    { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
+    { label: "Reports", path: "/reports", icon: "BarChart3" },
+  ],
+
+  lead_technician: [
+    { label: "Dashboard", path: "/dashboard", icon: "Home" },
+    { label: "My Team", path: "/technicians/team", icon: "Users" },
+    { label: "Tasks", path: "/tasks", icon: "ClipboardCheck" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
   ],
 };

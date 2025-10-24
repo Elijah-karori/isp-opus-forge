@@ -1,151 +1,90 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { apiClient } from '@/lib/api';
+// src/contexts/AuthContext.tsx
+import React, { createContext, useContext, useState, useEffect } from "react";
+import jwt_decode from "jwt-decode";
+import { apiClient } from "@/lib/api";
 
-interface MenuItem {
-  key: string;
-  label: string;
-  path: string;
-  icon?: string;
-  roles?: string[];
-}
-
-interface User {
-  id: number;
-  email: string;
-  full_name: string;
-  role: string;
-  roles: string[];
-  menu_items?: MenuItem[];
-  phone?: string;
-  is_active?: boolean;
-  department?: string;
-  position?: string;
-  created_at?: string;
-  last_login?: string;
-}
-
-interface JWTPayload {
-  sub: string;
-  roles?: string[];
-  exp: number;
-}
+interface MenuItem { key?: string; label: string; path: string; icon?: string; }
+interface User { id: number; email: string; full_name?: string; role: string; roles?: string[]; menus?: MenuItem[]; }
+interface JWTPayload { sub: string | number; roles?: string[]; exp: number; }
 
 interface AuthContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const legacyPathCorrections: Record<string, string> = {
-  '/finance/payments': '/finance/payouts',
-  '/hr/employees': '/hr',
-  '/hr/payouts': '/hr',
-  '/hr/complaints': '/hr',
-  '/hr/leaves': '/hr',
-  '/finance/reports': '/finance',
-  '/users/management': '/users',
-  '/technician/attendance': '/technician-tools',
-  '/technician/reports': '/technician-tools',
-};
-
-const correctMenuPaths = (menuItems: MenuItem[]): MenuItem[] => {
-  const correctedItems: MenuItem[] = [];
-  const seenPaths = new Set<string>();
-
-  menuItems.forEach(item => {
-    const correctedPath = legacyPathCorrections[item.path] || item.path;
-
-    if (!seenPaths.has(correctedPath)) {
-      correctedItems.push({ ...item, path: correctedPath });
-      seenPaths.add(correctedPath);
-    }
-  });
-
-  return correctedItems;
-};
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        try {
-          const decoded = jwtDecode<JWTPayload>(token);
-          if (decoded.exp * 1000 < Date.now()) {
-            apiClient.clearToken();
-            setUser(null);
-          } else {
-            try {
-              const profile: any = await apiClient.getCurrentUser();
-              const menuItems = profile.menus || profile.menu_items || [];
-              setUser({
-                ...profile,
-                roles: decoded.roles || [profile.role],
-                menu_items: correctMenuPaths(menuItems)
-              });
-            } catch (error) {
-              setUser({
-                id: parseInt(decoded.sub),
-                email: '',
-                full_name: 'User',
-                role: decoded.roles?.[0] || 'user',
-                roles: decoded.roles || ['user']
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Auth initialization error:', error);
+    (async () => {
+      const token = localStorage.getItem("auth_token");
+      if (!token) { setIsLoading(false); return; }
+
+      try {
+        const decoded = jwt_decode<JWTPayload>(token);
+        if (decoded.exp * 1000 < Date.now()) {
           apiClient.clearToken();
           setUser(null);
+          setIsLoading(false);
+          return;
         }
+        apiClient.setToken(token); // ensure client has token
+        // fetch /auth/me for authoritative profile + menus
+        const profile = await apiClient.getCurrentUser();
+        setUser({
+          id: profile.id,
+          email: profile.email,
+          full_name: profile.full_name,
+          role: profile.role,
+          roles: profile.roles || (decoded.roles ?? []),
+          menus: profile.menus ?? profile.menu_items ?? []
+        });
+      } catch (err) {
+        console.warn("Auth init fallback:", err);
+        apiClient.clearToken();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    };
-
-    initAuth();
+    })();
   }, []);
 
   const login = async (username: string, password: string) => {
-    const response = await apiClient.login({ username, password });
-    const token = response.access_token;
-    const decoded = jwtDecode<JWTPayload>(token);
-    
-    try {
-      const profile: any = await apiClient.getCurrentUser();
-      const menuItems = profile.menus || profile.menu_items || [];
-      setUser({
-        ...profile,
-        roles: decoded.roles || [profile.role],
-        menu_items: correctMenuPaths(menuItems)
-      });
-    } catch (error) {
-      setUser({
-        id: parseInt(decoded.sub),
-        email: username,
-        full_name: 'User',
-        role: decoded.roles?.[0] || 'user',
-        roles: decoded.roles || ['user']
-      });
-    }
+    const { access_token } = await apiClient.login({ username, password });
+    apiClient.setToken(access_token);
+    // then call /auth/me
+    const profile = await apiClient.getCurrentUser();
+    setUser({
+      id: profile.id,
+      email: profile.email,
+      full_name: profile.full_name,
+      role: profile.role,
+      roles: profile.roles ?? [],
+      menus: profile.menus ?? profile.menu_items ?? []
+    });
   };
 
   const logout = () => {
     apiClient.clearToken();
     setUser(null);
+    window.location.href = "/login";
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
 };
