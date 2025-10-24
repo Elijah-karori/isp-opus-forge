@@ -12,7 +12,8 @@ import Tasks from "./pages/Tasks";
 import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
 import Finance from "./pages/Finance";
-import HR from "./pages/HR";
+import HRPage from "./pages/HR";
+import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
 import Attendance from "./pages/Attendance";
 import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
@@ -32,8 +33,6 @@ import Leaves from "./pages/Leaves";
 import Complaints from "./pages/Complaints";
 import Technicians from "./pages/Technicians";
 import CreateTechnician from "./pages/Technicians/Create";
-import Employees from "./pages/Employees";
-import HRReports from "./pages/HRReports";
 import FinanceReports from "./pages/FinanceReports";
 
 const App = () => (
@@ -128,7 +127,15 @@ const App = () => (
                 path="/hr" 
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'finance']}>
-                    <HR />
+                    <HRPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/hr/employees/:id" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <EmployeeProfile />
                   </ProtectedRoute>
                 } 
               />
@@ -209,22 +216,6 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'operations']}>
                     <CreateTechnician />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/hr/employees"
-                element={
-                  <ProtectedRoute roles={['admin', 'hr']}>
-                    <Employees />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/hr/reports"
-                element={
-                  <ProtectedRoute roles={['admin', 'hr', 'finance']}>
-                    <HRReports />
                   </ProtectedRoute>
                 }
               />

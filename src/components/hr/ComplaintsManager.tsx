@@ -10,6 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Flag, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const severityVariantMap: { [key: string]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
+  low: 'secondary',
+  medium: 'default',
+  high: 'destructive',
+};
+
+
 export function ComplaintsManager() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -84,7 +91,9 @@ export function ComplaintsManager() {
                     <TableCell>{complaint.employee_id}</TableCell>
                     <TableCell>{complaint.complaint_type}</TableCell>
                     <TableCell>
-                      <Badge severity={complaint.severity}>{complaint.severity}</Badge>
+                      <Badge variant={severityVariantMap[complaint.severity] || 'outline'}>
+                        {complaint.severity}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={complaint.is_valid === null ? 'secondary' : 'outline'}>

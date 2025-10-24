@@ -105,7 +105,7 @@ export function PayoutsManager() {
                     <TableCell>{payout.period_start} to {payout.period_end}</TableCell>
                     <TableCell className="font-medium">${payout.net_amount}</TableCell>
                     <TableCell>
-                      <Badge variant={payout.status === 'pending' ? 'warning' : 'outline'}>
+                      <Badge variant={payout.status === 'pending' ? 'secondary' : 'outline'}>
                         {payout.status}
                       </Badge>
                     </TableCell>
