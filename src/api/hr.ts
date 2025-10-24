@@ -105,3 +105,13 @@ export const getPendingComplaints = (limit: number = 50) =>
 
 export const investigateComplaint = (complaintId: number, data: { is_valid: boolean; investigation_notes: string; resolution?: string; }) =>
   apiClient.post(`/api/v1/hr/complaints/${complaintId}/investigate`, data);
+
+// Export Functions
+export const exportEmployees = (format: 'csv' | 'excel' = 'csv') =>
+  apiClient.get(`/api/v1/hr/employees/export?format=${format}`, { responseType: 'blob' });
+
+export const exportAttendance = (params: { start_date: string; end_date: string; format?: 'csv' | 'excel'; }) =>
+  apiClient.get('/api/v1/hr/attendance/export', { params, responseType: 'blob' });
+
+export const exportPayroll = (params: { period_start: string; period_end: string; format?: 'csv' | 'excel'; }) =>
+  apiClient.get('/api/v1/hr/payouts/export', { params, responseType: 'blob' });
