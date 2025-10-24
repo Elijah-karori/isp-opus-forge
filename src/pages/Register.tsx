@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { 
-  Loader2, 
-  Mail, 
-  Lock, 
-  Eye, 
+import {
+  Loader2,
+  Mail,
+  Lock,
+  Eye,
   EyeOff,
   User,
   Phone,
@@ -18,6 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { register } from '@/api/auth';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -71,9 +72,9 @@ const Register = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      const { confirm_password, ...payload } = formData;
+      await register(payload);
+
       toast({
         title: "Registration Request Sent",
         description: "Your registration request has been submitted for approval. You will be notified once your account is activated.",
@@ -82,7 +83,7 @@ const Register = () => {
     } catch (error: any) {
       toast({
         title: "Registration Failed",
-        description: error.message || "Failed to submit registration request",
+        description: error.response?.data?.detail || error.message || "Failed to submit registration request",
         variant: "destructive",
       });
     } finally {
@@ -127,7 +128,7 @@ const Register = () => {
               {/* Personal Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Personal Information</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="full_name">Full Name *</Label>
@@ -214,7 +215,7 @@ const Register = () => {
               {/* Password */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Security</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="password">Password *</Label>
@@ -299,9 +300,9 @@ const Register = () => {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 size="lg"
                 disabled={isLoading || !allRequirementsMet}
               >
@@ -317,8 +318,8 @@ const Register = () => {
 
               <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{' '}
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="text-blue-600 hover:text-blue-500 hover:underline font-medium"
                 >
                   Sign in here
@@ -338,12 +339,12 @@ const Register = () => {
               <div className="space-y-2 text-sm text-amber-800">
                 <p className="font-semibold">Important Notice</p>
                 <p>
-                  Your registration request will be reviewed by an administrator. 
-                  You will receive an email notification once your account is activated. 
+                  Your registration request will be reviewed by an administrator.
+                  You will receive an email notification once your account is activated.
                   This process typically takes 1-2 business days.
                 </p>
                 <p>
-                  For immediate access or urgent requests, please contact your supervisor 
+                  For immediate access or urgent requests, please contact your supervisor
                   or the IT department directly.
                 </p>
               </div>
