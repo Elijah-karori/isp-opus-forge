@@ -42,6 +42,7 @@ import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import TechnicianTools from "./pages/TechnicianTools";
+import Attendance from "./pages/Attendance";
 
 const App = () => (
   <AuthProvider>
@@ -207,11 +208,29 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+
+              {/* Technician Routes */}
               <Route
                 path="/technician-tools"
                 element={
                   <ProtectedRoute roles={['admin', 'technician']}>
                     <TechnicianTools />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/technician/reports"
+                element={
+                  <ProtectedRoute roles={['admin', 'technician']}>
+                    <FinanceReports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/technician/attendance"
+                element={
+                  <ProtectedRoute roles={['admin', 'technician']}>
+                    <Attendance />
                   </ProtectedRoute>
                 }
               />
