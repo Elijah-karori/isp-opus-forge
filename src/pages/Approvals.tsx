@@ -6,7 +6,7 @@ import { WorkflowOverlay } from "@/components/WorkflowOverlay";
 
 export default function ApprovalsPage() {
   const { user } = useAuth();
-  const { items, loading, refresh } = usePendingWorkflows(user?.role);
+  const { items, loading, refresh } = usePendingWorkflows(user?.role, !!user);
   const [active, setActive] = React.useState<number | null>(null);
 
   return (

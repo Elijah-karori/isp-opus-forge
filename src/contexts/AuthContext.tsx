@@ -1,6 +1,5 @@
-// src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
 
 interface MenuItem { key?: string; label: string; path: string; icon?: string; }
@@ -27,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!token) { setIsLoading(false); return; }
 
       try {
-        const decoded = jwt_decode<JWTPayload>(token);
+        const decoded = jwtDecode<JWTPayload>(token);
         if (decoded.exp * 1000 < Date.now()) {
           apiClient.clearToken();
           setUser(null);
@@ -88,3 +87,5 @@ export const useAuth = () => {
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 };
+
+export { AuthContext };

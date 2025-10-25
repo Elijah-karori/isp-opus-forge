@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import { workflowsApi } from "@/api/workflows";
 
-export function usePendingWorkflows(role?: string) {
+export function usePendingWorkflows(role?: string, enabled: boolean = true) {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const refresh = async () => {
+    if (!enabled) return;
     setLoading(true);
     try {
       const data = await workflowsApi.listPending(role);
@@ -14,6 +15,10 @@ export function usePendingWorkflows(role?: string) {
       setLoading(false);
     }
   };
-  useEffect(() => { refresh(); }, [role]);
+  useEffect(() => {
+    if (enabled) {
+      refresh();
+    }
+  }, [role, enabled]);
   return { items, loading, refresh };
 }
