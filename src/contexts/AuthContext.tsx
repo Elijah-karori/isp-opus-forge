@@ -107,7 +107,7 @@ const fallbackMenus: Record<string, MenuItem[]> = {
     ],
     "technician": [
         {"key": "dashboard", "label": "Dashboard", "path": "/"},
-        {"key": "tasks", "label": "My Tasks", "path": "/tasks"},
+        {"key": "tasks", "label": "My Tasks", "path": "/technician/tasks"},
         {"key": "reports", "label": "Reports", "path": "/technician/reports"},
         {"key": "attendance", "label": "Attendance", "path": "/technician/attendance"},
         {"key": "technician-tools", "label": "Technician Tools", "path": "/technician-tools" },

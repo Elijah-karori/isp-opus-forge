@@ -15,9 +15,6 @@ interface AuthToken {
 }
 
 class ApiClient {
-  get(arg0: string, arg1: { params: { department?: string; status?: string; skip?: number; limit?: number; }; }) {
-    throw new Error('Method not implemented.');
-  }
   private baseUrl: string;
   private token: string | null = null;
 
@@ -59,7 +56,8 @@ class ApiClient {
         this.clearToken();
         window.location.href = "/login";
       }
-      throw new Error(`API Error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new Error(errorData.detail || `API Error: ${response.statusText}`);
     }
 
     return response.json();
@@ -79,11 +77,22 @@ class ApiClient {
       body: formData,
     });
 
-    if (!response.ok) throw new Error("Invalid credentials");
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Invalid credentials' }));
+        throw new Error(errorData.detail || "Invalid credentials");
+    }
 
     const data = await response.json();
     this.setToken(data.access_token);
     return data;
+  }
+  
+  async registerUser(data: any): Promise<any> {
+    console.log("Registering user with payload:", data);
+    return this.request("/api/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async getCurrentUser(): Promise<any> {
@@ -617,13 +626,6 @@ async commentWorkflow(instanceId: number, comment: string) {
   // -------------------------------------------------------------------
   async getUsers() {
     return this.request("/api/v1/users/");
-  }
-
-  async createUser(data: any) {
-    return this.request("/api/v1/users/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
   }
 
   async updateUser(userId: number, data: any) {

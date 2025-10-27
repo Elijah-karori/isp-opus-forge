@@ -43,6 +43,7 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import TechnicianTools from "./pages/TechnicianTools";
 import Attendance from "./pages/Attendance";
+import TechnicianTasks from "./pages/TechnicianTasks";
 
 const App = () => (
   <AuthProvider>
@@ -231,6 +232,14 @@ const App = () => (
                 element={
                   <ProtectedRoute roles={['admin', 'technician']}>
                     <Attendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/technician/tasks"
+                element={
+                  <ProtectedRoute roles={['admin', 'technician']}>
+                    <TechnicianTasks />
                   </ProtectedRoute>
                 }
               />
