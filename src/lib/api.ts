@@ -1,6 +1,9 @@
+
 // =====================================================================
 // FILE: src/lib/api.ts
 // =====================================================================
+
+import axios, { AxiosInstance, AxiosError } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -15,52 +18,60 @@ interface AuthToken {
 }
 
 class ApiClient {
-  private baseUrl: string;
-  private token: string | null = null;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-    this.token = localStorage.getItem("auth_token");
+    this.axiosInstance = axios.create({
+      baseURL: baseUrl,
+    });
+
+    this.axiosInstance.interceptors.request.use((config) => {
+      const token = localStorage.getItem("auth_token");
+      if (token && config.headers) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return config;
+    });
+
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError) => {
+        if (error.response?.status === 401) {
+          localStorage.removeItem("auth_token");
+          window.location.href = "/login";
+        }
+
+        const errorData = error.response?.data as { detail?: any };
+        let errorMessage = "An unexpected error occurred.";
+
+        if (errorData?.detail) {
+          if (typeof errorData.detail === 'object') {
+            errorMessage = JSON.stringify(errorData.detail);
+          } else {
+            errorMessage = errorData.detail.toString();
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        // Instead of throwing a new error, we reject with a custom message
+        // to be caught by the calling function.
+        return Promise.reject(new Error(errorMessage));
+      }
+    );
   }
 
   setToken(token: string) {
-    this.token = token;
     localStorage.setItem("auth_token", token);
   }
 
   clearToken() {
-    this.token = null;
     localStorage.removeItem("auth_token");
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    if (this.token) {
-      headers["Authorization"] = `Bearer ${this.token}`;
-    }
-
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        this.clearToken();
-        window.location.href = "/login";
-      }
-      const errorData = await response.json().catch(() => ({ detail: response.statusText }));
-      throw new Error(errorData.detail || `API Error: ${response.statusText}`);
-    }
-
-    return response.json();
+  private async request<T>(config: import('axios').AxiosRequestConfig): Promise<T> {
+    const response = await this.axiosInstance.request<T>(config);
+    return response.data;
   }
 
   // -------------------------------------------------------------------
@@ -71,568 +82,397 @@ class ApiClient {
     formData.append("username", credentials.username);
     formData.append("password", credentials.password);
 
-    const response = await fetch(`${this.baseUrl}/api/v1/auth/login`, {
-      method: "POST",
+    const response = await this.axiosInstance.post<AuthToken>("/api/v1/auth/login", formData, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: formData,
     });
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Invalid credentials' }));
-        throw new Error(errorData.detail || "Invalid credentials");
-    }
-
-    const data = await response.json();
-    this.setToken(data.access_token);
-    return data;
+    this.setToken(response.data.access_token);
+    return response.data;
   }
-  
+
   async registerUser(data: any): Promise<any> {
-    console.log("Registering user with payload:", data);
-    return this.request("/api/v1/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
+    return this.request<any>({ 
+      url: "/api/v1/auth/register", 
+      method: "POST", 
+      data 
     });
   }
 
   async getCurrentUser(): Promise<any> {
-    return this.request<any>("/api/v1/auth/me");
+    return this.request<any>({ url: "/api/v1/auth/me" });
   }
 
   // -------------------------------------------------------------------
   // PROJECTS & TASKS
   // -------------------------------------------------------------------
   async getProjects(params?: { skip?: number; limit?: number; status?: string }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/projects/?${query}`);
+    return this.request<any>({ url: '/api/v1/projects/', method: 'GET', params });
   }
 
   async getProject(projectId: number) {
-    return this.request(`/api/v1/projects/${projectId}`);
+    return this.request<any>({ url: `/api/v1/projects/${projectId}` });
   }
 
   async createProject(data: any) {
-    return this.request("/api/v1/projects/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/projects/", method: "POST", data });
   }
 
   async updateProject(projectId: number, data: any) {
-    return this.request(`/api/v1/projects/${projectId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/projects/${projectId}`, method: "PATCH", data });
   }
   
   async createProjectFromLead(leadId: number, data: any) {
-    return this.request(`/api/v1/projects/`, {
-        method: 'POST',
-        body: JSON.stringify({ ...data, lead_id: leadId }),
-    });
+    return this.createProject({ ...data, lead_id: leadId });
   }
 
-  async getTasks(params?: {
-    skip?: number;
-    limit?: number;
-    project_id?: number;
-    technician_id?: number;
-    status?: string;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/tasks/?${query}`);
+  async getTasks(params?: any) {
+    return this.request<any>({ url: '/api/v1/tasks/', method: 'GET', params });
   }
 
   async getTask(taskId: number) {
-    return this.request(`/api/v1/tasks/${taskId}`);
+    return this.request<any>({ url: `/api/v1/tasks/${taskId}` });
   }
 
   async createTask(data: any) {
-    return this.request("/api/v1/tasks/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/tasks/", method: "POST", data });
   }
 
   async updateTask(taskId: number, data: any) {
-    return this.request(`/api/v1/tasks/${taskId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/tasks/${taskId}`, method: "PATCH", data });
   }
 
   async updateTaskBOM(taskId: number, data: any) {
-    return this.request(`/api/v1/tasks/${taskId}/update-bom`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/tasks/${taskId}/update-bom`, method: "POST", data });
   }
 
   async approveTaskBOM(taskId: number) {
-    return this.request(`/api/v1/tasks/${taskId}/approve-bom`, { method: "POST" });
+    return this.request<any>({ url: `/api/v1/tasks/${taskId}/approve-bom`, method: "POST" });
   }
 
   async completeTask(taskId: number, data: any) {
-    return this.request(`/api/v1/tasks/${taskId}/complete`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/tasks/${taskId}/complete`, method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // INVENTORY
   // -------------------------------------------------------------------
-  async getProducts(params?: {
-    skip?: number;
-    limit?: number;
-    category?: string;
-    low_stock?: boolean;
-    supplier_id?: number;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/inventory/products?${query}`);
+  async getProducts(params?: any) {
+    return this.request<any>({ url: '/api/v1/inventory/products', params });
   }
 
   async getProduct(productId: number) {
-    return this.request(`/api/v1/inventory/products/${productId}`);
+    return this.request<any>({ url: `/api/v1/inventory/products/${productId}` });
   }
 
   async createProduct(data: any) {
-    return this.request("/api/v1/inventory/products", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/inventory/products", method: "POST", data });
   }
 
   async updateProduct(productId: number, data: any) {
-    return this.request(`/api/v1/inventory/products/${productId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/inventory/products/${productId}`, method: "PATCH", data });
   }
 
   async searchInventory(query: string) {
-    return this.request(`/api/v1/inventory/search?q=${encodeURIComponent(query)}`);
+    return this.request<any>({ url: '/api/v1/inventory/search', params: { q: query } });
   }
 
   async getInventoryStats() {
-    return this.request("/api/v1/inventory/stats");
+    return this.request<any>({ url: "/api/v1/inventory/stats" });
   }
 
   async getLowStockAlerts() {
-    return this.request("/api/v1/inventory/alerts/low-stock");
+    return this.request<any>({ url: "/api/v1/inventory/alerts/low-stock" });
   }
 
   // -------------------------------------------------------------------
   // TECHNICIANS & SATISFACTION
   // -------------------------------------------------------------------
   async getTechnicians(params?: { active_only?: boolean }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/technicians?${query}`);
+    return this.request<any>({ url: '/api/v1/technicians', params });
   }
 
   async getTechnician(technicianId: number) {
-    return this.request(`/api/v1/technicians/${technicianId}`);
+    return this.request<any>({ url: `/api/v1/technicians/${technicianId}` });
   }
 
   async createTechnician(data: any) {
-    return this.request("/api/v1/technicians", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/technicians", method: "POST", data });
   }
 
   async getTechnicianLeaderboard(params?: { limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/technicians/leaderboard?${query}`);
+    return this.request<any>({ url: '/api/v1/technicians/leaderboard', params });
   }
 
-  async getTechnicianPerformance(technicianId: number, params?: {
-    period_start?: string;
-    period_end?: string;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/technicians/${technicianId}/performance?${query}`);
+  async getTechnicianPerformance(technicianId: number, params?: any) {
+    return this.request<any>({ url: `/api/v1/technicians/${technicianId}/performance`, params });
   }
+
+  async getTechnicianTasks(technicianId: number, params?: any) {
+    return this.request<any>({ url: `/api/v1/technicians/${technicianId}/tasks`, params });
+  }
+    
 
   async approveTaskCompletion(taskId: number, data: { approved: boolean; notes?: string }) {
-    return this.request(`/api/v1/technicians/tasks/${taskId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/technicians/tasks/${taskId}/approve`, method: "POST", data });
   }
 
-  async getCustomerSatisfaction(params?: { technician_id?: number; task_id?: number; limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/technicians/satisfaction?${query}`);
+  async getCustomerSatisfaction(params?: any) {
+    return this.request<any>({ url: '/api/v1/technicians/satisfaction', params });
   }
 
   async recordCustomerSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
-    return this.request(`/api/v1/technicians/satisfaction`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: '/api/v1/technicians/satisfaction', method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // FINANCE
   // -------------------------------------------------------------------
   async getPendingVariances(limit = 50) {
-    return this.request(`/api/v1/finance/variances/pending?limit=${limit}`);
+    return this.request<any>({ url: '/api/v1/finance/variances/pending', params: { limit } });
   }
 
-  async getVarianceHistory(params?: {
-    start_date?: string;
-    end_date?: string;
-    project_id?: number;
-    limit?: number;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/finance/variances/history?${query}`);
+  async getVarianceHistory(params?: any) {
+    return this.request<any>({ url: '/api/v1/finance/variances/history', params });
   }
 
-  async approveVariance(
-    varianceId: number,
-    data: { approved: boolean; approver_id: number; notes?: string }
-  ) {
-    return this.request(`/api/v1/finance/variances/${varianceId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async approveVariance(varianceId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/finance/variances/${varianceId}/approve`, method: "POST", data });
   }
 
   async detectTaskVariances(taskId: number) {
-    return this.request(`/api/v1/finance/tasks/${taskId}/detect-variances`, {
-      method: "POST",
-    });
+    return this.request<any>({ url: `/api/v1/finance/tasks/${taskId}/detect-variances`, method: "POST" });
   }
 
   async getProjectFinancials(projectId: number) {
-    return this.request(`/api/v1/finance/projects/${projectId}/financials`);
+    return this.request<any>({ url: `/api/v1/finance/projects/${projectId}/financials` });
   }
   
   async markPayoutAsPaid(payoutId: number) {
-    return this.request(`/api/v1/hr/payouts/${payoutId}/mark-paid`, { method: 'POST' });
+    return this.request<any>({ url: `/api/v1/hr/payouts/${payoutId}/mark-paid`, method: 'POST' });
   }
 
-  async getProjectsFinancialSummary(params?: {
-    status?: string;
-    start_date?: string;
-    end_date?: string;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/finance/projects/summary?${query}`);
+  async getProjectsFinancialSummary(params?: any) {
+    return this.request<any>({ url: '/api/v1/finance/projects/summary', params });
   }
 
-  async getFinancialSummary(params?: { start_date?: string; end_date?: string }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/finance/summary?${query}`);
+  async getFinancialSummary(params?: any) {
+    return this.request<any>({ url: '/api/v1/finance/summary', params });
   }
 
   async getFinanceDashboardStats() {
-    return this.request("/api/v1/finance/dashboard/stats");
+    return this.request<any>({ url: "/api/v1/finance/dashboard/stats" });
   }
 
-  async getExpenses(params?: {
-    start_date?: string;
-    end_date?: string;
-    category?: string;
-    approved?: boolean;
-  }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/finance/expenses?${query}`);
+  async getExpenses(params?: any) {
+    return this.request<any>({ url: '/api/v1/finance/expenses', params });
   }
 
   async createExpense(data: any) {
-    return this.request("/api/v1/finance/expenses", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/finance/expenses", method: "POST", data });
   }
 
-  async approveExpense(expenseId: number, data: { approved: boolean; approver_id: number; notes?: string }) {
-    return this.request(`/api/v1/finance/expenses/${expenseId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async approveExpense(expenseId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/finance/expenses/${expenseId}/approve`, method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // HR
   // -------------------------------------------------------------------
-  async getEmployees(params?: { engagement_type?: string; is_active?: boolean; skip?: number; limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/hr/employees?${query}`);
+  async getEmployees(params?: any) {
+    return this.request<any>({ url: '/api/v1/hr/employees', params });
   }
 
   async getEmployee(employeeId: number) {
-    return this.request(`/api/v1/hr/employees/${employeeId}`);
+    return this.request<any>({ url: `/api/v1/hr/employees/${employeeId}` });
   }
 
   async createEmployee(data: any) {
-    return this.request("/api/v1/hr/employees", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/hr/employees", method: "POST", data });
   }
 
   async getPendingPayouts(params?: { limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/hr/payouts/pending?${query}`);
+    return this.request<any>({ url: '/api/v1/hr/payouts/pending', params });
   }
 
   async getEmployeePayouts(employeeId: number, limit: number = 10) {
-    return this.request(`/api/v1/hr/payouts/employee/${employeeId}?limit=${limit}`);
+    return this.request<any>({ url: `/api/v1/hr/payouts/employee/${employeeId}`, params: { limit } });
   }
 
   async calculatePayout(data: any) {
-    return this.request("/api/v1/hr/payouts/calculate", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/hr/payouts/calculate", method: "POST", data });
   }
 
-  async approvePayout(payoutId: number, data: { approved: boolean; notes?: string }) {
-    return this.request(`/api/v1/hr/payouts/${payoutId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async approvePayout(payoutId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/hr/payouts/${payoutId}/approve`, method: "POST", data });
   }
 
-  async markPayoutPaid(
-    payoutId: number,
-    paymentMethod: string,
-    paymentReference: string
-  ) {
-    const query = new URLSearchParams({
-      payment_method: paymentMethod,
-      payment_reference: paymentReference,
-    }).toString();
-    return this.request(`/api/v1/hr/payouts/${payoutId}/mark-paid?${query}`, {
+  async markPayoutPaid(payoutId: number, paymentMethod: string, paymentReference: string) {
+    return this.request<any>({ 
+      url: `/api/v1/hr/payouts/${payoutId}/mark-paid`, 
       method: "POST",
+      params: { payment_method: paymentMethod, payment_reference: paymentReference },
     });
   }
 
   async getPendingComplaints(limit: number = 50) {
-    return this.request(`/api/v1/hr/complaints/pending?limit=${limit}`);
+    return this.request<any>({ url: '/api/v1/hr/complaints/pending', params: { limit } });
   }
 
-  async investigateComplaint(
-    complaintId: number,
-    data: { is_valid: boolean; investigation_notes: string; resolution?: string }
-  ) {
-    return this.request(`/api/v1/hr/complaints/${complaintId}/investigate`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async investigateComplaint(complaintId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/hr/complaints/${complaintId}/investigate`, method: "POST", data });
   }
 
   async getAttendance(params?: { employee_id?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/hr/attendance?${query}`);
+    return this.request<any>({ url: '/api/v1/hr/attendance', params });
   }
 
   async recordAttendance(data: any) {
-    return this.request("/api/v1/hr/attendance", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/hr/attendance", method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // PROCUREMENT
   // -------------------------------------------------------------------
-  async getSuppliers(params?: { skip?: number; limit?: number; active_only?: boolean }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/procurement/suppliers?${query}`);
+  async getSuppliers(params?: any) {
+    return this.request<any>({ url: '/api/v1/procurement/suppliers', params });
   }
 
   async getSupplier(supplierId: number) {
-    return this.request(`/api/v1/procurement/suppliers/${supplierId}`);
+    return this.request<any>({ url: `/api/v1/procurement/suppliers/${supplierId}` });
   }
 
   async createSupplier(data: any) {
-    return this.request("/api/v1/procurement/suppliers", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/procurement/suppliers", method: "POST", data });
   }
 
   async updateSupplier(supplierId: number, data: any) {
-    return this.request(`/api/v1/procurement/suppliers/${supplierId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/procurement/suppliers/${supplierId}`, method: "PATCH", data });
   }
 
-  async getPurchases(params?: { status?: string; supplier_id?: number; limit?: number; skip?: number }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/procurement/purchases?${query}`);
+  async getPurchases(params?: any) {
+    return this.request<any>({ url: '/api/v1/procurement/purchases', params });
   }
 
   async getPurchaseOrder(orderId: number) {
-    return this.request(`/api/v1/procurement/purchases/${orderId}`);
+    return this.request<any>({ url: `/api/v1/procurement/purchases/${orderId}` });
   }
 
   async createPurchaseOrder(data: any) {
-    return this.request("/api/v1/procurement/purchases", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/procurement/purchases", method: "POST", data });
   }
 
   async updatePurchaseOrder(orderId: number, data: any) {
-    return this.request(`/api/v1/procurement/purchases/${orderId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/procurement/purchases/${orderId}`, method: "PATCH", data });
   }
 
-  async approvePurchase(purchaseId: number, data: { approved: boolean; notes?: string }) {
-    return this.request(`/api/v1/procurement/purchases/${purchaseId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async approvePurchase(purchaseId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/procurement/purchases/${purchaseId}/approve`, method: "POST", data });
   }
 
   async getProcurementStats() {
-    return this.request("/api/v1/procurement/stats");
+    return this.request<any>({ url: "/api/v1/procurement/stats" });
   }
 
   async getSupplierPerformance(supplierId?: number) {
-    const query = supplierId ? `?supplier_id=${supplierId}` : '';
-    return this.request(`/api/v1/procurement/supplier-performance${query}`);
+    return this.request<any>({ url: '/api/v1/procurement/supplier-performance', params: { supplier_id: supplierId } });
   }
 
   // -------------------------------------------------------------------
   // MARKETING
   // -------------------------------------------------------------------
-  async getCampaigns(params?: { limit?: number; status?: string }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/marketing/campaigns?${query}`);
+  async getCampaigns(params?: any) {
+    return this.request<any>({ url: '/api/v1/marketing/campaigns', params });
   }
 
   async getCampaign(campaignId: number) {
-    return this.request(`/api/v1/marketing/campaigns/${campaignId}`);
+    return this.request<any>({ url: `/api/v1/marketing/campaigns/${campaignId}` });
   }
 
   async createCampaign(data: any) {
-    return this.request("/api/v1/marketing/campaigns", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: "/api/v1/marketing/campaigns", method: "POST", data });
   }
 
-  async getLeads(params?: { limit?: number; status?: string }) {
-    const query = new URLSearchParams(params as any).toString();
-    return this.request(`/api/v1/marketing/leads?${query}`);
+  async getLeads(params?: any) {
+    return this.request<any>({ url: '/api/v1/marketing/leads', params });
   }
   
   async createLead(data: any) {
-    return this.request(`/api/v1/marketing/leads`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: '/api/v1/marketing/leads', method: 'POST', data });
   }
 
-  async approveCampaign(campaignId: number, data: { approved: boolean; notes?: string }) {
-    return this.request(`/api/v1/marketing/campaigns/${campaignId}/approve`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async approveCampaign(campaignId: number, data: any) {
+    return this.request<any>({ url: `/api/v1/marketing/campaigns/${campaignId}/approve`, method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // SCRAPERS & PRICE MONITORING
   // -------------------------------------------------------------------
   async triggerSupplierScrape(supplierId: number) {
-    return this.request(`/api/v1/scrapers/suppliers/${supplierId}/scrape`, {
-      method: "POST",
-    });
+    return this.request<any>({ url: `/api/v1/scrapers/suppliers/${supplierId}/scrape`, method: "POST" });
   }
 
-  async scrapeGenericUrl(data: { url: string; category?: string; supplier_id?: number }) {
-    return this.request("/api/v1/scrapers/scrape-generic", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async scrapeGenericUrl(data: any) {
+    return this.request<any>({ url: "/api/v1/scrapers/scrape-generic", method: "POST", data });
   }
 
   async scrapeAllSuppliers() {
-    return this.request("/api/v1/scrapers/scrape-all", {
-      method: "POST",
-    });
+    return this.request<any>({ url: "/api/v1/scrapers/scrape-all", method: "POST" });
   }
 
   async getPriceHistory(productId: number, limit: number = 100) {
-    return this.request(`/api/v1/scrapers/price-history/${productId}?limit=${limit}`);
+    return this.request<any>({ url: `/api/v1/scrapers/price-history/${productId}`, params: { limit } });
   }
 
   async getRecentPriceDrops(days: number = 7, min_drop_percent: number = 5.0) {
-    const query = new URLSearchParams({
-      days: days.toString(),
-      min_drop_percent: min_drop_percent.toString()
-    }).toString();
-    return this.request(`/api/v1/scrapers/price-drops?${query}`);
+    return this.request<any>({ 
+      url: '/api/v1/scrapers/price-drops', 
+      params: { days, min_drop_percent } 
+    });
   }
 
   // -------------------------------------------------------------------
   // WORKFLOWS & APPROVALS
   // -------------------------------------------------------------------
+  async commentWorkflow(instanceId: number, comment: string) {
+    return this.request<any>({ 
+      url: `/api/v1/workflows/workflows/${instanceId}/comment`, 
+      method: 'POST',
+      data: { comment },
+    });
+  }
 
-async commentWorkflow(instanceId: number, comment: string) {
-  return this.request(`/api/v1/workflows/workflows/${instanceId}/comment`, {
-    method: 'POST',
-    body: JSON.stringify({ comment }),
-  });
-}
   async getPendingWorkflows() {
-    return this.request("/api/v1/workflows/workflows/pending");
+    return this.request<any>({ url: "/api/v1/workflows/workflows/pending" });
   }
 
   async approveWorkflow(instanceId: number) {
-    return this.request(`/api/v1/workflows/workflows/${instanceId}/approve`, {
-      method: "POST",
-    });
+    return this.request<any>({ url: `/api/v1/workflows/workflows/${instanceId}/approve`, method: "POST" });
   }
 
   async rejectWorkflow(instanceId: number) {
-    return this.request(`/api/v1/workflows/workflows/${instanceId}/reject`, {
-      method: "POST",
-    });
+    return this.request<any>({ url: `/api/v1/workflows/workflows/${instanceId}/reject`, method: "POST" });
   }
 
-  async workflowAction(
-    module: string,
-    itemId: number,
-    action: "approve" | "reject" | "comment",
-    data: { user_id: number; comment?: string }
-  ) {
-    return this.request(`/api/v1/workflows/${module}/${itemId}/${action}`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async workflowAction(module: string, itemId: number, action: string, data: any) {
+    return this.request<any>({ url: `/api/v1/workflows/${module}/${itemId}/${action}`, method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // TASK STATISTICS
   // -------------------------------------------------------------------
   async getTaskStats() {
-    return this.request("/api/v1/tasks/stats");
+    return this.request<any>({ url: "/api/v1/tasks/stats" });
   }
 
   // -------------------------------------------------------------------
   // USERS & PERMISSIONS
   // -------------------------------------------------------------------
   async getUsers() {
-    return this.request("/api/v1/users/");
+    return this.request<any>({ url: "/api/v1/users/" });
   }
 
   async updateUser(userId: number, data: any) {
-    return this.request(`/api/v1/users/${userId}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
+    return this.request<any>({ url: `/api/v1/users/${userId}`, method: "PUT", data });
   }
 }
 

@@ -119,7 +119,8 @@ const Register = () => {
     try {
         const { confirm_password, ...payload } = formData;
         const registrationPayload = {
-            ...payload
+            ...payload,
+            role_ids: [parseInt(formData.role_ids, 10)],
         };
       
         await apiClient.registerUser(registrationPayload);
