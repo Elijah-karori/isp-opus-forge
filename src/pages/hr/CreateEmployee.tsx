@@ -61,14 +61,20 @@ const CreateEmployeePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersData] = await Promise.all([
-          apiClient.getUsers(),
-          // In a real app, you would fetch roles: apiClient.getRoles()
-        ]);
-        setUsers(usersData);
+        const usersData = await apiClient.getUsers();
+        // Ensure usersData is an array before setting state
+        if (Array.isArray(usersData)) {
+          setUsers(usersData);
+        } else {
+          // If the API returns something else (like on error), set an empty array
+          setUsers([]);
+          console.error("API did not return an array for users:", usersData);
+          toast({ title: "Failed to fetch users", description: "Could not load users.", variant: "destructive" });
+        }
         setRoles(fallbackRoles); // Using fallback roles for now
       } catch (error) {
         toast({ title: "Failed to fetch data", description: "Could not load users or roles.", variant: "destructive" });
+        setUsers([]); // Ensure users is an empty array on error
         setRoles(fallbackRoles); // Still set fallback on error
       }
     };
