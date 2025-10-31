@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { EngagementType } from '@/api/hr';
 
 interface User {
     id: number;
@@ -62,19 +63,17 @@ const CreateEmployeePage = () => {
     const fetchData = async () => {
       try {
         const usersData = await apiClient.getUsers();
-        // The API returns an object with a 'users' property, which is the array
         if (usersData && Array.isArray(usersData.users)) {
           setUsers(usersData.users);
         } else {
           setUsers([]);
           console.error("API did not return a valid user array:", usersData);
-          toast({ title: "Failed to fetch users", description: "Could not load users.", variant: "destructive" });
         }
-        setRoles(fallbackRoles); // Using fallback roles for now
+        setRoles(fallbackRoles);
       } catch (error) {
         toast({ title: "Failed to fetch data", description: "Could not load users or roles.", variant: "destructive" });
-        setUsers([]); // Ensure users is an empty array on error
-        setRoles(fallbackRoles); // Still set fallback on error
+        setUsers([]);
+        setRoles(fallbackRoles);
       }
     };
     fetchData();
@@ -92,7 +91,6 @@ const CreateEmployeePage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Basic validation
     if (!formData.user_id || !formData.role_id || !formData.hire_date) {
         toast({ title: "Missing Required Fields", description: "Please select a user, role, and hire date.", variant: "destructive"});
         setIsLoading(false);
@@ -103,17 +101,18 @@ const CreateEmployeePage = () => {
         ...formData,
         user_id: Number(formData.user_id),
         role_id: Number(formData.role_id),
+        hire_date: formData.hire_date, 
         contract_end_date: formData.contract_end_date || null,
     };
 
     try {
       await apiClient.createEmployee(payload);
       toast({ title: "Employee Created", description: "The new employee profile has been successfully created." });
-      navigate('/hr'); // Redirect to HR dashboard or employee list
+      navigate('/hr');
     } catch (error: any) {
       toast({
         title: "Failed to Create Employee",
-        description: error.message || "An unexpected error occurred.",
+        description: error.response?.data?.detail || error.message || "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
@@ -130,7 +129,6 @@ const CreateEmployeePage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* User and Role */}
               <div className="space-y-2">
                 <Label htmlFor="user_id">User *</Label>
                 <Select onValueChange={(value) => handleChange('user_id', value)} value={formData.user_id} disabled={isLoading}>
@@ -153,15 +151,14 @@ const CreateEmployeePage = () => {
                 <Label htmlFor="employee_code">Employee Code</Label>
                 <Input id="employee_code" value={formData.employee_code} onChange={(e) => handleChange('employee_code', e.target.value)} disabled={isLoading} />
               </div>
-              {/* Employment Details */}
               <div className="space-y-2">
                 <Label htmlFor="engagement_type">Engagement Type *</Label>
                 <Select onValueChange={(value) => handleChange('engagement_type', value)} value={formData.engagement_type} disabled={isLoading}>
                   <SelectTrigger><SelectValue placeholder="Select type..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="FULL_TIME">Full-Time</SelectItem>
-                    <SelectItem value="PART_TIME">Part-Time</SelectItem>
-                    <SelectItem value="CONTRACT">Contract</SelectItem>
+                    {Object.values(EngagementType).map(type => (
+                      <SelectItem key={type} value={type}>{type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1).toLowerCase()}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -173,7 +170,6 @@ const CreateEmployeePage = () => {
                 <Label htmlFor="designation">Designation</Label>
                 <Input id="designation" value={formData.designation} onChange={(e) => handleChange('designation', e.target.value)} disabled={isLoading} />
               </div>
-              {/* Dates */}
               <div className="space-y-2">
                 <Label htmlFor="hire_date">Hire Date *</Label>
                 <Input id="hire_date" type="date" value={formData.hire_date} onChange={(e) => handleDateChange('hire_date', e.target.value)} disabled={isLoading} required />
@@ -182,7 +178,6 @@ const CreateEmployeePage = () => {
                 <Label htmlFor="contract_end_date">Contract End Date</Label>
                 <Input id="contract_end_date" type="date" value={formData.contract_end_date || ''} onChange={(e) => handleDateChange('contract_end_date', e.target.value)} disabled={isLoading} />
               </div>
-              {/* Emergency Contact */}
               <div className="space-y-2">
                 <Label htmlFor="emergency_contact_name">Emergency Contact Name</Label>
                 <Input id="emergency_contact_name" value={formData.emergency_contact_name} onChange={(e) => handleChange('emergency_contact_name', e.target.value)} disabled={isLoading} />
@@ -191,7 +186,6 @@ const CreateEmployeePage = () => {
                 <Label htmlFor="emergency_contact_phone">Emergency Contact Phone</Label>
                 <Input id="emergency_contact_phone" value={formData.emergency_contact_phone} onChange={(e) => handleChange('emergency_contact_phone', e.target.value)} disabled={isLoading} />
               </div>
-               {/* Financial Info */}
               <div className="space-y-2">
                 <Label htmlFor="bank_name">Bank Name</Label>
                 <Input id="bank_name" value={formData.bank_name} onChange={(e) => handleChange('bank_name', e.target.value)} disabled={isLoading} />
@@ -205,7 +199,6 @@ const CreateEmployeePage = () => {
                 <Input id="tax_id" value={formData.tax_id} onChange={(e) => handleChange('tax_id', e.target.value)} disabled={isLoading} />
               </div>
             </div>
-              {/* Address and Notes */}
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <Textarea id="address" value={formData.address} onChange={(e) => handleChange('address', e.target.value)} disabled={isLoading} />
