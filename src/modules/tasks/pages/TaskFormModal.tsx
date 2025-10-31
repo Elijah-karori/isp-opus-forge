@@ -1,6 +1,9 @@
 
 import React, { useState } from "react";
-import { Modal, Button, Input, Textarea } from "@/components/ui";
+import { Modal } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useTasks } from "../hooks/useTasks";
 
 export default function TaskFormModal({ task }) {

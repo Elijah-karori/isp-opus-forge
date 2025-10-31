@@ -50,6 +50,7 @@ import WorkflowDashboard from "./features/workflow/pages/WorkflowDashboard";
 import EmployeeRegistration from "./features/hr/EmployeeRegistration";
 import TaskListPage from "@/modules/tasks/pages/TaskListPage";
 import TaskDetailPage from "@/modules/tasks/pages/TaskDetailPage";
+import PerformanceDashboard from "./features/performance/pages/PerformanceDashboard";
 
 const App = () => (
   <AuthProvider>
@@ -156,7 +157,7 @@ const App = () => (
                 path="/performance" 
                 element={
                   <ProtectedRoute roles={['admin', 'finance', 'hr']}>
-                    <Performance />
+                    <PerformanceDashboard />
                   </ProtectedRoute>
                 } 
               />

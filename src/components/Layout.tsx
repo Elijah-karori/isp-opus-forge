@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-// Icon mapping
 const iconMap: Record<string, any> = {
   dashboard: LayoutDashboard,
   home: Home,
@@ -44,6 +43,24 @@ const iconMap: Record<string, any> = {
   'create-employee': UserPlus,
 };
 
+const menuRoleConfig: Record<string, string[]> = {
+  'dashboard': ['admin', 'finance', 'hr', 'procurement', 'technician', 'marketing'],
+  'projects': ['admin', 'finance', 'procurement', 'technician', 'marketing'],
+  'tasks': ['admin', 'technician', 'finance'],
+  'inventory': ['admin', 'procurement', 'finance'],
+  'performance': ['admin', 'finance', 'hr'],
+  'finance': ['admin', 'finance'],
+  'hr': ['admin', 'hr'],
+  'create-employee': ['admin', 'hr'],
+  'approvals': ['admin', 'finance', 'hr', 'procurement'],
+  'users': ['admin'],
+  'suppliers': ['admin', 'procurement'],
+  'price-monitoring': ['admin', 'procurement', 'finance'],
+  'technician': ['admin', 'technician'],
+  'marketing': ['admin', 'marketing'],
+  'workflows': ['admin', 'finance', 'hr', 'procurement', 'technician', 'marketing'],
+};
+
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
@@ -53,55 +70,42 @@ export const Layout = () => {
     return <Navigate to="/login" replace />;
   }
 
-  let menuItems = user?.menus || [];
-  const isHrUser = user?.roles?.includes('hr');
+  const userRoles = user?.roles || [];
 
-  // --- TEMPORARY HR SOLUTION --- 
-  if (isHrUser && !menuItems.find(item => item.path === '/hr/create-employee')) {
-    const hrMenuIndex = menuItems.findIndex(item => item.key === 'hr');
-    if (hrMenuIndex !== -1) {
-        menuItems.splice(hrMenuIndex + 1, 0, {
-            path: '/hr/create-employee',
-            label: 'Create Employee',
-            key: 'create-employee',
-        });
-    } else {
-        menuItems.push({
-            path: '/hr/create-employee',
-            label: 'Create Employee',
-            key: 'create-employee',
-        });
-    }
-  }
-  // --- END TEMPORARY HR SOLUTION ---
+  const getFilteredMenuItems = (menuItems) => {
+    let correctedItems = menuItems.map(item => {
+      if (item.path === '/technician') return { ...item, path: '/technicians' };
+      if (item.path === '/technician-tools') return { ...item, path: '/technicians/tools' };
+      return item;
+    });
 
-  // --- TEMPORARY TECHNICIAN ROUTE FIX ---
-  menuItems = menuItems.map(item => {
-    if (item.path === '/technician') {
-      return { ...item, path: '/technicians' };
+    if (userRoles.includes('hr') && !correctedItems.find(item => item.key === 'create-employee')) {
+      const hrMenuIndex = correctedItems.findIndex(item => item.key === 'hr');
+      const itemToAdd = {
+        path: '/hr/create-employee',
+        label: 'Create Employee',
+        key: 'create-employee',
+      };
+      if (hrMenuIndex !== -1) {
+        correctedItems.splice(hrMenuIndex + 1, 0, itemToAdd);
+      } else {
+        correctedItems.push(itemToAdd);
+      }
     }
-    if (item.path === '/technician-tools') {
-        return { ...item, path: '/technicians/tools' };
-    }
-    if (item.path === '/technician/reports') {
-        return { ...item, path: '/technicians/reports' };
-    }
-    if (item.path === '/technician/attendance') {
-        return { ...item, path: '/technicians/attendance' };
-    }
-    if (item.path === '/technician/tasks') {
-        return { ...item, path: '/technicians/tasks' };
-    }
-    return item;
-  });
-  // --- END TEMPORARY TECHNICIAN ROUTE FIX ---
+
+    return correctedItems.filter(item => {
+      const requiredRoles = menuRoleConfig[item.key];
+      if (!requiredRoles) return true;
+      return requiredRoles.some(role => userRoles.includes(role));
+    });
+  };
+
+  const menuItems = getFilteredMenuItems(user?.menus || []);
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-sidebar transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-full flex-col">
-          {/* Logo */}
           <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
             <h1 className="text-xl font-bold text-sidebar-foreground">ISP ERP</h1>
             <Button
@@ -114,7 +118,6 @@ export const Layout = () => {
             </Button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-3">
             {menuItems.map((item) => {
               const Icon = iconMap[item.key] || Home;
@@ -122,7 +125,7 @@ export const Layout = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setSidebarOpen(false)} // Close sidebar on mobile after click
+                  onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${
                     location.pathname.startsWith(item.path) ? 'bg-sidebar-accent' : ''
                   }`}
@@ -134,28 +137,18 @@ export const Layout = () => {
             })}
           </nav>
 
-          {/* User section */}
           <div className="border-t border-sidebar-border p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <Link to="/profile" className="block hover:underline">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user?.full_name}
-                </p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
-                {user?.roles && user.roles.length > 0 && (
-                  <p className="text-xs text-sidebar-foreground/50 truncate capitalize mt-1">
-                    {user.roles.join(', ')}
-                  </p>
-                )}
-                  </Link>
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.full_name}</p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
+                  {user?.roles && user.roles.length > 0 && (
+                    <p className="text-xs text-sidebar-foreground/50 truncate capitalize mt-1">{user.roles.join(', ')}</p>
+                  )}
+                </Link>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={logout}
-                className="text-sidebar-foreground hover:text-destructive"
-              >
+              <Button variant="ghost" size="icon" onClick={logout} className="text-sidebar-foreground hover:text-destructive">
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
@@ -163,33 +156,21 @@ export const Layout = () => {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
         <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1" />
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
           <Outlet />
         </main>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   );
