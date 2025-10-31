@@ -48,8 +48,8 @@ import Attendance from "./pages/Attendance";
 import TechnicianTasks from "./pages/TechnicianTasks";
 import WorkflowDashboard from "./features/workflow/pages/WorkflowDashboard";
 import EmployeeRegistration from "./features/hr/EmployeeRegistration";
-import TaskListPage from "./modules/tasks/pages/TaskListPage";
-import TaskDetailPage from "./modules/tasks/pages/TaskDetailPage";
+import TaskListPage from "@/modules/tasks/pages/TaskListPage";
+import TaskDetailPage from "@/modules/tasks/pages/TaskDetailPage";
 
 const App = () => (
   <AuthProvider>
