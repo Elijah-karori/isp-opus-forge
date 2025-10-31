@@ -9,7 +9,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
 import Inventory from "./pages/Inventory";
 import Performance from "./pages/Performance";
 import FinancePage from "./pages/Finance";
@@ -49,6 +48,8 @@ import Attendance from "./pages/Attendance";
 import TechnicianTasks from "./pages/TechnicianTasks";
 import WorkflowDashboard from "./features/workflow/pages/WorkflowDashboard";
 import EmployeeRegistration from "./features/hr/EmployeeRegistration";
+import TaskListPage from "./modules/tasks/pages/TaskListPage";
+import TaskDetailPage from "./modules/tasks/pages/TaskDetailPage";
 
 const App = () => (
   <AuthProvider>
@@ -131,7 +132,15 @@ const App = () => (
                 path="/tasks" 
                 element={
                   <ProtectedRoute roles={['admin', 'technician', 'finance']}>
-                    <Tasks />
+                    <TaskListPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/tasks/:id" 
+                element={
+                  <ProtectedRoute roles={['admin', 'technician', 'finance']}>
+                    <TaskDetailPage />
                   </ProtectedRoute>
                 } 
               />
