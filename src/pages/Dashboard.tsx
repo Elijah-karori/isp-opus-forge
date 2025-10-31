@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { BarChart, TrendingUp, Package, Users, AlertCircle, CheckCircle2, DollarSign, ClipboardList, Megaphone, FolderKanban } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function Dashboard() {
   const { user } = useAuth();
   const { isFinance, isHR, isAdmin, isMarketing } = usePermissions();
@@ -14,45 +16,49 @@ export default function Dashboard() {
   const { data: projects } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiClient.getProjects({ limit: 10 }),
+    enabled: !!API_BASE_URL,
   });
 
   const { data: tasks } = useQuery({
     queryKey: ['tasks'],
     queryFn: () => apiClient.getTasks({ limit: 10 }),
+    enabled: !!API_BASE_URL,
   });
 
   const { data: products } = useQuery({
     queryKey: ['low-stock'],
     queryFn: () => apiClient.getProducts({ low_stock: true, limit: 10 }),
+    enabled: !!API_BASE_URL,
   });
   
   const { data: technicians } = useQuery({
     queryKey: ['active-technicians'],
     queryFn: () => apiClient.getTechnicians({ active_only: true }),
+    enabled: !!API_BASE_URL,
   });
 
   const { data: variances } = useQuery({
     queryKey: ['pending-variances-count'],
     queryFn: () => apiClient.getPendingVariances({ limit: 5 }),
-    enabled: isFinance() || isAdmin(),
+    enabled: (isFinance() || isAdmin()) && !!API_BASE_URL,
   });
 
   const { data: payouts } = useQuery({
     queryKey: ['pending-payouts-count'],
     queryFn: () => apiClient.getPendingPayouts({ limit: 5 }),
-    enabled: isHR() || isAdmin() || isFinance(),
+    enabled: (isHR() || isAdmin() || isFinance()) && !!API_BASE_URL,
   });
   
   const { data: campaigns } = useQuery({
     queryKey: ['active-campaigns'],
     queryFn: () => apiClient.getCampaigns({ status: 'active' }),
-    enabled: isMarketing() || isAdmin(),
+    enabled: (isMarketing() || isAdmin()) && !!API_BASE_URL,
   });
 
   const { data: leads } = useQuery({
     queryKey: ['leads-count'],
     queryFn: () => apiClient.getLeads({ limit: 1000 }), // A high limit to get a more accurate count
-    enabled: isMarketing() || isAdmin(),
+    enabled: (isMarketing() || isAdmin()) && !!API_BASE_URL,
   });
 
   const activeProjects = Array.isArray(projects) ? projects.filter((p: any) => p.status === 'active').length : 0;

@@ -62,13 +62,12 @@ const CreateEmployeePage = () => {
     const fetchData = async () => {
       try {
         const usersData = await apiClient.getUsers();
-        // Ensure usersData is an array before setting state
-        if (Array.isArray(usersData)) {
-          setUsers(usersData);
+        // The API returns an object with a 'users' property, which is the array
+        if (usersData && Array.isArray(usersData.users)) {
+          setUsers(usersData.users);
         } else {
-          // If the API returns something else (like on error), set an empty array
           setUsers([]);
-          console.error("API did not return an array for users:", usersData);
+          console.error("API did not return a valid user array:", usersData);
           toast({ title: "Failed to fetch users", description: "Could not load users.", variant: "destructive" });
         }
         setRoles(fallbackRoles); // Using fallback roles for now
