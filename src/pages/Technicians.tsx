@@ -1,7 +1,8 @@
+
 // src/pages/Technicians.tsx
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { 
   getTechnicians, 
   getTechnicianLeaderboard,
@@ -26,7 +27,11 @@ import {
 import { TechnicianPerformance } from '@/components/technicians/TechnicianPerformance';
 import { AttendanceTracker } from '@/components/technicians/AttendanceTracker';
 
-const Technicians = () => {
+// This is the new layout component for the technician section.
+// It will render the nested routes.
+export const TechnicianPage = () => <Outlet />;
+
+const TechnicianDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const { data: technicians, isLoading: techLoading } = useQuery({
@@ -253,4 +258,4 @@ const Technicians = () => {
   );
 };
 
-export default Technicians;
+export default TechnicianDashboard;

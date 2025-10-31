@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import FinancePayouts from "./pages/finance/FinancePayouts";
 import FinanceReports from "./pages/FinanceReports";
 import { HRPage, HRDashboard } from "./pages/HR";
 import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
+import CreateEmployeePage from "./pages/hr/CreateEmployee";
 import { EmployeeList } from "./components/hr/EmployeeList";
 import { AttendanceLogs } from "./components/hr/AttendanceLogs";
 import { PayoutsManager } from "./components/hr/PayoutsManager";
@@ -41,9 +43,12 @@ import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import TechnicianDashboard, { TechnicianPage } from "./pages/Technicians";
 import TechnicianTools from "./pages/TechnicianTools";
 import Attendance from "./pages/Attendance";
 import TechnicianTasks from "./pages/TechnicianTasks";
+import WorkflowDashboard from "./features/workflow/pages/WorkflowDashboard";
+import EmployeeRegistration from "./features/hr/EmployeeRegistration";
 
 const App = () => (
   <AuthProvider>
@@ -67,6 +72,14 @@ const App = () => (
                 } 
               />
               <Route path="/workflows" element={<Workflows />} />
+              <Route 
+                path="/workflows/dashboard"
+                element={
+                  <ProtectedRoute roles={['admin', 'hr']}>
+                    <WorkflowDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route 
                 path="/workflows/finance" 
                 element={
@@ -164,6 +177,8 @@ const App = () => (
               >
                 <Route index element={<HRDashboard />} />
                 <Route path="employees" element={<EmployeeList />} />
+                <Route path="create-employee" element={<ProtectedRoute roles={['admin', 'hr']}><CreateEmployeePage /></ProtectedRoute>} />
+                <Route path="register-employee" element={<ProtectedRoute roles={['admin', 'hr']}><EmployeeRegistration /></ProtectedRoute>} />
                 <Route path="attendance" element={<AttendanceLogs />} />
                 <Route path="payouts" element={<PayoutsManager />} />
                 <Route path="complaints" element={<ComplaintsManager />} />
@@ -211,38 +226,20 @@ const App = () => (
               />
 
               {/* Technician Routes */}
-              <Route
-                path="/technician-tools"
+              <Route 
+                path="/technicians" 
                 element={
                   <ProtectedRoute roles={['admin', 'technician']}>
-                    <TechnicianTools />
+                    <TechnicianPage />
                   </ProtectedRoute>
                 }
-              />
-              <Route
-                path="/technician/reports"
-                element={
-                  <ProtectedRoute roles={['admin', 'technician']}>
-                    <FinanceReports />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/technician/attendance"
-                element={
-                  <ProtectedRoute roles={['admin', 'technician']}>
-                    <Attendance />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/technician/tasks"
-                element={
-                  <ProtectedRoute roles={['admin', 'technician']}>
-                    <TechnicianTasks />
-                  </ProtectedRoute>
-                }
-              />
+              >
+                <Route index element={<TechnicianDashboard />} />
+                <Route path="tools" element={<TechnicianTools />} />
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="tasks" element={<TechnicianTasks />} />
+                <Route path="reports" element={<FinanceReports />} />
+              </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

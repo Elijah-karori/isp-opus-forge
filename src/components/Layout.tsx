@@ -1,3 +1,4 @@
+
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -18,11 +19,12 @@ import {
   CheckSquare,
   MessageSquare,
   Search,
-  Wrench
+  Wrench,
+  UserPlus
 } from 'lucide-react';
 import { useState } from 'react';
 
-// Icon mapping for dynamic backend menus (by menu key)
+// Icon mapping
 const iconMap: Record<string, any> = {
   dashboard: LayoutDashboard,
   home: Home,
@@ -39,6 +41,7 @@ const iconMap: Record<string, any> = {
   search: Search,
   attendance: ClipboardList,
   'technician-tools': Wrench,
+  'create-employee': UserPlus,
 };
 
 export const Layout = () => {
@@ -50,7 +53,48 @@ export const Layout = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const menuItems = user?.menus || [];
+  let menuItems = user?.menus || [];
+  const isHrUser = user?.roles?.includes('hr');
+
+  // --- TEMPORARY HR SOLUTION --- 
+  if (isHrUser && !menuItems.find(item => item.path === '/hr/create-employee')) {
+    const hrMenuIndex = menuItems.findIndex(item => item.key === 'hr');
+    if (hrMenuIndex !== -1) {
+        menuItems.splice(hrMenuIndex + 1, 0, {
+            path: '/hr/create-employee',
+            label: 'Create Employee',
+            key: 'create-employee',
+        });
+    } else {
+        menuItems.push({
+            path: '/hr/create-employee',
+            label: 'Create Employee',
+            key: 'create-employee',
+        });
+    }
+  }
+  // --- END TEMPORARY HR SOLUTION ---
+
+  // --- TEMPORARY TECHNICIAN ROUTE FIX ---
+  menuItems = menuItems.map(item => {
+    if (item.path === '/technician') {
+      return { ...item, path: '/technicians' };
+    }
+    if (item.path === '/technician-tools') {
+        return { ...item, path: '/technicians/tools' };
+    }
+    if (item.path === '/technician/reports') {
+        return { ...item, path: '/technicians/reports' };
+    }
+    if (item.path === '/technician/attendance') {
+        return { ...item, path: '/technicians/attendance' };
+    }
+    if (item.path === '/technician/tasks') {
+        return { ...item, path: '/technicians/tasks' };
+    }
+    return item;
+  });
+  // --- END TEMPORARY TECHNICIAN ROUTE FIX ---
 
   return (
     <div className="flex h-screen bg-background">
@@ -78,8 +122,9 @@ export const Layout = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  onClick={() => setSidebarOpen(false)} // Close sidebar on mobile after click
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${
-                    location.pathname === item.path ? 'bg-sidebar-accent' : ''
+                    location.pathname.startsWith(item.path) ? 'bg-sidebar-accent' : ''
                   }`}
                 >
                   <Icon className="h-5 w-5" />

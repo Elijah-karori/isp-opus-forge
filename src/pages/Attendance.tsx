@@ -27,7 +27,7 @@ export default function Attendance() {
   const { data: attendanceRecords = [], isLoading } = useQuery<AttendanceRecord[]>({
     queryKey: ['attendance', user?.id],
     queryFn: async () => {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${API_BASE_URL}/api/v1/hr/attendance?employee_id=${user?.id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
@@ -45,7 +45,7 @@ export default function Attendance() {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
       
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${API_BASE_URL}/api/v1/hr/attendance`, {
         method: 'POST',
         headers: {
@@ -79,7 +79,7 @@ export default function Attendance() {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
       
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${API_BASE_URL}/api/v1/hr/attendance/${recordId}`, {
         method: 'PATCH',
         headers: {

@@ -1,6 +1,5 @@
-import { apiClient } from '@/lib/api';
 
-// Based on OpenAPI spec
+import { apiClient } from '@/lib/api';
 
 export enum EngagementType {
   FullTime = "FULL_TIME",
@@ -88,155 +87,91 @@ export interface ComplaintCreate {
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
-export interface RateCard {
-  id: number;
-  employee_id: number;
-  engagement_type: EngagementType;
-  base_rate: string;
-  rate_unit: string;
-  skill_multiplier?: string;
-  certification_bonus?: string;
-  overtime_rate?: string;
-  tax_rate?: string;
-  insurance_deduction?: string;
-  valid_from: string;
-  valid_to?: string;
-  is_active: boolean;
-  notes?: string;
-}
-
 export interface RateCardCreate {
   employee_id: number;
   engagement_type: EngagementType;
   base_rate: number | string;
   rate_unit: string;
-  skill_multiplier?: number | string;
-  certification_bonus?: number | string;
-  overtime_rate?: number | string;
-  tax_rate?: number | string;
-  insurance_deduction?: number | string;
   valid_from: string;
-  valid_to?: string;
-  is_active?: boolean;
-  notes?: string;
-}
-
-export interface Payout {
-  id: number;
-  employee_id: number;
-  gross_amount: string;
-  net_amount: string;
-  status: PaymentStatus;
-  period_start: string;
-  period_end: string;
-  approved_by?: number;
-  payment_method?: string;
-  payment_reference?: string;
-  paid_at?: string;
-}
-
-export interface PayrollSummary {
-  period_start: string;
-  period_end: string;
-  total_employees: number;
-  total_gross: number;
-  total_deductions: number;
-  total_net: number;
-  pending_count: number;
-  paid_count: number;
-}
-
-export interface EmployeePerformance {
-  employee_id: number;
-  employee_name: string;
-  department: string;
-  tasks_completed: number;
-  tasks_assigned: number;
-  completion_rate: number;
-  avg_rating: number;
-  total_revenue: number;
-  complaints_count: number;
-  attendance_rate: number;
-  on_time_rate: number;
 }
 
 // Employee management
 export const getEmployees = (params?: { department?: string; status?: string; skip?: number; limit?: number }) =>
-  apiClient.get('/api/v1/hr/employees', { params });
+  apiClient.getEmployees(params);
 
 export const getEmployee = (employeeId: number) =>
-  apiClient.get(`/api/v1/hr/employees/${employeeId}`);
+  apiClient.getEmployee(employeeId);
 
-export const createEmployee = (data: EmployeeCreate) =>
-  apiClient.post('/api/v1/hr/employees', data);
+export const createEmployee = (data: any) => // Changed from EmployeeCreate to any to match usage
+  apiClient.createEmployee(data);
 
 export const updateEmployee = (employeeId: number, data: Partial<Employee>) =>
-  apiClient.patch(`/api/v1/hr/employees/${employeeId}`, data);
+  apiClient.updateEmployee(employeeId, data);
 
 export const deleteEmployee = (employeeId: number) =>
-  apiClient.delete(`/api/v1/hr/employees/${employeeId}`);
+  apiClient.deleteEmployee(employeeId);
 
 // Rate Card Management
 export const getRateCards = (employeeId: number) => 
-  apiClient.get(`/api/v1/hr/rate-cards/${employeeId}`);
+  apiClient.getRateCards(employeeId);
 
 export const createRateCard = (data: RateCardCreate) =>
-  apiClient.post('/api/v1/hr/rate-cards', data);
+  apiClient.createRateCard(data);
 
 // Attendance management
 export const getAttendance = (params?: { employee_id?: number; date?: string; start_date?: string; end_date?: string; }) =>
-  apiClient.get('/api/v1/hr/attendance', { params });
+  apiClient.getAttendance(params);
 
 export const recordAttendance = (data: AttendanceRecordCreate) =>
-  apiClient.post('/api/v1/hr/attendance', data);
+  apiClient.recordAttendance(data);
 
 export const getEmployeeAttendance = (employeeId: number, params: { start_date: string; end_date: string; }) =>
-  apiClient.get(`/api/v1/hr/attendance/${employeeId}`, { params });
+  apiClient.getEmployeeAttendance(employeeId, params);
 
 // Payroll Management
 export const calculatePayout = (data: { employee_id: number; period_start: string; period_end: string; }) =>
-  apiClient.post('/api/v1/hr/payouts/calculate', data);
+  apiClient.calculatePayout(data);
 
 export const getPendingPayouts = (limit: number = 50) =>
-  apiClient.get('/api/v1/hr/payouts/pending', { params: { limit } });
+  apiClient.getPendingPayouts({ limit });
 
 export const getEmployeePayouts = (employeeId: number, limit: number = 10) =>
-  apiClient.get(`/api/v1/hr/payouts/employee/${employeeId}`, { params: { limit } });
+  apiClient.getEmployeePayouts(employeeId, limit);
 
 export const approvePayout = (payoutId: number, data: { approved: boolean; notes?: string }) =>
-  apiClient.post(`/api/v1/hr/payouts/${payoutId}/approve`, data);
+  apiClient.approvePayout(payoutId, data);
 
 export const markPayoutPaid = (payoutId: number, payment_method: string, payment_reference: string) =>
-  apiClient.post(`/api/v1/hr/payouts/${payoutId}/mark-paid?payment_method=${payment_method}&payment_reference=${payment_reference}`);
+  apiClient.markPayoutPaid(payoutId, payment_method, payment_reference);
 
 
 // Complaint management
 export const getComplaints = (params?: { employee_id?: number; status?: string; }) =>
-  apiClient.get('/api/v1/hr/complaints', { params });
+  apiClient.getComplaints(params);
 
 export const recordComplaint = (data: ComplaintCreate) =>
-  apiClient.post('/api/v1/hr/complaints', data);
+  apiClient.recordComplaint(data);
 
 export const getPendingComplaints = (limit: number = 50) =>
-  apiClient.get('/api/v1/hr/complaints/pending', { params: { limit } });
+  apiClient.getPendingComplaints(limit);
 
 export const investigateComplaint = (complaintId: number, data: { is_valid: boolean; investigation_notes: string; resolution?: string; }) =>
-  apiClient.post(`/api/v1/hr/complaints/${complaintId}/investigate`, data);
+  apiClient.investigateComplaint(complaintId, data);
 
 // Reports
 export const getPayrollSummary = (params: { period_start: string; period_end: string; }) =>
-  apiClient.get('/api/v1/hr/reports/payroll-summary', { params });
+  apiClient.getPayrollSummary(params);
 
 export const getEmployeePerformance = (employeeId: number, params: { period_start: string; period_end: string; }) =>
-  apiClient.get(`/api/v1/hr/reports/employee-performance/${employeeId}`, { params });
+  apiClient.getEmployeePerformance(employeeId, params);
 
 
 // Export Functions
 export const exportEmployees = (format: 'csv' | 'excel' = 'csv') =>
-  apiClient.get(`/api/v1/hr/employees/export?format=${format}`, { responseType: 'blob' });
+  apiClient.exportEmployees(format);
 
 export const exportAttendance = (params: { start_date: string; end_date: string; format?: 'csv' | 'excel'; }) =>
-  apiClient.get('/api/v1/hr/attendance/export', { params, responseType: 'blob' });
+  apiClient.exportAttendance(params);
 
 export const exportPayroll = (params: { period_start: string; period_end: string; format?: 'csv' | 'excel'; }) =>
-  apiClient.get('/api/v1/hr/payouts/export', { params, responseType: 'blob' });
+  apiClient.exportPayroll(params);

@@ -1,18 +1,17 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { getEmployees, type Employee } from '@/api/hr';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, UserPlus } from 'lucide-react';
+import { Loader2, Users, Wrench } from 'lucide-react';
 
-export function EmployeeList() {
-  const navigate = useNavigate();
-  const { data: employees, isLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployees({ is_active: true }),
+export function TechnicianList() {
+  const { data: technicians, isLoading } = useQuery({
+    queryKey: ['technicians'],
+    queryFn: () => getEmployees({ department: 'Technician' }),
   });
 
   const getStatusBadge = (status: Employee['status']) => {
@@ -25,19 +24,15 @@ export function EmployeeList() {
     return variants[status] || variants.inactive;
   };
 
-  const employeeList = employees || [];
+  const technicianList = technicians || [];
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Employee Directory
+          <Wrench className="h-5 w-5" />
+          Technician List
         </CardTitle>
-        <Button onClick={() => navigate('/hr/create-employee')}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Create Employee
-        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -49,32 +44,30 @@ export function EmployeeList() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Department</TableHead>
                 <TableHead>Designation</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employeeList.map((employee: Employee) => {
-                const statusBadge = getStatusBadge(employee.status);
+              {technicianList.map((technician: Employee) => {
+                const statusBadge = getStatusBadge(technician.status);
                 return (
-                  <TableRow key={employee.id}>
+                  <TableRow key={technician.id}>
                     <TableCell className="font-medium">
-                      {employee.user?.full_name}
-                      <div className="text-sm text-muted-foreground">{employee.user?.email}</div>
+                      {technician.user?.full_name}
+                      <div className="text-sm text-muted-foreground">{technician.user?.email}</div>
                     </TableCell>
-                    <TableCell>{employee.department}</TableCell>
-                    <TableCell>{employee.designation}</TableCell>
+                    <TableCell>{technician.designation}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={statusBadge.class}>
                         {statusBadge.label}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Link to={`/hr/employees/${employee.id}`}>
+                      <Link to={`/hr/employees/${technician.id}`}>
                         <Button variant="outline" size="sm">
-                          View/Edit
+                          View Profile
                         </Button>
                       </Link>
                     </TableCell>
