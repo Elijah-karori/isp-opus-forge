@@ -1,10 +1,17 @@
 
 import React, { useState } from "react";
-import { Modal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useTasks } from "../hooks/useTasks";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function TaskFormModal({ task }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,14 +24,19 @@ export default function TaskFormModal({ task }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateTask.mutate(formData);
+    updateTask.mutate({ id: task.id, data: formData });
     setIsOpen(false);
   };
 
   return (
-    <>
-      <Button onClick={() => setIsOpen(true)}>Edit Task</Button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Edit Task">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>Edit Task</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Task</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <Input
@@ -40,11 +52,11 @@ export default function TaskFormModal({ task }) {
               placeholder="Task Description"
             />
           </div>
-          <div className="mt-4 flex justify-end">
+          <DialogFooter>
             <Button type="submit">Save Changes</Button>
-          </div>
+          </DialogFooter>
         </form>
-      </Modal>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,26 +1,38 @@
 
 import React, { useState } from "react";
-import { Modal } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTasks } from "../hooks/useTasks";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function TaskBOMModal({ taskId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [materialName, setMaterialName] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const { addTaskMaterial } = useTasks();
+  const { updateBOM } = useTasks();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addTaskMaterial.mutate({ taskId, materialName, quantity });
+    updateBOM.mutate({ id: taskId, data: { materialName, quantity } });
     setIsOpen(false);
   };
 
   return (
-    <>
-      <Button onClick={() => setIsOpen(true)}>Add Material</Button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Material">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>Add Material</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Material</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <Input
@@ -35,11 +47,11 @@ export default function TaskBOMModal({ taskId }) {
               placeholder="Quantity"
             />
           </div>
-          <div className="mt-4 flex justify-end">
+          <DialogFooter>
             <Button type="submit">Add</Button>
-          </div>
+          </DialogFooter>
         </form>
-      </Modal>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }

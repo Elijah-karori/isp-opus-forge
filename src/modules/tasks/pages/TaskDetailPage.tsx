@@ -2,7 +2,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { taskApi } from "@/modules/tasks/services/taskApi";
+import { TaskApi } from "@/modules/tasks/services/taskApi";
 import TaskFormModal from "./TaskFormModal";
 import TaskBOMModal from "./TaskBOMModal";
 
@@ -10,7 +10,7 @@ export default function TaskDetailPage() {
   const { id } = useParams();
   const { data: task, isLoading, isError } = useQuery(
     ["task", id],
-    () => taskApi.getTask(id)
+    () => TaskApi.getById(id)
   );
 
   if (isLoading) {
