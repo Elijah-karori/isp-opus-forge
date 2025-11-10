@@ -37,7 +37,7 @@ const Profile = () => {
   const [profileData, setProfileData] = useState({
     full_name: user?.full_name || '',
     phone: user?.phone || '',
-    department: user?.department || '',
+    department: typeof user?.department === 'object' ? user.department.name : (user?.department || ''),
     position: user?.position || '',
   });
 

@@ -4,27 +4,40 @@ import { TaskApi } from "../services/taskApi";
 export const useTasks = () => {
   const queryClient = useQueryClient();
 
-  const tasks = useQuery(["tasks"], TaskApi.getAll);
-
-  const createTask = useMutation(TaskApi.create, {
-    onSuccess: () => queryClient.invalidateQueries(["tasks"]),
+  const tasks = useQuery({
+    queryKey: ["tasks"],
+    queryFn: TaskApi.getAll,
   });
 
-  const updateTask = useMutation(
-    ({ id, data }: { id: number; data: any }) => TaskApi.update(id, data),
-    { onSuccess: () => queryClient.invalidateQueries(["tasks"]) }
-  );
+  const createTask = useMutation({
+    mutationFn: (data: any) => TaskApi.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
 
-  const updateBOM = useMutation(
-    ({ id, data }: { id: number; data: any }) => TaskApi.updateBOM(id, data),
-    { onSuccess: () => queryClient.invalidateQueries(["tasks"]) }
-  );
+  const updateTask = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => TaskApi.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
 
-  const approveBOM = useMutation(
-    ({ id, approve }: { id: number; approve: boolean }) =>
+  const updateBOM = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => TaskApi.updateBOM(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+
+  const approveBOM = useMutation({
+    mutationFn: ({ id, approve }: { id: number; approve: boolean }) =>
       TaskApi.approveBOM(id, approve),
-    { onSuccess: () => queryClient.invalidateQueries(["tasks"]) }
-  );
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
 
-  return { tasks, createTask, updateTask, updateBOM, approveBOM };
+  return { 
+    data: tasks.data,
+    tasks: tasks.data, 
+    isLoading: tasks.isLoading, 
+    isError: tasks.isError,
+    createTask, 
+    updateTask, 
+    updateBOM, 
+    approveBOM 
+  };
 };

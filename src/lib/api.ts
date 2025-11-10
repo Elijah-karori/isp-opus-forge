@@ -540,6 +540,14 @@ class ApiClient {
   async updateUser(userId: number, data: any) {
     return this.request<any>({ url: `/users/${userId}`, method: "PUT", data });
   }
+
+  async createUser(data: any) {
+    return this.request<any>({ url: "/users/", method: "POST", data });
+  }
+
+  async createTaskBOM(taskId: number, data: any) {
+    return this.request<any>({ url: `/tasks/${taskId}/bom`, method: "POST", data });
+  }
 }
 
 // Export a single shared instance

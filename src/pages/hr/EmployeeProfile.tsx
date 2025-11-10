@@ -58,7 +58,7 @@ export function EmployeeProfile() {
 
   const canEditProfile = employee && (
     canAccess({ requiredRoles: ['admin', 'hr_manager'] }) || 
-    canAccess({ requiredDepartmentId: employee.department?.id })
+    canAccess({ requiredDepartmentId: typeof employee.department === 'string' ? undefined : employee.department })
   );
 
   if (isLoading) {
@@ -81,7 +81,7 @@ export function EmployeeProfile() {
             </Avatar>
             <div className="space-y-1">
               <h1 className="text-3xl font-bold">{employee.user?.full_name}</h1>
-              <p className="text-lg text-muted-foreground">{employee.designation} - {employee.department?.name}</p>
+              <p className="text-lg text-muted-foreground">{employee.designation} - {typeof employee.department === 'string' ? employee.department : employee.department}</p>
               <div className="flex items-center gap-2 pt-2">
                 <Badge>{employee.status}</Badge>
                 <span className="text-sm text-muted-foreground">Employee Code: {employee.employee_code}</span>
@@ -139,7 +139,7 @@ export function EmployeeProfile() {
                 {complaints.map(c => (
                   <TableRow key={c.id}>
                     <TableCell>{c.complaint_type}</TableCell>
-                    <TableCell><Badge severity={c.severity}>{c.severity}</Badge></TableCell>
+                    <TableCell><Badge variant={c.severity === 'critical' || c.severity === 'high' ? 'destructive' : 'secondary'}>{c.severity}</Badge></TableCell>
                     <TableCell>{new Date(c.reported_at).toLocaleDateString()}</TableCell>
                   </TableRow>
                 ))}

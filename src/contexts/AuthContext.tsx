@@ -17,6 +17,11 @@ interface User {
   company?: CompanyInfo;
   division?: DivisionInfo;
   department?: DepartmentInfo;
+  phone?: string;
+  position?: string;
+  is_active?: boolean;
+  created_at?: string;
+  last_login?: string;
 }
 interface JWTPayload { sub: string | number; roles?: string[]; exp: number; }
 
@@ -26,6 +31,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  setUser: (user: User | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -209,7 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading, setUser }}>
       {children}
     </AuthContext.Provider>
   );

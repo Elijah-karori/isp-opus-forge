@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Progress } from "@/components/ui";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 export default function KPIProgressCard({ kpi }: { kpi: any }) {
   return (

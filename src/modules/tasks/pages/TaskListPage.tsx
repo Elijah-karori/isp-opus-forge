@@ -18,7 +18,7 @@ export default function TaskListPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Task List</h1>
       <div className="grid gap-4">
-        {tasks.map((task: any) => (
+        {tasks && Array.isArray(tasks) && tasks.map((task: any) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </div>

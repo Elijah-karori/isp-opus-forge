@@ -30,7 +30,7 @@ import {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 export function TechnicianPerformance() {
-  const { data: leaderboard, isLoading } = useQuery({
+  const { data: leaderboard, isLoading } = useQuery<any>({
     queryKey: ['technician-leaderboard-detailed'],
     queryFn: () => getTechnicianLeaderboard({ limit: 20 }),
   });
@@ -39,7 +39,7 @@ export function TechnicianPerformance() {
     return <div>Loading performance data...</div>;
   }
 
-  const leaderboardData = leaderboard?.data || [];
+  const leaderboardData = Array.isArray(leaderboard?.data) ? leaderboard.data : (Array.isArray(leaderboard) ? leaderboard : []);
 
   // Sample performance data for charts
   const performanceMetrics = [

@@ -22,3 +22,6 @@ export function usePendingWorkflows(role?: string, enabled: boolean = true) {
   }, [role, enabled]);
   return { items, loading, refresh };
 }
+
+// Export alias for backward compatibility
+export const useWorkflow = usePendingWorkflows;

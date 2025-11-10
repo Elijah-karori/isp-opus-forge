@@ -3,8 +3,6 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TaskActionButtons from "./TaskActionButtons";
-import { WorkflowStatusBar } from "./WorkflowStatusBar";
-
 
 export default function TaskCard({ task }) {
   return (
@@ -14,7 +12,6 @@ export default function TaskCard({ task }) {
         <Badge>{task.status}</Badge>
       </div>
       <p className="text-gray-600">{task.description}</p>
-      <WorkflowStatusBar status={task.status} />
       <div className="mt-4 flex justify-end">
         <TaskActionButtons task={task} />
       </div>

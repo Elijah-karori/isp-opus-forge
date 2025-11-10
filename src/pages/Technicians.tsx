@@ -34,17 +34,17 @@ export const TechnicianPage = () => <Outlet />;
 const TechnicianDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
-  const { data: technicians, isLoading: techLoading } = useQuery({
+  const { data: technicians, isLoading: techLoading } = useQuery<any>({
     queryKey: ['technicians'],
     queryFn: () => getTechnicians({ active_only: true }),
   });
 
-  const { data: leaderboard, isLoading: leaderboardLoading } = useQuery({
+  const { data: leaderboard, isLoading: leaderboardLoading } = useQuery<any>({
     queryKey: ['technician-leaderboard'],
     queryFn: () => getTechnicianLeaderboard({ limit: 10 }),
   });
 
-  const { data: recentAttendance, isLoading: attendanceLoading } = useQuery({
+  const { data: recentAttendance, isLoading: attendanceLoading } = useQuery<any>({
     queryKey: ['recent-attendance'],
     queryFn: () => getAttendance({}),
   });

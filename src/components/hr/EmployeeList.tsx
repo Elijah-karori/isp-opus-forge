@@ -12,7 +12,7 @@ export function EmployeeList() {
   const navigate = useNavigate();
   const { data: employees, isLoading } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => getEmployees({ is_active: true }),
+    queryFn: () => getEmployees({ status: 'active' }),
   });
 
   const getStatusBadge = (status: Employee['status']) => {

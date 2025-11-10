@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   const { data: variances } = useQuery({
     queryKey: ['pending-variances-count'],
-    queryFn: () => apiClient.getPendingVariances({ limit: 5 }),
+    queryFn: () => apiClient.getPendingVariances(5),
     enabled: (isFinance() || isAdmin()) && !!API_BASE_URL,
   });
 

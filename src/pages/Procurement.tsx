@@ -64,7 +64,7 @@ const Procurement = () => {
 
   // Scraper mutations
   const scrapeMutation = useMutation({
-    mutationFn: scrapeGenericUrl,
+    mutationFn: (data: { url: string; category?: string; supplier_id?: number }) => scrapeGenericUrl(data.url, data.category, data.supplier_id),
     onSuccess: (data) => {
       toast({
         title: "Scraping Completed",
