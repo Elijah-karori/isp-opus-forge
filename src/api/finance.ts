@@ -69,24 +69,128 @@ export interface Expense {
   receipt_url?: string;
 }
 
-// Variance management
+export interface MasterBudget {
+  id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  total_amount: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface MasterBudgetCreate {
+  name: string;
+  start_date: string;
+  end_date: string;
+  total_amount: number;
+}
+
+export interface MasterBudgetUpdate {
+  name?: string;
+  start_date?: string;
+  end_date?: string;
+  total_amount?: number;
+}
+
+export interface SubBudget {
+  id: number;
+  name: string;
+  amount: string;
+  financial_account_id?: number;
+  master_budget_id: number;
+}
+
+export interface SubBudgetCreate {
+  name: string;
+  amount: number;
+  financial_account_id?: number;
+}
+
+export interface SubBudgetUpdate {
+  name?: string;
+  amount?: number;
+  financial_account_id?: number;
+}
+
+export interface BudgetUsage {
+  id: number;
+  sub_budget_id: number;
+  description?: string;
+  amount: string;
+  type: 'credit' | 'debit';
+  transaction_date: string;
+  status?: 'pending_approval' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface BudgetUsageCreate {
+  sub_budget_id: number;
+  description?: string;
+  amount: number;
+  type: 'credit' | 'debit';
+  transaction_date: string;
+  status?: 'pending_approval' | 'approved' | 'rejected';
+}
+
+export const createMasterBudget = (data: MasterBudgetCreate) =>
+  axios.post<MasterBudget>(`/finance/master-budgets/`, data);
+
+export const getMasterBudgets = () => axios.get<MasterBudget[]>(`/finance/master-budgets/`);
+
+export const getMasterBudget = (masterBudgetId: number) =>
+  axios.get<MasterBudget>(`/finance/master-budgets/${masterBudgetId}`);
+
+export const updateMasterBudget = (masterBudgetId: number, data: MasterBudgetUpdate) =>
+  axios.patch<MasterBudget>(`/finance/master-budgets/${masterBudgetId}`, data);
+
+export const deleteMasterBudget = (masterBudgetId: number) =>
+  axios.delete(`/finance/master-budgets/${masterBudgetId}`);
+
+export const uploadBudget = (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return axios.post<MasterBudget>(`/finance/upload-budget/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const createSubBudget = (masterBudgetId: number, data: SubBudgetCreate) =>
+  axios.post<SubBudget>(`/finance/master-budgets/${masterBudgetId}/sub-budgets/`, data);
+
+export const getSubBudgets = (masterBudgetId: number) =>
+  axios.get<SubBudget[]>(`/finance/master-budgets/${masterBudgetId}/sub-budgets/`);
+
+export const getSubBudget = (subBudgetId: number) =>
+  axios.get<SubBudget>(`/finance/sub-budgets/${subBudgetId}`);
+
+export const updateSubBudget = (subBudgetId: number, data: SubBudgetUpdate) =>
+  axios.patch<SubBudget>(`/finance/sub-budgets/${subBudgetId}`, data);
+
+export const deleteSubBudget = (subBudgetId: number) =>
+  axios.delete(`/finance/sub-budgets/${subBudgetId}`);
+
+export const createBudgetUsage = (data: BudgetUsageCreate) =>
+  axios.post<BudgetUsage>(`/finance/budget-usages/`, data);
+
+export const approveBudgetUsage = (usageId: number, data: BudgetUsageApproval) =>
+  axios.post<BudgetUsage>(`/finance/budget-usages/${usageId}/approve`, data);
+
+export const getBudgetUsages = (subBudgetId: number) =>
+  axios.get<BudgetUsage[]>(`/finance/sub-budgets/${subBudgetId}/usages/`);
+
+export const detectTaskVariances = (taskId: number) =>
+  axios.post(`/finance/tasks/${taskId}/detect-variances`);
+
+export const approveBomVariance = (varianceId: number, data: { approved: boolean; approver_id: number; notes?: string; }) =>
+  axios.post(`/finance/variances/${varianceId}/approve`, data);
+
 export const getPendingVariances = (limit: number = 50) =>
   axios.get(`/finance/variances/pending`, { params: { limit } });
 
-export const approveVariance = (varianceId: number, data: { 
-  approved: boolean; 
-  approver_id: number; 
-  notes?: string;
-}) => axios.post(`/finance/variances/${varianceId}/approve`, data);
-
-export const getVarianceHistory = (params?: {
-  start_date?: string;
-  end_date?: string;
-  project_id?: number;
-  limit?: number;
-}) => axios.get(`/finance/variances/history`, { params });
-
-// Project financials
 export const getProjectFinancials = (projectId: number) =>
   axios.get(`/finance/projects/${projectId}/financials`);
 
@@ -96,17 +200,12 @@ export const getProjectsFinancialSummary = (params?: {
   end_date?: string;
 }) => axios.get(`/finance/projects/summary`, { params });
 
-// Task variance detection
-export const detectTaskVariances = (taskId: number) =>
-  axios.post(`/finance/tasks/${taskId}/detect-variances`);
-
-// Expense management
-export const getExpenses = (params?: {
+export const getVarianceHistory = (params?: {
   start_date?: string;
   end_date?: string;
-  category?: string;
-  approved?: boolean;
-}) => axios.get(`/finance/expenses`, { params });
+  project_id?: number;
+  limit?: number;
+}) => axios.get(`/finance/variances/history`, { params });
 
 export const createExpense = (data: Partial<Expense>) =>
   axios.post(`/finance/expenses`, data);
