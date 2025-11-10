@@ -134,6 +134,12 @@ export interface BudgetUsageCreate {
   status?: 'pending_approval' | 'approved' | 'rejected';
 }
 
+export interface BudgetUsageApproval {
+  approved: boolean;
+  approver_id: number;
+  notes?: string;
+}
+
 export const createMasterBudget = (data: MasterBudgetCreate) =>
   axios.post<MasterBudget>(`/finance/master-budgets/`, data);
 
