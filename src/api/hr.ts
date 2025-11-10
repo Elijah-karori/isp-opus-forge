@@ -65,6 +65,7 @@ export interface AttendanceRecordCreate {
   check_in?: string;
   check_out?: string;
   check_in_location?: string;
+  check_out_location?: string;
   notes?: string;
 }
 
@@ -93,6 +94,55 @@ export interface RateCardCreate {
   base_rate: number | string;
   rate_unit: string;
   valid_from: string;
+}
+
+export interface RateCard extends RateCardCreate {
+  id: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface Payout {
+  id: number;
+  employee_id: number;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  net_amount?: number;
+  status: PaymentStatus;
+  approved_by?: number;
+  approved_at?: string;
+  paid_at?: string;
+  payment_method?: string;
+  payment_reference?: string;
+  notes?: string;
+  employee?: {
+    full_name: string;
+    employee_code: string;
+  };
+}
+
+export interface PayrollSummary {
+  period_start: string;
+  period_end: string;
+  total_payouts: number;
+  total_amount: number;
+  total_gross?: number;
+  total_net?: number;
+  by_status: Record<PaymentStatus, number>;
+}
+
+export interface EmployeePerformance {
+  employee_id: number;
+  period_start: string;
+  period_end: string;
+  tasks_completed: number;
+  tasks_on_time: number;
+  on_time_rate?: number;
+  completion_rate?: number;
+  average_rating: number;
+  avg_rating?: number;
+  total_hours: number;
 }
 
 // Employee management

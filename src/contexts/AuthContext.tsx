@@ -3,7 +3,6 @@ import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
 
 interface MenuItem { key?: string; label: string; path: string; icon?: string; }
-<<<<<<< HEAD
 interface CompanyInfo { id: number; name: string; }
 interface DivisionInfo { id: number; name: string; }
 interface DepartmentInfo { id: number; name: string; }
@@ -19,9 +18,6 @@ interface User {
   division?: DivisionInfo;
   department?: DepartmentInfo;
 }
-=======
-interface User { id: number; email: string; full_name?: string; role: string; roles?: string[]; menus?: MenuItem[]; }
->>>>>>> 90af223791f4f52c0355176f6b76de27744082b4
 interface JWTPayload { sub: string | number; roles?: string[]; exp: number; }
 
 interface AuthContextType {
@@ -167,12 +163,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: profile.role,
       roles: profile.roles || (decoded.roles ?? []),
       menus,
-<<<<<<< HEAD
       company: profile.company,
       division: profile.division,
       department: profile.department,
-=======
->>>>>>> 90af223791f4f52c0355176f6b76de27744082b4
     });
   };
 
