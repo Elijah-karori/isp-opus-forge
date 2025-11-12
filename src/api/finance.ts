@@ -240,3 +240,25 @@ export const getBudgetVsActualReport = (projectId?: number) =>
 // Dashboard statistics
 export const getFinanceDashboardStats = () =>
   axios.get(`/finance/dashboard/stats`);
+
+// Export as single API object for easier testing
+export const financeApi = {
+  getPendingVariances,
+  approveBomVariance,
+  getProjectFinancials,
+  getProjectsFinancialSummary,
+  getVarianceHistory,
+  createExpense,
+  approveExpense,
+  getFinancialSummary,
+  getProfitLossReport,
+  getBudgetVsActualReport,
+  getFinanceDashboardStats,
+  getMasterBudgets,
+  createMasterBudget,
+  getSubBudgets,
+  createSubBudget,
+  createBudgetUsage,
+  uploadBudget,
+  approveBudgetUsage,
+};
