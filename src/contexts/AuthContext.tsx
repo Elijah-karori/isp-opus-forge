@@ -2,7 +2,15 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
 
-interface MenuItem { key?: string; label: string; path: string; icon?: string; }
+interface MenuItem { 
+  key?: string; 
+  label: string; 
+  path: string; 
+  icon?: string; 
+  children?: MenuItem[];
+}
+
+export type { MenuItem };
 interface CompanyInfo { id: number; name: string; }
 interface DivisionInfo { id: number; name: string; }
 interface DepartmentInfo { id: number; name: string; }
