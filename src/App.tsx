@@ -17,6 +17,7 @@ import ProjectFinancials from "./pages/finance/ProjectFinancials";
 import BOMVariances from "./pages/finance/BOMVariances";
 import FinancePayouts from "./pages/finance/FinancePayouts";
 import FinanceReports from "./pages/FinanceReports";
+import BudgetManagement from "./pages/finance/BudgetManagement";
 import { HRPage, HRDashboard } from "./pages/HR";
 import { EmployeeProfile } from "./pages/hr/EmployeeProfile";
 import CreateEmployeePage from "./pages/hr/CreateEmployee";
@@ -47,7 +48,7 @@ import { TechnicianPage } from "./pages/Technicians";
 import TechnicianTools from "./pages/TechnicianTools";
 import Attendance from "./pages/Attendance";
 import TechnicianTasks from "./pages/TechnicianTasks";
-import WorkflowDashboard from "./features/workflow/pages/WorkflowDashboard";
+import WorkflowDashboard from "./pages/WorkflowDashboard";
 import EmployeeRegistration from "./features/hr/EmployeeRegistration";
 import TaskListPage from "@/modules/tasks/pages/TaskListPage";
 import TaskDetailPage from "@/modules/tasks/pages/TaskDetailPage";
@@ -76,9 +77,9 @@ const App = () => (
               />
               <Route path="/workflows" element={<Workflows />} />
               <Route 
-                path="/workflows/dashboard"
+                path="/workflow-dashboard"
                 element={
-                  <ProtectedRoute roles={['admin', 'hr']}>
+                  <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
                     <WorkflowDashboard />
                   </ProtectedRoute>
                 }
@@ -172,6 +173,7 @@ const App = () => (
                 }
               >
                 <Route index element={<FinanceDashboard />} />
+                <Route path="budgets" element={<BudgetManagement />} />
                 <Route path="projects/:id" element={<ProjectFinancials />} />
                 <Route path="variances" element={<BOMVariances />} />
                 <Route path="payouts" element={<FinancePayouts />} />

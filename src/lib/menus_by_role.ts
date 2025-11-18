@@ -12,6 +12,7 @@ export const menusByRole: Record<string, any[]> = {
     { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
     { label: "Marketing", path: "/marketing", icon: "Megaphone" },
     { label: "Workflows", path: "/workflows", icon: "GitBranch" },
+    { label: "Workflow Dashboard", path: "/workflow-dashboard", icon: "LayoutDashboard" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
     { label: "Users", path: "/users", icon: "UserCog" },
   ],
@@ -22,6 +23,7 @@ export const menusByRole: Record<string, any[]> = {
     { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Tasks", path: "/tasks", icon: "ListTodo" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
+    { label: "Workflow Dashboard", path: "/workflow-dashboard", icon: "LayoutDashboard" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
   ],
 
@@ -30,6 +32,7 @@ export const menusByRole: Record<string, any[]> = {
     { label: "HR", path: "/hr", icon: "Users" },
     { label: "Attendance", path: "/hr/attendance", icon: "CalendarCheck" },
     { label: "Performance", path: "/performance", icon: "TrendingUp" },
+    { label: "Workflow Dashboard", path: "/workflow-dashboard", icon: "LayoutDashboard" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
   ],
 
@@ -54,6 +57,7 @@ export const menusByRole: Record<string, any[]> = {
     { label: "Price Monitoring", path: "/price-monitoring", icon: "TrendingDown" },
     { label: "Projects", path: "/projects", icon: "FolderKanban" },
     { label: "Inventory", path: "/inventory", icon: "Package" },
+    { label: "Workflow Dashboard", path: "/workflow-dashboard", icon: "LayoutDashboard" },
     { label: "Approvals", path: "/approvals", icon: "CheckSquare" },
   ],
 

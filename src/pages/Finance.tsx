@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
     { label: "Finance Overview", path: "/finance", icon: DollarSign, exact: true },
+    { label: "Budget Management", path: "/finance/budgets", icon: DollarSign },
     { label: "BOM Variances", path: "/finance/variances", icon: AlertTriangle },
     { label: "Payouts", path: "/finance/payouts", icon: CreditCard },
     { label: "Projects", path: "/projects", icon: FolderKanban },
