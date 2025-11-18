@@ -1,6 +1,7 @@
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import type { MenuItem } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarContent,
@@ -10,18 +11,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { menusByRole } from '@/lib/menus_by_role';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, ChevronRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
-
-interface MenuItem {
-  label: string;
-  path: string;
-  icon: string;
-  group?: string;
-}
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -29,19 +26,16 @@ export function AppSidebar() {
   const location = useLocation();
   const { user } = useAuth();
   
-  const userRole = user?.role || 'guest';
-  const menuItems: MenuItem[] = menusByRole[userRole] || [];
+  const menuItems: MenuItem[] = user?.menus || [];
 
-  const getIcon = (iconName: string): LucideIcon => {
+  const getIcon = (iconName?: string): LucideIcon => {
+    if (!iconName) return Icons.Circle;
     return (Icons as any)[iconName] || Icons.Circle;
   };
 
-  const groupedMenus = menuItems.reduce((acc, item) => {
-    const group = item.group || 'Main';
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(item);
-    return acc;
-  }, {} as Record<string, MenuItem[]>);
+  const isPathActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   return (
     <Sidebar
@@ -49,40 +43,72 @@ export function AppSidebar() {
       collapsible="icon"
     >
       <SidebarContent>
-        {Object.entries(groupedMenus).map(([groupName, items]) => {
-          const hasActiveRoute = items.some(item => 
-            location.pathname === item.path || location.pathname.startsWith(item.path + '/')
-          );
-
-          return (
-            <SidebarGroup key={groupName}>
-              {!collapsed && <SidebarGroupLabel>{groupName}</SidebarGroupLabel>}
-              
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {items.map((item) => {
-                    const Icon = getIcon(item.icon);
-                    
-                    return (
-                      <SidebarMenuItem key={item.path}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={item.path} 
-                            className="hover:bg-accent/50"
-                            activeClassName="bg-accent text-accent-foreground font-medium"
-                          >
+        <SidebarGroup>
+          {!collapsed && <SidebarGroupLabel>Menu</SidebarGroupLabel>}
+          
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                const Icon = getIcon(item.icon);
+                const hasChildren = item.children && item.children.length > 0;
+                const isActive = isPathActive(item.path);
+                const hasActiveChild = hasChildren && item.children?.some(child => isPathActive(child.path));
+                
+                if (hasChildren && !collapsed) {
+                  return (
+                    <Collapsible key={item.key || item.path} defaultOpen={hasActiveChild}>
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton className="hover:bg-accent/50">
                             <Icon className="h-4 w-4" />
-                            {!collapsed && <span>{item.label}</span>}
-                          </NavLink>
-                        </SidebarMenuButton>
+                            <span>{item.label}</span>
+                            <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.children.map((child) => {
+                              const ChildIcon = getIcon(child.icon);
+                              return (
+                                <SidebarMenuSubItem key={child.key || child.path}>
+                                  <SidebarMenuSubButton asChild>
+                                    <NavLink 
+                                      to={child.path}
+                                      className="hover:bg-accent/50"
+                                      activeClassName="bg-accent text-accent-foreground font-medium"
+                                    >
+                                      <ChildIcon className="h-4 w-4" />
+                                      <span>{child.label}</span>
+                                    </NavLink>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              );
+                            })}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
                       </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+                    </Collapsible>
+                  );
+                }
+                
+                return (
+                  <SidebarMenuItem key={item.key || item.path}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.path} 
+                        className="hover:bg-accent/50"
+                        activeClassName="bg-accent text-accent-foreground font-medium"
+                      >
+                        <Icon className="h-4 w-4" />
+                        {!collapsed && <span>{item.label}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
