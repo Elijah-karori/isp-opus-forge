@@ -24,11 +24,21 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
 
   // Check if user has required role
   if (roles && roles.length > 0) {
+    console.log('🔒 ProtectedRoute checking roles:', {
+      requiredRoles: roles,
+      userRole: user.role,
+      userRoles: user.roles,
+      userObject: user
+    });
+    
     const hasRequiredRole = roles.some(role => 
       user.roles?.includes(role) || user.role === role
     );
 
+    console.log('🔒 Has required role?', hasRequiredRole);
+
     if (!hasRequiredRole) {
+      console.error('❌ User does not have required role! Redirecting to /unauthorized');
       return <Navigate to="/unauthorized" replace />;
     }
   }

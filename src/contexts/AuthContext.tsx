@@ -165,12 +165,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   const handleUserProfile = (profile: any, token: string) => {
+    console.log('🔍 Profile received from backend:', profile);
+    
     let menus = profile.menus ?? profile.menu_items ?? [];
     if (menus.length === 0) {
       menus = fallbackMenus[profile.role] || defaultMenu;
     }
     const decoded = jwtDecode<JWTPayload>(token);
-    setUser({
+    console.log('🔍 JWT decoded:', decoded);
+    
+    const userData = {
       id: profile.id,
       email: profile.email,
       full_name: profile.full_name,
@@ -180,7 +184,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       company: profile.company,
       division: profile.division,
       department: profile.department,
-    });
+    };
+    
+    console.log('✅ User data being set:', userData);
+    console.log('✅ User role:', userData.role);
+    console.log('✅ User roles array:', userData.roles);
+    
+    setUser(userData);
   };
 
   useEffect(() => {
