@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
+import { MenuItem } from '@/contexts/AuthContext'; // Import MenuItem interface
 
 export const usePermissions = () => {
   const { user } = useAuth();
@@ -43,5 +44,23 @@ export const usePermissions = () => {
     return hasRole('marketing');
   };
 
-  return { user, hasRole, hasAnyRole, hasAllRoles, isAdmin, isFinance, isTechnician, isHR, isMarketing };
+  const hasAccessToPath = (path: string): boolean => {
+    if (!user || !user.menus) return false;
+
+    const checkMenu = (menuItems: MenuItem[]): boolean => {
+      for (const item of menuItems) {
+        if (item.path === path) {
+          return true;
+        }
+        if (item.children && checkMenu(item.children)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    return checkMenu(user.menus);
+  };
+
+  return { user, hasRole, hasAnyRole, hasAllRoles, isAdmin, isFinance, isTechnician, isHR, isMarketing, hasAccessToPath };
 };
