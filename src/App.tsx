@@ -39,6 +39,7 @@ import Campaigns from "@/pages/marketing/Campaigns";
 import Leads from "@/pages/marketing/Leads";
 import Analytics from "@/pages/marketing/Analytics";
 import Users from "@/pages/Users";
+import MenuManagement from "@/pages/admin/MenuManagement";
 import Suppliers from "@/pages/Suppliers";
 import PriceMonitoring from "@/pages/PriceMonitoring";
 import Profile from "./pages/Profile";
@@ -222,7 +223,15 @@ const App = () => (
                 } 
               />
               <Route 
-                path="/suppliers" 
+                path="/admin/menu-management" 
+                element={
+                  <ProtectedRoute roles={['admin', 'superadmin']}>
+                    <MenuManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/suppliers"
                 element={
                   <ProtectedRoute roles={['admin', 'procurement']}>
                     <Suppliers />
