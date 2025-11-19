@@ -31,7 +31,7 @@ export default function Dashboard() {
     enabled: !!API_BASE_URL,
   });
   
-  const { data: technicians } = useQuery({
+  const { data: technicians, isError: isTechniciansError } = useQuery({
     queryKey: ['active-technicians'],
     queryFn: () => apiClient.getTechnicians({ active_only: true }),
     enabled: !!API_BASE_URL,
