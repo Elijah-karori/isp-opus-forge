@@ -20,7 +20,7 @@ interface User {
   email: string; 
   full_name?: string; 
   role: string; 
-  roles?: string; 
+  roles?: string[]; 
   menus?: MenuItem[];
   company?: CompanyInfo;
   division?: DivisionInfo;
