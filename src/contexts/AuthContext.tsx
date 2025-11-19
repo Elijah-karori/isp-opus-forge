@@ -52,7 +52,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const fallbackMenus: Record<string, MenuItem[]> = {
     "superadmin": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "projects", "label": "Projects", "path": "/projects"},
         {"key": "tasks", "label": "Tasks", "path": "/tasks"},
         {"key": "technicians", "label": "Technicians", "path": "/technicians"},
@@ -65,7 +65,7 @@ const fallbackMenus: Record<string, MenuItem[]> = {
         {"key": "settings", "label": "System Settings", "path": "/settings"},
     ],
     "admin": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "finance", "label": "Finance", "path": "/finance"},
         {"key": "hr", "label": "HR", "path": "/hr"},
         {"key": "procurement", "label": "Procurement", "path": "/procurement"},
@@ -75,20 +75,20 @@ const fallbackMenus: Record<string, MenuItem[]> = {
         {"key": "workflows", "label": "Workflows", "path": "/workflows"},
     ],
     "finance": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "payouts", "label": "Payouts", "path": "/finance/payouts"},
         {"key": "approvals", "label": "Approvals", "path": "/workflows/finance"},
         {"key": "reports", "label": "Reports", "path": "/finance/reports"},
     ],
     "finance_manager": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "payouts", "label": "Payouts", "path": "/finance/payouts"},
         {"key": "payments", "label": "Payments", "path": "/finance/payments"},
         {"key": "approvals", "label": "Approvals", "path": "/workflows/finance"},
         {"key": "reports", "label": "Reports", "path": "/finance/reports"},
     ],
     "hr": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "employees", "label": "Employees", "path": "/hr/employees"},
         {"key": "leave", "label": "Leave Requests", "path": "/hr/leaves"},
         {"key": "complaints", "label": "Complaints", "path": "/hr/complaints"},
@@ -96,7 +96,7 @@ const fallbackMenus: Record<string, MenuItem[]> = {
         {"key": "approvals", "label": "Approvals", "path": "/workflows/hr"},
     ],
     "hr_manager": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "employees", "label": "Employees", "path": "/hr/employees"},
         {"key": "leave", "label": "Leave Requests", "path": "/hr/leaves"},
         {"key": "complaints", "label": "Complaints", "path": "/hr/complaints"},
@@ -104,14 +104,14 @@ const fallbackMenus: Record<string, MenuItem[]> = {
         {"key": "approvals", "label": "Approvals", "path": "/workflows/hr"},
     ],
     "procurement": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "suppliers", "label": "Suppliers", "path": "/procurement/suppliers"},
         {"key": "purchases", "label": "Purchases", "path": "/procurement/purchases"},
         {"key": "inventory", "label": "Inventory", "path": "/inventory"},
         {"key": "approvals", "label": "Approvals", "path": "/workflows/procurement"},
     ],
     "procurement_officer": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "suppliers", "label": "Suppliers", "path": "/procurement/suppliers"},
         {"key": "purchases", "label": "Purchases", "path": "/procurement/purchases"},
         {"key": "inventory", "label": "Inventory", "path": "/inventory"},
@@ -134,20 +134,20 @@ const fallbackMenus: Record<string, MenuItem[]> = {
         {"label": "Reports", "path": "/reports"},
     ],
     "technician": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "tasks", "label": "My Tasks", "path": "/technician/tasks"},
         {"key": "reports", "label": "Reports", "path": "/technician/reports"},
         {"key": "attendance", "label": "Attendance", "path": "/technician/attendance"},
         {"key": "technician-tools", "label": "Technician Tools", "path": "/technician-tools" },
     ],
     "marketing": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "leads", "label": "Leads", "path": "/marketing/leads"},
         {"key": "campaigns", "label": "Campaigns", "path": "/marketing/campaigns"},
         {"key": "analytics", "label": "Marketing Analytics", "path": "/marketing/analytics"},
     ],
     "sales_marketing": [
-        {"key": "dashboard", "label": "Dashboard", "path": "/"},
+        {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
         {"key": "leads", "label": "Leads", "path": "/marketing/leads"},
         {"key": "campaigns", "label": "Campaigns", "path": "/marketing/campaigns"},
         {"key": "analytics", "label": "Marketing Analytics", "path": "/marketing/analytics"},
@@ -155,7 +155,7 @@ const fallbackMenus: Record<string, MenuItem[]> = {
 };
 
 const defaultMenu: MenuItem[] = [
-    {"key": "dashboard", "label": "Dashboard", "path": "/"},
+    {"key": "dashboard", "label": "Dashboard", "path": "/dashboard"},
     {"key": "profile", "label": "My Profile", "path": "/profile"},
 ];
 
