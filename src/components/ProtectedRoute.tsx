@@ -1,16 +1,16 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { usePermissions } from '@/hooks/usePermissions'; // Import usePermissions
+import { usePermissions } from '@/hooks/usePermissions';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  roles?: string[];
+  roles?: string[]; 
 }
 
 export default function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
-  const { hasRole, hasAccessToPath } = usePermissions(); // Use hasRole and hasAccessToPath
+  const { hasAccessToPath, hasRole } = usePermissions();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -26,26 +26,22 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
     return <Navigate to="/login" replace />;
   }
 
-  // Check role-based access
-  let hasRoleAccess = true;
-  if (roles && roles.length > 0) {
-    hasRoleAccess = hasRole(roles); // Use hasRole with the array of roles
-  }
+  let isAuthorized = false;
 
-  // Check menu-based access
-  // A user must have a menu item for the current path, OR if no menus are provided for the user,
-  // we assume menu access is not a restriction.
-  // This logic ensures that if a user has menus, the current path must be among them,
-  // but if the user has no menus (e.g., a new user or a user type without specific menu access control),
-  // then menu access doesn't block them.
-  let hasMenuAccess = true;
   if (user.menus && user.menus.length > 0) {
-      hasMenuAccess = hasAccessToPath(currentPath);
+    // If user has menus, access is determined by whether the path is in the menu.
+    isAuthorized = hasAccessToPath(currentPath);
+  } else if (roles && roles.length > 0) {
+    // If no menus are available for the user, fall back to role-based check.
+    isAuthorized = hasRole(roles);
+  } else {
+    // If no menus and no roles are specified for the route, assume default access.
+    // For now, let's make this default to true to allow unconfigured routes.
+    // This could be made stricter to `false` depending on security policy.
+    isAuthorized = true; 
   }
-  // If user.menus is empty or undefined, hasMenuAccess remains true, meaning no menu restriction.
 
-
-  if (!hasRoleAccess || !hasMenuAccess) {
+  if (!isAuthorized) {
     return <Navigate to="/unauthorized" replace />;
   }
 
