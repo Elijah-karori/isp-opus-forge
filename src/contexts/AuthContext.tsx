@@ -20,7 +20,7 @@ interface User {
   email: string; 
   full_name?: string; 
   role: string; 
-  roles?: string[]; 
+  roles?: string; 
   menus?: MenuItem[];
   company?: CompanyInfo;
   division?: DivisionInfo;
@@ -170,6 +170,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       menus = fallbackMenus[profile.role] || defaultMenu;
     }
     const decoded = jwtDecode<JWTPayload>(token);
+
+     let userRole = profile.roles?.[0];
+  if (typeof userRole === 'object' && userRole !== null) {
+    // This safely extracts the role name if it's an object, defaulting to a key or 'user'
+    userRole = userRole.name || userRole.role || 'user';
+  }console.log(userRole)
     setUser({
       id: profile.id,
       email: profile.email,
@@ -213,6 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { access_token } = await apiClient.login({ username, password });
     apiClient.setToken(access_token);
     const profile = await apiClient.getCurrentUser();
+    console.log(profile)
     handleUserProfile(profile, access_token);
   };
 
