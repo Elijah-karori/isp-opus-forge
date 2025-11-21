@@ -26,19 +26,30 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
     return <Navigate to="/login" replace />;
   }
 
+  console.log('🔐 ProtectedRoute check:', {
+    currentPath,
+    requiredRoles: roles,
+    userRole: user.role,
+    userRoles: user.roles,
+    hasMenus: !!user.menus?.length
+  });
+
   let isAuthorized = false;
 
-  if (user.menus && user.menus.length > 0) {
-    // If user has menus, access is determined by whether the path is in the menu.
-    isAuthorized = hasAccessToPath(currentPath);
-  } else if (roles && roles.length > 0) {
-    // If no menus are available for the user, fall back to role-based check.
+  // First priority: Check role-based access if roles are specified for this route
+  if (roles && roles.length > 0) {
     isAuthorized = hasRole(roles);
-  } else {
-    // If no menus and no roles are specified for the route, assume default access.
-    // For now, let's make this default to true to allow unconfigured routes.
-    // This could be made stricter to `false` depending on security policy.
-    isAuthorized = true; 
+    console.log('✅ Role-based check:', isAuthorized);
+  } 
+  // Second priority: Check menu-based access if user has menus
+  else if (user.menus && user.menus.length > 0) {
+    isAuthorized = hasAccessToPath(currentPath);
+    console.log('✅ Menu-based check:', isAuthorized);
+  } 
+  // Default: Allow access if no specific restrictions
+  else {
+    isAuthorized = true;
+    console.log('✅ Default access granted');
   }
 
   if (!isAuthorized) {
