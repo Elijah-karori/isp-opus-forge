@@ -175,13 +175,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('🔍 JWT decoded:', decoded);
     
     const userData = {
-
-     let userRole = profile.roles?.[0];
-  if (typeof userRole === 'object' && userRole !== null) {
-    // This safely extracts the role name if it's an object, defaulting to a key or 'user'
-    userRole = userRole.name || userRole.role || 'user';
-  }console.log(userRole)
-    setUser({
       id: profile.id,
       email: profile.email,
       full_name: profile.full_name,
@@ -196,6 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('✅ User data being set:', userData);
     console.log('✅ User role:', userData.role);
     console.log('✅ User roles array:', userData.roles);
+    console.log('✅ User menus:', userData.menus);
     
     setUser(userData);
   };
