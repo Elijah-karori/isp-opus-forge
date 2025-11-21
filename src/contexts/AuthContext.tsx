@@ -175,12 +175,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const decoded = jwtDecode<JWTPayload>(token);
     console.log('🔍 JWT decoded:', decoded);
     
+    // Extract role from roles array if not directly provided
+    const rolesArray = profile.roles || (decoded.roles ?? []);
+    const extractedRole = profile.role || 
+      (rolesArray.length > 0 ? (rolesArray[0].name || rolesArray[0]) : 'user');
+    
     const userData = {
       id: profile.id,
       email: profile.email,
       full_name: profile.full_name,
-      role: profile.role,
-      roles: profile.roles || (decoded.roles ?? []),
+      role: extractedRole,
+      roles: rolesArray,
       menus,
       company: profile.company,
       division: profile.division,
