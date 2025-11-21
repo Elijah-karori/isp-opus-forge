@@ -41,15 +41,11 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
     isAuthorized = hasRole(roles);
     console.log('✅ Role-based check:', isAuthorized);
   } 
-  // Second priority: Check menu-based access if user has menus
-  else if (user.menus && user.menus.length > 0) {
-    isAuthorized = hasAccessToPath(currentPath);
-    console.log('✅ Menu-based check:', isAuthorized);
-  } 
-  // Default: Allow access if no specific restrictions
+  // Second priority: If no roles specified, allow any authenticated user
+  // The fact that they have a user object means they passed authentication
   else {
     isAuthorized = true;
-    console.log('✅ Default access granted');
+    console.log('✅ Authenticated user access granted (no role restrictions)');
   }
 
   if (!isAuthorized) {
