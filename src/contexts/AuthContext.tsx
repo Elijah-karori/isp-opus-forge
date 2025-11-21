@@ -161,6 +161,7 @@ const defaultMenu: MenuItem[] = [
 
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('🚀 AuthProvider initializing...');
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -195,27 +196,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    console.log('🔄 Auth initialization useEffect running...');
     (async () => {
-      const token = localStorage.getItem("auth_token");
-      if (!token) { setIsLoading(false); return; }
-
       try {
+        const token = localStorage.getItem("auth_token");
+        console.log('🔑 Token from storage:', token ? 'exists' : 'none');
+        
+        if (!token) { 
+          console.log('❌ No token found, setting loading to false');
+          setIsLoading(false); 
+          return; 
+        }
+
         const decoded = jwtDecode<JWTPayload>(token);
         if (decoded.exp * 1000 < Date.now()) {
+          console.log('⏰ Token expired');
           apiClient.clearToken();
           setUser(null);
           setIsLoading(false);
           return;
         }
+        
         apiClient.setToken(token);
         const profile = await apiClient.getCurrentUser();
         handleUserProfile(profile, token);
       } catch (err) {
-        console.warn("Auth init fallback:", err);
+        console.error("❌ Auth init error:", err);
         apiClient.clearToken();
         setUser(null);
       } finally {
         setIsLoading(false);
+        console.log('✅ Auth initialization complete');
       }
     })();
   }, []);
@@ -234,6 +245,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.location.href = "/login";
   };
 
+  console.log('📊 AuthProvider render - isLoading:', isLoading, 'user:', user?.email);
+  
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading, setUser }}>
       {children}
