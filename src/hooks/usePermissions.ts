@@ -47,9 +47,13 @@ export const usePermissions = () => {
   const hasAccessToPath = (path: string): boolean => {
     if (!user || !user.menus) return false;
 
+    console.log('🔍 Checking path access:', path, 'User menus:', user.menus);
+
     const checkMenu = (menuItems: MenuItem[]): boolean => {
       for (const item of menuItems) {
+        console.log('🔍 Checking menu item:', item.path, 'against', path);
         if (item.path === path) {
+          console.log('✅ Path match found!');
           return true;
         }
         if (item.children && checkMenu(item.children)) {
@@ -59,7 +63,9 @@ export const usePermissions = () => {
       return false;
     };
 
-    return checkMenu(user.menus);
+    const result = checkMenu(user.menus);
+    console.log('🔍 Final access result:', result);
+    return result;
   };
 
   return { user, hasRole, hasAnyRole, hasAllRoles, isAdmin, isFinance, isTechnician, isHR, isMarketing, hasAccessToPath };
