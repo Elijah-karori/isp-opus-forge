@@ -30,6 +30,7 @@ import Approvals from "./pages/Approvals";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import Workflows from "@/pages/Workflows";
+import WorkflowDesigner from "@/components/WorkflowDesigner/WorkflowDesigner";
 import FinanceWorkflows from "@/pages/workflows/FinanceWorkflows";
 import HRWorkflows from "@/pages/workflows/HRWorkflows";
 import ProcurementWorkflows from "@/pages/workflows/ProcurementWorkflows";
@@ -78,6 +79,22 @@ const App = () => (
               />
               <Route path="/workflows" element={<Workflows />} />
               <Route 
+                path="/workflows/designer" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
+                    <WorkflowDesigner />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/workflows/designer/:workflowId" 
+                element={
+                  <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
+                    <WorkflowDesigner />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route
                 path="/workflow-dashboard"
                 element={
                   <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
