@@ -1,4 +1,3 @@
-
 // =====================================================================
 // FILE: src/lib/api.ts
 // =====================================================================
@@ -56,8 +55,6 @@ class ApiClient {
           errorMessage = error.message;
         }
         
-        // Instead of throwing a new error, we reject with a custom message
-        // to be caught by the calling function.
         return Promise.reject(new Error(errorMessage));
       }
     );
@@ -88,6 +85,10 @@ class ApiClient {
     return this.request<T>({ url, method: 'PATCH', data });
   }
 
+  async put<T>(url: string, data?: any): Promise<T> {
+    return this.request<T>({ url, method: 'PUT', data });
+  }
+
   async delete<T>(url: string): Promise<T> {
     return this.request<T>({ url, method: 'DELETE' });
   }
@@ -106,6 +107,13 @@ class ApiClient {
 
     this.setToken(response.data.access_token);
     return response.data;
+  }
+
+  async refreshToken(): Promise<AuthToken> {
+    return this.request<AuthToken>({ 
+      url: "/auth/refresh", 
+      method: "POST" 
+    });
   }
 
   async registerUser(data: any): Promise<any> {
@@ -137,6 +145,10 @@ class ApiClient {
 
   async updateProject(projectId: number, data: any) {
     return this.request<any>({ url: `/projects/${projectId}`, method: "PATCH", data });
+  }
+
+  async deleteProject(projectId: number) {
+    return this.request<any>({ url: `/projects/${projectId}`, method: "DELETE" });
   }
   
   async createProjectFromLead(leadId: number, data: any) {
@@ -171,6 +183,10 @@ class ApiClient {
     return this.request<any>({ url: `/tasks/${taskId}/complete`, method: "POST", data });
   }
 
+  async createTaskBOM(taskId: number, data: any) {
+    return this.request<any>({ url: `/tasks/${taskId}/bom`, method: "POST", data });
+  }
+
   // -------------------------------------------------------------------
   // INVENTORY
   // -------------------------------------------------------------------
@@ -188,6 +204,22 @@ class ApiClient {
 
   async updateProduct(productId: number, data: any) {
     return this.request<any>({ url: `/inventory/products/${productId}`, method: "PATCH", data });
+  }
+
+  async getSuppliers(params?: any) {
+    return this.request<any>({ url: '/inventory/suppliers', params });
+  }
+
+  async getSupplier(supplierId: number) {
+    return this.request<any>({ url: `/inventory/suppliers/${supplierId}` });
+  }
+
+  async createSupplier(data: any) {
+    return this.request<any>({ url: "/inventory/suppliers", method: "POST", data });
+  }
+
+  async updateSupplier(supplierId: number, data: any) {
+    return this.request<any>({ url: `/inventory/suppliers/${supplierId}`, method: "PATCH", data });
   }
 
   async searchInventory(query: string) {
@@ -228,7 +260,10 @@ class ApiClient {
   async getTechnicianTasks(technicianId: number, params?: any) {
     return this.request<any>({ url: `/technicians/${technicianId}/tasks`, params });
   }
-    
+
+  async getTechnicianAltitude(technicianId: number) {
+    return this.request<any>({ url: `/technicians/${technicianId}/altitude` });
+  }
 
   async approveTaskCompletion(taskId: number, data: { approved: boolean; notes?: string }) {
     return this.request<any>({ url: `/technicians/tasks/${taskId}/approve`, method: "POST", data });
@@ -264,9 +299,21 @@ class ApiClient {
   async getProjectFinancials(projectId: number) {
     return this.request<any>({ url: `/finance/projects/${projectId}/financials` });
   }
-  
-  async markPayoutAsPaid(payoutId: number) {
-    return this.request<any>({ url: `/hr/payouts/${payoutId}/mark-paid`, method: 'POST' });
+
+  async getFinancialAccounts() {
+    return this.request<any>({ url: '/finance/financial-accounts/' });
+  }
+
+  async createFinancialAccount(data: any) {
+    return this.request<any>({ url: '/finance/financial-accounts/', method: 'POST', data });
+  }
+
+  async getFinancialAccount(accountId: number) {
+    return this.request<any>({ url: `/finance/financial-accounts/${accountId}` });
+  }
+
+  async uploadBudget(data: any) {
+    return this.request<any>({ url: '/finance/upload-budget/', method: 'POST', data });
   }
 
   async getProjectsFinancialSummary(params?: any) {
@@ -316,8 +363,19 @@ class ApiClient {
     return this.request<any>({ url: `/hr/employees/${employeeId}`, method: "DELETE" });
   }
 
+  async toggleEmployeeStatus(userId: number) {
+    return this.request<any>({ url: `/hr/employees/${userId}/toggle-status`, method: 'PATCH' });
+  }
+
   async getRateCards(employeeId?: number) {
-    return this.request<any>({ url: '/hr/rate-cards', params: employeeId ? { employee_id: employeeId } : undefined });
+    return this.request<any>({ 
+      url: '/hr/rate-cards', 
+      params: employeeId ? { employee_id: employeeId } : undefined 
+    });
+  }
+
+  async getEmployeeRateCards(employeeId: number) {
+    return this.request<any>({ url: `/hr/rate-cards/${employeeId}` });
   }
 
   async createRateCard(data: any) {
@@ -325,7 +383,15 @@ class ApiClient {
   }
 
   async getEmployeeAttendance(employeeId: number, params?: any) {
-    return this.request<any>({ url: `/hr/employees/${employeeId}/attendance`, params });
+    return this.request<any>({ url: `/hr/attendance/${employeeId}`, params });
+  }
+
+  async getAttendance(params?: any) {
+    return this.request<any>({ url: '/hr/attendance', params });
+  }
+
+  async recordAttendance(data: any) {
+    return this.request<any>({ url: "/hr/attendance", method: "POST", data });
   }
 
   async getComplaints(params?: any) {
@@ -336,12 +402,20 @@ class ApiClient {
     return this.request<any>({ url: "/hr/complaints", method: "POST", data });
   }
 
+  async getPendingComplaints(limit: number = 50) {
+    return this.request<any>({ url: '/hr/complaints/pending', params: { limit } });
+  }
+
+  async investigateComplaint(complaintId: number, data: any) {
+    return this.request<any>({ url: `/hr/complaints/${complaintId}/investigate`, method: "POST", data });
+  }
+
   async getPayrollSummary(params?: any) {
-    return this.request<any>({ url: '/hr/payroll/summary', params });
+    return this.request<any>({ url: '/hr/reports/payroll-summary', params });
   }
 
   async getEmployeePerformance(employeeId: number, params?: any) {
-    return this.request<any>({ url: `/hr/employees/${employeeId}/performance`, params });
+    return this.request<any>({ url: `/hr/reports/employee-performance/${employeeId}`, params });
   }
 
   async exportEmployees(format: string = 'csv') {
@@ -376,45 +450,14 @@ class ApiClient {
     return this.request<any>({ 
       url: `/hr/payouts/${payoutId}/mark-paid`, 
       method: "POST",
-      params: { payment_method: paymentMethod, payment_reference: paymentReference },
+      data: { payment_method: paymentMethod, payment_reference: paymentReference },
     });
-  }
-
-  async getPendingComplaints(limit: number = 50) {
-    return this.request<any>({ url: '/hr/complaints/pending', params: { limit } });
-  }
-
-  async investigateComplaint(complaintId: number, data: any) {
-    return this.request<any>({ url: `/hr/complaints/${complaintId}/investigate`, method: "POST", data });
-  }
-
-  async getAttendance(params?: { employee_id?: number }) {
-    return this.request<any>({ url: '/hr/attendance', params });
-  }
-
-  async recordAttendance(data: any) {
-    return this.request<any>({ url: "/hr/attendance", method: "POST", data });
   }
 
   // -------------------------------------------------------------------
   // PROCUREMENT
   // -------------------------------------------------------------------
-  async getSuppliers(params?: any) {
-    return this.request<any>({ url: '/procurement/suppliers', params });
-  }
-
-  async getSupplier(supplierId: number) {
-    return this.request<any>({ url: `/procurement/suppliers/${supplierId}` });
-  }
-
-  async createSupplier(data: any) {
-    return this.request<any>({ url: "/procurement/suppliers", method: "POST", data });
-  }
-
-  async updateSupplier(supplierId: number, data: any) {
-    return this.request<any>({ url: `/procurement/suppliers/${supplierId}`, method: "PATCH", data });
-  }
-
+  // Note: Suppliers moved to Inventory based on OpenAPI spec
   async getPurchases(params?: any) {
     return this.request<any>({ url: '/procurement/purchases', params });
   }
@@ -499,24 +542,84 @@ class ApiClient {
   // -------------------------------------------------------------------
   // WORKFLOWS & APPROVALS
   // -------------------------------------------------------------------
+  async getWorkflows(params?: any) {
+    return this.request<any>({ url: '/workflows/', params });
+  }
+
+  async getWorkflow(workflowId: number) {
+    return this.request<any>({ url: `/workflows/${workflowId}` });
+  }
+
+  async deleteWorkflow(workflowId: number) {
+    return this.request<any>({ url: `/workflows/${workflowId}`, method: 'DELETE' });
+  }
+
+  async createWorkflowGraph(data: any) {
+    return this.request<any>({ url: '/workflows/graph', method: 'POST', data });
+  }
+
+  async updateWorkflowGraph(workflowId: number, data: any) {
+    return this.request<any>({ url: `/workflows/${workflowId}/graph`, method: 'PUT', data });
+  }
+
+  async publishWorkflow(workflowId: number) {
+    return this.request<any>({ url: `/workflows/${workflowId}/publish`, method: 'POST' });
+  }
+
+  async cloneWorkflow(workflowId: number, newName: string) {
+    return this.request<any>({ 
+      url: `/workflows/${workflowId}/clone`, 
+      method: 'POST',
+      params: { new_name: newName }
+    });
+  }
+
+  async startWorkflow(data: any) {
+    return this.request<any>({ url: '/workflows/start', method: 'POST', data });
+  }
+
+  async performWorkflowAction(instanceId: number, action: string, comment?: string) {
+    return this.request<any>({ 
+      url: `/workflows/instances/${instanceId}/actions`, 
+      method: 'POST',
+      params: { action, comment }
+    });
+  }
+
+  async getMyApprovals() {
+    return this.request<any>({ url: '/workflows/my-approvals' });
+  }
+
+  async getWorkflowStats() {
+    return this.request<any>({ url: '/workflows/stats' });
+  }
+
   async commentWorkflow(instanceId: number, comment: string) {
     return this.request<any>({ 
-      url: `/workflows/workflows/${instanceId}/comment`, 
+      url: `/workflows/${instanceId}/comment`, 
       method: 'POST',
-      data: { comment },
+      params: { comment },
     });
   }
 
   async getPendingWorkflows() {
-    return this.request<any>({ url: "/workflows/workflows/pending" });
+    return this.request<any>({ url: "/workflows/pending" });
   }
 
-  async approveWorkflow(instanceId: number) {
-    return this.request<any>({ url: `/workflows/workflows/${instanceId}/approve`, method: "POST" });
+  async approveWorkflow(instanceId: number, comment?: string) {
+    return this.request<any>({ 
+      url: `/workflows/${instanceId}/approve`, 
+      method: "POST",
+      params: { comment }
+    });
   }
 
-  async rejectWorkflow(instanceId: number) {
-    return this.request<any>({ url: `/workflows/workflows/${instanceId}/reject`, method: "POST" });
+  async rejectWorkflow(instanceId: number, comment?: string) {
+    return this.request<any>({ 
+      url: `/workflows/${instanceId}/reject`, 
+      method: "POST",
+      params: { comment }
+    });
   }
 
   async workflowAction(module: string, itemId: number, action: string, data: any) {
@@ -537,6 +640,10 @@ class ApiClient {
     return this.request<any>({ url: "/users/" });
   }
 
+  async getUser(userId: number) {
+    return this.request<any>({ url: `/users/${userId}` });
+  }
+
   async updateUser(userId: number, data: any) {
     return this.request<any>({ url: `/users/${userId}`, method: "PUT", data });
   }
@@ -545,8 +652,27 @@ class ApiClient {
     return this.request<any>({ url: "/users/", method: "POST", data });
   }
 
-  async createTaskBOM(taskId: number, data: any) {
-    return this.request<any>({ url: `/tasks/${taskId}/bom`, method: "POST", data });
+  async deleteUser(userId: number) {
+    return this.request<any>({ url: `/users/${userId}`, method: "DELETE" });
+  }
+
+  async restoreUser(userId: number) {
+    return this.request<any>({ url: `/users/${userId}/restore`, method: "POST" });
+  }
+
+  async getMyMenu() {
+    return this.request<any>({ url: "/users/me/menu" });
+  }
+
+  // -------------------------------------------------------------------
+  // HEALTH & SYSTEM
+  // -------------------------------------------------------------------
+  async healthCheck() {
+    return this.request<any>({ url: "/health" });
+  }
+
+  async getRoot() {
+    return this.request<any>({ url: "/" });
   }
 }
 
