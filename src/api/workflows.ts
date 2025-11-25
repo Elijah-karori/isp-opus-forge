@@ -19,6 +19,9 @@ export const workflowsApi = {
     const q = comment ? `?comment=${encodeURIComponent(comment)}` : "";
     return apiClient.post(`/api/v1/workflows/${instanceId}/escalate${q}`);
   },
+  getStats: () => {
+    return apiClient.get<any>('/api/v1/workflows/stats');
+  },
 
   // Workflow template management
   getWorkflows: () => {

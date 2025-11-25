@@ -70,7 +70,7 @@ export interface UserActivity {
 }
 
 // User management
-export const getUsers = (params?: { 
+export const getUsers = (params?: {
   is_active?: boolean;
   role?: string;
   department?: string;
@@ -158,3 +158,20 @@ export const bulkUpdateUsers = (userIds: number[], data: Partial<UserUpdate>) =>
 
 export const exportUsers = (format: 'csv' | 'excel' | 'pdf' = 'csv') =>
   axios.get(`/users/export?format=${format}`);
+
+// Menu API
+export interface MenuItem {
+  key: string;
+  label: string;
+  path: string;
+  icon?: string;
+  children?: MenuItem[];
+}
+
+/**
+ * Get user's menu based on RBAC v2 permissions
+ * Menu items are dynamically generated based on user permissions
+ */
+export const getMyMenu = () =>
+  axios.get<MenuItem[]>("/users/me/menu");
+

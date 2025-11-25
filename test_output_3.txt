@@ -1,0 +1,383 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.10 [39m[90mC:/Users/elija/OneDrive/Desktop/ERP-main (6)/isp-opus-forge-main[39m
+
+stderr | src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > renders dashboard with stats
+ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ [31mÔØ»[39m src/pages/__tests__/WorkflowDashboard.test.tsx [2m([22m[2m10 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1594[2mms[22m[39m
+     [32mÔ£ô[39m renders dashboard with stats[32m 125[2mms[22m[39m
+     [32mÔ£ô[39m displays empty state when no pending items[32m 18[2mms[22m[39m
+     [32mÔ£ô[39m groups items by resource type[32m 48[2mms[22m[39m
+     [32mÔ£ô[39m handles approve action[32m 110[2mms[22m[39m
+     [32mÔ£ô[39m handles reject action[32m 111[2mms[22m[39m
+[31m     [31m├ù[31m displays time since update correctly[39m[33m 1054[2mms[22m[39m
+     [32mÔ£ô[39m opens workflow overlay on details click[32m 91[2mms[22m[39m
+     [32mÔ£ô[39m handles API errors gracefully[32m 9[2mms[22m[39m
+     [32mÔ£ô[39m filters by user role[32m 11[2mms[22m[39m
+     [32mÔ£ô[39m renders analytics charts[32m 16[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 1 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > displays time since update correctly
+TestingLibraryElementError: Unable to find an element with the text: Just now. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="container mx-auto py-6 space-y-6"
+    >
+      <div>
+        <h1
+          class="text-3xl font-bold"
+        >
+          Workflow Dashboard
+        </h1>
+        <p
+          class="text-muted-foreground mt-2"
+        >
+          Manage pending approvals and workflow activities
+        </p>
+      </div>
+      <div
+        class="grid gap-4 md:grid-cols-3"
+      >
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+          >
+            <h3
+              class="tracking-tight text-sm font-medium"
+            >
+              Pending Approvals
+            </h3>
+            <svg
+              class="lucide lucide-clock h-4 w-4 text-muted-foreground"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <polyline
+                points="12 6 12 12 16 14"
+              />
+            </svg>
+          </div>
+          <div
+            class="p-6 pt-0"
+          >
+            <div
+              class="text-2xl font-bold text-primary"
+            >
+              2
+            </div>
+            <p
+              class="text-xs text-muted-foreground mt-1"
+            >
+              Awaiting your action
+            </p>
+          </div>
+        </div>
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+          >
+            <h3
+              class="tracking-tight text-sm font-medium"
+            >
+              SLA Breaches
+            </h3>
+            <svg
+              class="lucide lucide-circle-alert h-4 w-4 text-destructive"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="8"
+                y2="12"
+              />
+              <line
+                x1="12"
+                x2="12.01"
+                y1="16"
+                y2="16"
+              />
+            </svg>
+          </div>
+          <div
+            class="p-6 pt-0"
+          >
+            <div
+              class="text-2xl font-bold text-destructive"
+            >
+              0
+            </div>
+            <p
+              class="text-xs text-muted-foreground mt-1"
+            >
+              Overdue approvals
+            </p>
+          </div>
+        </div>
+        <div
+          class="rounded-lg border bg-card text-card-foreground shadow-sm"
+        >
+          <div
+            class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+          >
+            <h3
+              class="tracking-tight text-sm font-medium"
+            >
+              Approved This Month
+            </h3>
+            <svg
+              class="lucide lucide-trending-up h-4 w-4 text-muted-foreground"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="22 7 13.5 15.5 8.5 10.5 2 17"
+              />
+              <polyline
+                points="16 7 22 7 22 13"
+              />
+            </svg>
+          </div>
+          <div
+            class="p-6 pt-0"
+          >
+            <div
+              class="text-2xl font-bold text-success"
+            >
+              5
+            </div>
+            <p
+              class="text-xs text-muted-foreground mt-1"
+            >
+              Completed workflows
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class=...
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <div
+        class="container mx-auto py-6 space-y-6"
+      >
+        <div>
+          <h1
+            class="text-3xl font-bold"
+          >
+            Workflow Dashboard
+          </h1>
+          <p
+            class="text-muted-foreground mt-2"
+          >
+            Manage pending approvals and workflow activities
+          </p>
+        </div>
+        <div
+          class="grid gap-4 md:grid-cols-3"
+        >
+          <div
+            class="rounded-lg border bg-card text-card-foreground shadow-sm"
+          >
+            <div
+              class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+            >
+              <h3
+                class="tracking-tight text-sm font-medium"
+              >
+                Pending Approvals
+              </h3>
+              <svg
+                class="lucide lucide-clock h-4 w-4 text-muted-foreground"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                />
+                <polyline
+                  points="12 6 12 12 16 14"
+                />
+              </svg>
+            </div>
+            <div
+              class="p-6 pt-0"
+            >
+              <div
+                class="text-2xl font-bold text-primary"
+              >
+                2
+              </div>
+              <p
+                class="text-xs text-muted-foreground mt-1"
+              >
+                Awaiting your action
+              </p>
+            </div>
+          </div>
+          <div
+            class="rounded-lg border bg-card text-card-foreground shadow-sm"
+          >
+            <div
+              class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+            >
+              <h3
+                class="tracking-tight text-sm font-medium"
+              >
+                SLA Breaches
+              </h3>
+              <svg
+                class="lucide lucide-circle-alert h-4 w-4 text-destructive"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                />
+                <line
+                  x1="12"
+                  x2="12"
+                  y1="8"
+                  y2="12"
+                />
+                <line
+                  x1="12"
+                  x2="12.01"
+                  y1="16"
+                  y2="16"
+                />
+              </svg>
+            </div>
+            <div
+              class="p-6 pt-0"
+            >
+              <div
+                class="text-2xl font-bold text-destructive"
+              >
+                0
+              </div>
+              <p
+                class="text-xs text-muted-foreground mt-1"
+              >
+                Overdue approvals
+              </p>
+            </div>
+          </div>
+          <div
+            class="rounded-lg border bg-card text-card-foreground shadow-sm"
+          >
+            <div
+              class="p-6 flex flex-row items-center justify-between space-y-0 pb-2"
+            >
+              <h3
+                class="tracking-tight text-sm font-medium"
+              >
+                Approved This Month
+              </h3>
+              <svg
+                class="lucide lucide-trending-up h-4 w-4 text-muted-foreground"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="22 7 13.5 15.5 8.5 10.5 2 17"
+                />
+                <polyline
+                  points="16 7 22 7 22 13"
+                />
+              </svg>
+            </div>
+            <div
+              class="p-6 pt-0"
+            >
+              <div
+                class="text-2xl font-bold text-success"
+              >
+           ...
+ ÔØ» Proxy.waitFor node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:207:11
+
+    205|     render(<WorkflowDashboard />, { wrapper: createWrapper() });
+    206| 
+    207|     await waitFor(() => {
+       |           ^
+    208|       // Item 1: 12:00 vs 12:05 -> Just now
+    209|       expect(screen.getByText('Just now')).toBeInTheDocument();
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/1]ÔÄ»
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 18:10:12
+[2m   Duration [22m 4.09s[2m (transform 239ms, setup 249ms, collect 1.02s, tests 1.59s, environment 844ms, prepare 15ms)[22m
+

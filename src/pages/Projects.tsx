@@ -1,8 +1,8 @@
 // src/pages/Projects.tsx
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { 
-  getProjects, 
+import {
+  getProjects,
   getProjectStats,
   createProject,
   updateProject,
@@ -16,12 +16,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Loader2, 
-  Plus, 
-  Search, 
-  Building, 
-  Home, 
+import {
+  Loader2,
+  Plus,
+  Search,
+  Building,
+  Home,
   Store,
   TrendingUp,
   DollarSign,
@@ -33,9 +33,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ProjectDashboard } from '@/components/projects/ProjectDashboard';
-// import { ProjectDetails } from '@/components/projects/ProjectDetails';
-import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
+
 
 const Projects = () => {
   const { toast } = useToast();
@@ -122,13 +120,13 @@ const Projects = () => {
 
   // Filter projects based on search and status
   const filteredProjects = projectList.filter(project => {
-    const matchesSearch = 
+    const matchesSearch =
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.address?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -151,13 +149,15 @@ const Projects = () => {
             <Filter className="h-4 w-4" />
             Filter
           </Button>
-          <Button 
-            onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            New Project
-          </Button>
+          <PermissionGate permission={PERMISSIONS.PROJECT.CREATE_ALL}>
+            <Button
+              onClick={() => setShowCreateDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              New Project
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -270,7 +270,7 @@ const Projects = () => {
 
         {/* All Projects Tab */}
         <TabsContent value="all" className="space-y-6">
-          <ProjectsListView 
+          <ProjectsListView
             projects={filteredProjects}
             onProjectSelect={setSelectedProject}
             getProjectTypeIcon={getProjectTypeIcon}
@@ -281,7 +281,7 @@ const Projects = () => {
 
         {/* Active Projects Tab */}
         <TabsContent value="active" className="space-y-6">
-          <ProjectsListView 
+          <ProjectsListView
             projects={activeProjects}
             onProjectSelect={setSelectedProject}
             getProjectTypeIcon={getProjectTypeIcon}
@@ -292,7 +292,7 @@ const Projects = () => {
 
         {/* Planning Projects Tab */}
         <TabsContent value="planning" className="space-y-6">
-          <ProjectsListView 
+          <ProjectsListView
             projects={planningProjects}
             onProjectSelect={setSelectedProject}
             getProjectTypeIcon={getProjectTypeIcon}
@@ -304,7 +304,7 @@ const Projects = () => {
 
       {/* Create Project Dialog */}
       {showCreateDialog && (
-        <CreateProjectDialog 
+        <CreateProjectDialog
           onClose={() => setShowCreateDialog(false)}
           onCreate={createProjectMutation.mutate}
           isLoading={createProjectMutation.isPending}
@@ -316,9 +316,9 @@ const Projects = () => {
         <Card className="fixed inset-4 z-50 overflow-auto">
           <CardHeader>
             <CardTitle>Project Details</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setSelectedProject(null)}
               className="absolute top-4 right-4"
             >
@@ -350,13 +350,13 @@ const Projects = () => {
 };
 
 // Projects List View Component
-const ProjectsListView = ({ 
-  projects, 
+const ProjectsListView = ({
+  projects,
   onProjectSelect,
   getProjectTypeIcon,
   getStatusBadge,
   getPriorityBadge
-}: { 
+}: {
   projects: Project[];
   onProjectSelect: (project: Project) => void;
   getProjectTypeIcon: (type: Project['project_type']) => any;
@@ -395,7 +395,7 @@ const ProjectsListView = ({
 
               return (
                 <TableRow key={project.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell 
+                  <TableCell
                     className="font-medium"
                     onClick={() => onProjectSelect(project)}
                   >
@@ -410,7 +410,7 @@ const ProjectsListView = ({
                   <TableCell>
                     <div className="font-medium">{project.customer_name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {project.customer_phone}
+                      {project.customer_phone ? formatPhoneForDisplay(project.customer_phone) : 'N/A'}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -420,16 +420,15 @@ const ProjectsListView = ({
                   </TableCell>
                   <TableCell>
                     {project.budget ? (
-                      <div className="font-medium">${project.budget.toLocaleString()}</div>
+                      <div className="font-medium">{formatCurrency(project.budget)}</div>
                     ) : (
                       <span className="text-muted-foreground">Not set</span>
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className={`font-medium ${
-                      isOverBudget ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      ${project.actual_cost.toLocaleString()}
+                    <div className={`font-medium ${isOverBudget ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                      {formatCurrency(project.actual_cost)}
                       {isOverBudget && (
                         <AlertTriangle className="h-3 w-3 inline ml-1" />
                       )}

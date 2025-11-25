@@ -1,9 +1,9 @@
 // src/pages/Tasks.tsx
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { 
-  getTasks, 
-  updateTask, 
+import {
+  getTasks,
+  updateTask,
   updateTaskBOM,
   approveTaskBOM,
   completeTask,
@@ -21,12 +21,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Loader2, 
-  Search, 
-  Plus, 
-  Clock, 
-  CheckCircle, 
+import {
+  Loader2,
+  Search,
+  Plus,
+  Clock,
+  CheckCircle,
   AlertTriangle,
   User,
   Building,
@@ -42,6 +42,8 @@ import { TaskBoard } from '@/components/tasks/TaskBoard';
 // import { TechnicianPerformance } from '@/components/tasks/TechnicianPerformance';
 import { BOMEditor } from '@/components/tasks/BOMEditor';
 // import { TaskDetails } from '@/components/tasks/TaskDetails';
+import PermissionGate from '@/components/PermissionGate';
+import { PERMISSIONS } from '@/constants/permissions';
 
 const Tasks = () => {
   const { user } = useAuth();
@@ -108,9 +110,9 @@ const Tasks = () => {
   };
 
   const handleCompleteTask = (taskId: number, notes?: string, hours?: number) => {
-    completeTaskMutation.mutate({ 
-      taskId, 
-      data: { completion_notes: notes, actual_hours: hours } 
+    completeTaskMutation.mutate({
+      taskId,
+      data: { completion_notes: notes, actual_hours: hours }
     });
   };
 
@@ -164,10 +166,12 @@ const Tasks = () => {
             <BarChart3 className="h-4 w-4" />
             Reports
           </Button>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Task
-          </Button>
+          <PermissionGate permission={PERMISSIONS.TASK.CREATE_ALL}>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              New Task
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -262,7 +266,7 @@ const Tasks = () => {
 
         {/* Task Board Tab */}
         <TabsContent value="board" className="space-y-6">
-          <TaskBoard 
+          <TaskBoard
             tasks={filteredTasks}
             onStatusUpdate={handleStatusUpdate}
             onEditBOM={handleEditBOM}
@@ -272,7 +276,7 @@ const Tasks = () => {
 
         {/* List View Tab */}
         <TabsContent value="list" className="space-y-6">
-          <TasksListView 
+          <TasksListView
             tasks={filteredTasks}
             onStatusUpdate={handleStatusUpdate}
             onEditBOM={handleEditBOM}
@@ -306,7 +310,7 @@ const Tasks = () => {
 
       {/* BOM Editor Modal */}
       {showBOMEditor && selectedTask && (
-        <BOMEditor 
+        <BOMEditor
           task={selectedTask}
           onClose={() => {
             setShowBOMEditor(false);
@@ -325,9 +329,9 @@ const Tasks = () => {
         <Card className="fixed inset-4 z-50 overflow-auto">
           <CardHeader>
             <CardTitle>Task Details</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setShowTaskDetails(false);
                 setSelectedTask(null);
@@ -362,12 +366,12 @@ const Tasks = () => {
 };
 
 // List View Component
-const TasksListView = ({ 
-  tasks, 
-  onStatusUpdate, 
-  onEditBOM, 
-  onViewDetails 
-}: { 
+const TasksListView = ({
+  tasks,
+  onStatusUpdate,
+  onEditBOM,
+  onViewDetails
+}: {
   tasks: Task[];
   onStatusUpdate: (taskId: number, status: Task['status']) => void;
   onEditBOM: (task: Task) => void;
@@ -409,8 +413,8 @@ const TasksListView = ({
               return (
                 <TableRow key={task.id}>
                   <TableCell>
-                    <div className="font-medium cursor-pointer hover:text-blue-600" 
-                         onClick={() => onViewDetails(task)}>
+                    <div className="font-medium cursor-pointer hover:text-blue-600"
+                      onClick={() => onViewDetails(task)}>
                       {task.title}
                     </div>
                     <div className="text-sm text-muted-foreground line-clamp-1">
@@ -490,7 +494,7 @@ const TasksListView = ({
             })}
           </TableBody>
         </Table>
-        
+
         {tasks.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             <ClipboardList className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -523,10 +527,10 @@ const TechniciansManagement = ({ technicians }: { technicians: Technician[] }) =
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="h-5 w-5 text-blue-600" />
                       </div>
-                    <div>
-                      <h3 className="font-semibold">{tech.full_name}</h3>
-                      <p className="text-sm text-muted-foreground">{tech.email}</p>
-                    </div>
+                      <div>
+                        <h3 className="font-semibold">{tech.full_name}</h3>
+                        <p className="text-sm text-muted-foreground">{tech.email}</p>
+                      </div>
                     </div>
                     {tech.certification_level && (
                       <Badge variant="outline" className="bg-green-500/10 text-green-500">
@@ -565,8 +569,8 @@ const TechniciansManagement = ({ technicians }: { technicians: Technician[] }) =
                     <span>{tech.completion_rate}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-500 h-2 rounded-full" 
+                    <div
+                      className="bg-green-500 h-2 rounded-full"
                       style={{ width: `${tech.completion_rate}%` }}
                     ></div>
                   </div>
