@@ -100,7 +100,7 @@ export default function Dashboard() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm text-muted-foreground">Total Projects</p>
-                                        <p className="text-2xl font-bold">{projectsOverview.total_projects}</p>
+                                        <p className="text-2xl font-bold">{projectsOverview?.total_projects ?? 0}</p>
                                     </div>
                                     <Briefcase className="h-8 w-8 text-blue-500" />
                                 </div>
@@ -111,7 +111,7 @@ export default function Dashboard() {
                                     <div>
                                         <p className="text-sm text-muted-foreground">In Progress</p>
                                         <p className="text-2xl font-bold text-green-600">
-                                            {projectsOverview.by_status.in_progress}
+                                            {projectsOverview?.by_status?.in_progress ?? 0}
                                         </p>
                                     </div>
                                     <Target className="h-8 w-8 text-green-600" />
@@ -123,7 +123,7 @@ export default function Dashboard() {
                                     <div>
                                         <p className="text-sm text-muted-foreground">Completed</p>
                                         <p className="text-2xl font-bold text-green-700">
-                                            {projectsOverview.by_status.completed}
+                                            {projectsOverview?.by_status?.completed ?? 0}
                                         </p>
                                     </div>
                                     <CheckCircle2 className="h-8 w-8 text-green-700" />
@@ -135,7 +135,7 @@ export default function Dashboard() {
                                     <div>
                                         <p className="text-sm text-muted-foreground">Planning</p>
                                         <p className="text-2xl font-bold text-blue-600">
-                                            {projectsOverview.by_status.planning}
+                                            {projectsOverview?.by_status?.planning ?? 0}
                                         </p>
                                     </div>
                                     <BarChart className="h-8 w-8 text-blue-600" />
@@ -147,7 +147,7 @@ export default function Dashboard() {
                                     <div>
                                         <p className="text-sm text-muted-foreground">On Hold</p>
                                         <p className="text-2xl font-bold text-orange-600">
-                                            {projectsOverview.by_status.on_hold}
+                                            {projectsOverview?.by_status?.on_hold ?? 0}
                                         </p>
                                     </div>
                                     <AlertCircle className="h-8 w-8 text-orange-600" />
@@ -159,7 +159,7 @@ export default function Dashboard() {
                                     <div>
                                         <p className="text-sm text-muted-foreground">Cancelled</p>
                                         <p className="text-2xl font-bold text-red-600">
-                                            {projectsOverview.by_status.cancelled}
+                                            {projectsOverview?.by_status?.cancelled ?? 0}
                                         </p>
                                     </div>
                                     <AlertCircle className="h-8 w-8 text-red-600" />
@@ -196,27 +196,27 @@ export default function Dashboard() {
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                             <div className="p-4 rounded-lg border">
                                 <p className="text-sm text-muted-foreground">Total Tasks</p>
-                                <p className="text-2xl font-bold">{taskAllocation.total_tasks}</p>
+                                <p className="text-2xl font-bold">{taskAllocation?.total_tasks ?? 0}</p>
                             </div>
 
                             <div className="p-4 rounded-lg border">
                                 <p className="text-sm text-muted-foreground">Tech Lead</p>
-                                <p className="text-xl font-bold">{taskAllocation.by_role.tech_lead}</p>
+                                <p className="text-xl font-bold">{taskAllocation?.by_role?.tech_lead ?? 0}</p>
                             </div>
 
                             <div className="p-4 rounded-lg border">
                                 <p className="text-sm text-muted-foreground">Project Manager</p>
-                                <p className="text-xl font-bold">{taskAllocation.by_role.project_manager}</p>
+                                <p className="text-xl font-bold">{taskAllocation?.by_role?.project_manager ?? 0}</p>
                             </div>
 
                             <div className="p-4 rounded-lg border">
                                 <p className="text-sm text-muted-foreground">Technician</p>
-                                <p className="text-xl font-bold">{taskAllocation.by_role.technician}</p>
+                                <p className="text-xl font-bold">{taskAllocation?.by_role?.technician ?? 0}</p>
                             </div>
 
                             <div className="p-4 rounded-lg border">
                                 <p className="text-sm text-muted-foreground">Marketing</p>
-                                <p className="text-xl font-bold">{taskAllocation.by_role.marketing}</p>
+                                <p className="text-xl font-bold">{taskAllocation?.by_role?.marketing ?? 0}</p>
                             </div>
                         </div>
 

@@ -2,6 +2,7 @@ import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import type { MenuItem } from '@/contexts/AuthContext';
+import { generateMenuFromPermissions } from '@/lib/menuGenerator';
 import {
   Sidebar,
   SidebarContent,
@@ -25,8 +26,11 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const { user } = useAuth();
-  
-  const menuItems: MenuItem[] = user?.menus || [];
+
+  // NEW: Generate menus from permissions instead of using user.menus
+  const menuItems = user?.permissions_v2 && user.permissions_v2.length > 0
+    ? generateMenuFromPermissions(user.permissions_v2)
+    : user?.menus || []; // Fallback to backend menus if no permissions_v2
 
   const getIcon = (iconName?: string): LucideIcon => {
     if (!iconName) return Icons.Circle;
@@ -45,7 +49,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           {!collapsed && <SidebarGroupLabel>Menu</SidebarGroupLabel>}
-          
+
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -53,7 +57,7 @@ export function AppSidebar() {
                 const hasChildren = item.children && item.children.length > 0;
                 const isActive = isPathActive(item.path);
                 const hasActiveChild = hasChildren && item.children?.some(child => isPathActive(child.path));
-                
+
                 if (hasChildren && !collapsed) {
                   return (
                     <Collapsible key={item.key || item.path} defaultOpen={hasActiveChild}>
@@ -72,7 +76,7 @@ export function AppSidebar() {
                               return (
                                 <SidebarMenuSubItem key={child.key || child.path}>
                                   <SidebarMenuSubButton asChild>
-                                    <NavLink 
+                                    <NavLink
                                       to={child.path}
                                       className="hover:bg-accent/50"
                                       activeClassName="bg-accent text-accent-foreground font-medium"
@@ -90,12 +94,12 @@ export function AppSidebar() {
                     </Collapsible>
                   );
                 }
-                
+
                 return (
                   <SidebarMenuItem key={item.key || item.path}>
                     <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.path} 
+                      <NavLink
+                        to={item.path}
                         className="hover:bg-accent/50"
                         activeClassName="bg-accent text-accent-foreground font-medium"
                       >

@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
   getProjects,
-  getProjectStats,
   createProject,
   updateProject,
   type Project,
@@ -33,6 +32,11 @@ import {
   Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import PermissionGate from '@/components/PermissionGate';
+import { PERMISSIONS } from '@/constants/permissions';
+import { formatCurrency, formatPhone } from '@/utils/format';
+import { ProjectDashboard } from '@/components/projects/ProjectDashboard';
+import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 
 
 const Projects = () => {
@@ -45,14 +49,9 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Fetch projects data
-  const { data: projects, isLoading: projectsLoading } = useQuery({
+  const { data: projects, isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiClient.getProjects(),
-  });
-
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['project-stats'],
-    queryFn: () => getProjectStats(),
   });
 
   const createProjectMutation = useMutation({
@@ -64,7 +63,6 @@ const Projects = () => {
       });
       setShowCreateDialog(false);
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['project-stats'] });
     },
     onError: (error: any) => {
       toast({
@@ -100,12 +98,10 @@ const Projects = () => {
       low: { class: 'bg-gray-500/10 text-gray-500 border-gray-500/20', label: 'Low' },
       medium: { class: 'bg-blue-500/10 text-blue-500 border-blue-500/20', label: 'Medium' },
       high: { class: 'bg-orange-500/10 text-orange-500 border-orange-500/20', label: 'High' },
-      urgent: { class: 'bg-red-500/10 text-red-500 border-red-500/20', label: 'Urgent' },
+      critical: { class: 'bg-red-500/10 text-red-500 border-red-500/20', label: 'Critical' },
     };
     return variants[priority];
   };
-
-  const isLoading = projectsLoading || statsLoading;
 
   if (isLoading) {
     return (
@@ -116,7 +112,6 @@ const Projects = () => {
   }
 
   const projectList = Array.isArray(projects) ? projects : [];
-  const statsData = stats?.data || {};
 
   // Filter projects based on search and status
   const filteredProjects = projectList.filter(project => {
@@ -221,7 +216,12 @@ const Projects = () => {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{statsData.budget_utilization || '0'}%</div>
+            <div className="text-2xl font-bold">
+              {projectList.length > 0
+                ? ((projectList.reduce((sum, p) => sum + (p.actual_cost || 0), 0) /
+                  projectList.reduce((sum, p) => sum + (p.budget || 0), 0) * 100) || 0).toFixed(1)
+                : '0'}%
+            </div>
             <p className="text-xs text-muted-foreground">
               Of total budget
             </p>

@@ -1,15 +1,15 @@
 // src/components/projects/ProjectDashboard.tsx
 import { useQuery } from '@tanstack/react-query';
-import { getProjects, getProjectStats } from '@/api/projects';
+import { getProjects } from '@/api/projects';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -17,9 +17,9 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { 
-  Building, 
-  Home, 
+import {
+  Building,
+  Home,
   Store,
   TrendingUp,
   TrendingDown,
@@ -36,17 +36,17 @@ export function ProjectDashboard() {
     queryFn: () => getProjects(),
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['project-stats'],
-    queryFn: () => getProjectStats(),
-  });
-
-  if (projectsLoading || statsLoading) {
+  if (projectsLoading) {
     return <div>Loading dashboard data...</div>;
   }
 
   const projectList = Array.isArray(projects) ? projects : [];
-  const statsData = stats?.data || {};
+
+  // Calculate stats from project data
+  const totalRevenue = projectList.reduce((sum, p) => sum + (p.budget || 0), 0);
+  const totalCost = projectList.reduce((sum, p) => sum + (p.actual_cost || 0), 0);
+  const avgMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue * 100).toFixed(1) : '0';
+  const activeTeams = projectList.filter(p => p.status === 'in_progress').length;
 
   // Sample data for charts
   const projectTypeData = [
@@ -83,9 +83,9 @@ export function ProjectDashboard() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${statsData.total_revenue?.toLocaleString() || '0'}</div>
+            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              +12% from last quarter
+              Total project budgets
             </p>
           </CardContent>
         </Card>
@@ -96,7 +96,7 @@ export function ProjectDashboard() {
             <TrendingUp className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{statsData.avg_margin || '0'}%</div>
+            <div className="text-2xl font-bold">{avgMargin}%</div>
             <p className="text-xs text-muted-foreground">
               Gross profit margin
             </p>
@@ -105,26 +105,26 @@ export function ProjectDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">On-Time Delivery</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Calendar className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">87%</div>
+            <div className="text-2xl font-bold">{projectList.length}</div>
             <p className="text-xs text-muted-foreground">
-              Projects delivered on time
+              All time projects
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Teams</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
             <Users className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{statsData.active_teams || '0'}</div>
+            <div className="text-2xl font-bold">{activeTeams}</div>
             <p className="text-xs text-muted-foreground">
-              Currently deployed
+              Currently in progress
             </p>
           </CardContent>
         </Card>
@@ -199,17 +199,17 @@ export function ProjectDashboard() {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
-              <Line 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#0088FE" 
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#0088FE"
                 strokeWidth={2}
                 name="Revenue"
               />
-              <Line 
-                type="monotone" 
-                dataKey="cost" 
-                stroke="#FF8042" 
+              <Line
+                type="monotone"
+                dataKey="cost"
+                stroke="#FF8042"
                 strokeWidth={2}
                 name="Cost"
               />
@@ -243,8 +243,8 @@ export function ProjectDashboard() {
                 <div className="text-right">
                   <Badge variant={
                     project.status === 'completed' ? 'default' :
-                    project.status === 'in_progress' ? 'secondary' :
-                    'outline'
+                      project.status === 'in_progress' ? 'secondary' :
+                        'outline'
                   }>
                     {project.status}
                   </Badge>

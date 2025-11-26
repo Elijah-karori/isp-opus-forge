@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
 import { Permission } from "@/constants/permissions";
-
+import { generateMenuFromPermissions } from "@/lib/menuGenerator";
 interface MenuItem {
   key?: string;
   label: string;

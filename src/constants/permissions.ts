@@ -200,6 +200,15 @@ export const TECHNICIAN_PERMISSIONS = {
 } as const;
 
 // ============================================================================
+// DASHBOARD
+// ============================================================================
+export const DASHBOARD_PERMISSIONS = {
+    VIEW_ALL: 'dashboard:view:all',
+    VIEW_DEPARTMENT: 'dashboard:view:department',
+    VIEW_OWN: 'dashboard:view:own',
+} as const;
+
+// ============================================================================
 // COMBINED PERMISSIONS OBJECT
 // ============================================================================
 export const PERMISSIONS = {
@@ -214,6 +223,7 @@ export const PERMISSIONS = {
     SYSTEM: SYSTEM_PERMISSIONS,
     MARKETING: MARKETING_PERMISSIONS,
     TECHNICIAN: TECHNICIAN_PERMISSIONS,
+    DASHBOARD: DASHBOARD_PERMISSIONS,
 } as const;
 
 // ============================================================================
@@ -230,7 +240,8 @@ export type Permission =
     | typeof USER_PERMISSIONS[keyof typeof USER_PERMISSIONS]
     | typeof SYSTEM_PERMISSIONS[keyof typeof SYSTEM_PERMISSIONS]
     | typeof MARKETING_PERMISSIONS[keyof typeof MARKETING_PERMISSIONS]
-    | typeof TECHNICIAN_PERMISSIONS[keyof typeof TECHNICIAN_PERMISSIONS];
+    | typeof TECHNICIAN_PERMISSIONS[keyof typeof TECHNICIAN_PERMISSIONS]
+    | typeof DASHBOARD_PERMISSIONS[keyof typeof DASHBOARD_PERMISSIONS];
 
 // ============================================================================
 // UTILITY FUNCTIONS

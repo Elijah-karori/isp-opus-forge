@@ -1,146 +1,226 @@
 // src/api/tasks.ts
 import axios from "./axios";
 
+// ===========================================================================
+// TASK INTERFACES
+// ===========================================================================
+
+export type TaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'awaiting_approval'
+  | 'completed'
+  | 'cancelled';
+
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export type AssignedRole =
+  | 'tech_lead'
+  | 'project_manager'
+  | 'technician'
+  | 'customer_support'
+  | 'marketing';
+
 export interface Task {
   id: number;
+  project_id: number;
   title: string;
   description?: string;
+  status: TaskStatus;
+
+  // Assignment
+  assigned_role?: AssignedRole;
+  assigned_to_id?: number;
+  department_id?: number;
+
+  // Tracking
+  priority: TaskPriority;
+  estimated_hours?: number;
+  actual_hours?: number;
+
+  // Dates
+  due_date?: string;
   scheduled_date?: string;
-  project_id: number;
-  technician_id?: number;
-  status: 'pending' | 'in_progress' | 'awaiting_approval' | 'completed' | 'cancelled';
-  bom_approved: boolean;
-  created_at: string;
-  items: TaskItem[];
-  project?: {
-    name: string;
-    customer_name: string;
-    address?: string;
-  };
-  technician?: {
+  completed_date?: string;
+  created_at?: string;
+  updated_at?: string;
+
+  // Relations
+  assignee?: {
+    id: number;
     full_name: string;
     email: string;
   };
-  completion_notes?: string;
-  completed_at?: string;
-  actual_hours?: number;
 }
 
-export interface TaskItem {
+export type TaskCreate = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'assignee'>;
+export type TaskUpdate = Partial<TaskCreate>;
+
+// ===========================================================================
+// TASK DEPENDENCY INTERFACES
+// ===========================================================================
+
+export type DependencyType =
+  | 'finish_to_start'
+  | 'start_to_start'
+  | 'finish_to_finish'
+  | 'start_to_finish';
+
+export interface TaskDependency {
   id: number;
-  product_id: number;
-  quantity_required: number;
-  quantity_used: number;
-  notes?: string;
-  product?: {
-    name: string;
-    sku: string;
-    unit_price: number;
-    category: string;
-  };
+  task_id: number;
+  depends_on_task_id: number;
+  dependency_type: DependencyType;
+  created_at?: string;
 }
 
-export interface TaskCreate {
-  title: string;
-  description?: string;
-  scheduled_date?: string;
-  project_id: number;
-  technician_id?: number;
-  items: TaskItemCreate[];
-}
-
-export interface TaskItemCreate {
-  product_id: number;
-  quantity_required: number;
-}
-
-export interface TaskUpdateBOM {
-  items: Array<{
-    product_id: number;
-    quantity_used: number;
-    notes?: string;
+export interface TaskWithDependencies extends Task {
+  dependencies: Array<{
+    id: number;
+    depends_on_task_id: number;
+    dependency_type: DependencyType;
+    task: {
+      id: number;
+      title: string;
+      status: TaskStatus;
+    };
+  }>;
+  dependent_tasks: Array<{
+    id: number;
+    task_id: number;
+    dependency_type: DependencyType;
+    task: {
+      id: number;
+      title: string;
+      status: TaskStatus;
+    };
   }>;
 }
 
-export interface Technician {
-  id: number;
-  full_name: string;
-  email: string;
-  phone?: string;
-  is_active: boolean;
-  skills?: string[];
-  certification_level?: string;
-  tasks_assigned: number;
-  tasks_completed: number;
-  completion_rate: number;
+// ===========================================================================
+// TASK HOURS LOGGING
+// ===========================================================================
+
+export interface TaskHoursLog {
+  actual_hours: number;
+  notes?: string;
 }
 
-export interface TaskStats {
-  total_tasks: number;
-  pending_tasks: number;
-  in_progress_tasks: number;
-  completed_tasks: number;
-  completion_rate: number;
-  avg_completion_time: number;
-  technician_performance: Technician[];
+// ===========================================================================
+// TASK ASSIGNMENT BY ROLE
+// ===========================================================================
+
+export interface TaskAssignByRole {
+  task_id: number;
+  assigned_role: AssignedRole;
+  department_id?: number;
+  priority?: TaskPriority;
 }
 
-// Task management
+// ===========================================================================
+// TASK CRUD API
+// ===========================================================================
+
+/**
+ * List all tasks with optional filtering
+ */
 export const getTasks = (params?: {
   skip?: number;
   limit?: number;
   project_id?: number;
-  technician_id?: number;
-  status?: string;
-}) => axios.get("/tasks", { params });
+  status?: TaskStatus;
+  assigned_role?: AssignedRole;
+  department_id?: number;
+  priority?: TaskPriority;
+}) => axios.get<Task[]>("/tasks", { params });
 
+/**
+ * Get task by ID
+ */
 export const getTask = (taskId: number) =>
-  axios.get(`/tasks/${taskId}`);
+  axios.get<Task>(`/tasks/${taskId}`);
 
+/**
+ * Create new task
+ */
 export const createTask = (data: TaskCreate) =>
-  axios.post("/tasks", data);
+  axios.post<Task>("/tasks", data);
 
-export const updateTask = (taskId: number, data: Partial<Task>) =>
-  axios.patch(`/tasks/${taskId}`, data);
+/**
+ * Update task
+ */
+export const updateTask = (taskId: number, data: TaskUpdate) =>
+  axios.put<Task>(`/tasks/${taskId}`, data);
 
-export const updateTaskBOM = (taskId: number, data: TaskUpdateBOM) =>
-  axios.post(`/tasks/${taskId}/update-bom`, data);
+/**
+ * Delete task
+ */
+export const deleteTask = (taskId: number) =>
+  axios.delete(`/tasks/${taskId}`);
 
-export const approveTaskBOM = (taskId: number) =>
-  axios.post(`/tasks/${taskId}/approve-bom`);
+// ===========================================================================
+// MY TASKS API
+// ===========================================================================
 
-export const completeTask = (taskId: number, data: {
-  completion_notes?: string;
-  actual_hours?: number;
-}) => axios.post(`/tasks/${taskId}/complete`, data);
+/**
+ * Get tasks assigned to current user
+ */
+export const getMyTasks = () =>
+  axios.get<Task[]>("/tasks/my-assignments");
 
-// Technician management
-export const getTechnicians = (params?: { active_only?: boolean }) =>
-  axios.get("/technicians", { params });
+/**
+ * Get tasks by department
+ */
+export const getTasksByDepartment = (departmentId: number) =>
+  axios.get<Task[]>(`/tasks/by-department/${departmentId}`);
 
-export const getTechnicianLeaderboard = (params?: { limit?: number }) =>
-  axios.get("/technicians/leaderboard", { params });
+// ===========================================================================
+// TASK ASSIGNMENT API
+// ===========================================================================
 
-export const approveTaskCompletion = (taskId: number, data: {
-  approved: boolean;
-  notes?: string;
-}) => axios.post(`/technicians/tasks/${taskId}/approve`, data);
+/**
+ * Assign task by role - auto-selects available user with that role
+ */
+export const assignTaskByRole = (data: TaskAssignByRole) =>
+  axios.post<Task>("/tasks/assign-by-role", data);
 
-// Task analytics
-export const getTaskStats = () =>
-  axios.get("/tasks/stats");
+// ===========================================================================
+// TASK HOURS LOGGING API
+// ===========================================================================
 
-export const getTechnicianPerformance = (technicianId: number, params?: {
-  period_start?: string;
-  period_end?: string;
-}) => axios.get(`/technicians/${technicianId}/performance`, { params });
+/**
+ * Log actual hours worked on a task
+ */
+export const logTaskHours = (taskId: number, data: TaskHoursLog) =>
+  axios.put<Task>(`/tasks/${taskId}/hours`, data);
 
-// BOM variance detection
-export const detectTaskVariances = (taskId: number) =>
-  axios.post(`/finance/tasks/${taskId}/detect-variances`);
+// ===========================================================================
+// TASK DEPENDENCY API
+// ===========================================================================
 
-// Customer satisfaction
-export const recordCustomerSatisfaction = (taskId: number, data: {
-  rating: number;
-  feedback?: string;
-}) => axios.post(`/technicians/satisfaction`, { task_id: taskId, ...data });
+/**
+ * Add dependency to a task
+ */
+export const addTaskDependency = (
+  taskId: number,
+  dependsOnTaskId: number,
+  dependencyType: DependencyType = 'finish_to_start'
+) =>
+  axios.post(`/tasks/${taskId}/dependencies`, null, {
+    params: {
+      depends_on_task_id: dependsOnTaskId,
+      dependency_type: dependencyType
+    }
+  });
+
+/**
+ * Get task with all its dependencies
+ */
+export const getTaskDependencies = (taskId: number) =>
+  axios.get<TaskWithDependencies>(`/tasks/${taskId}/dependencies`);
+
+/**
+ * Remove task dependency
+ */
+export const removeTaskDependency = (taskId: number, dependencyId: number) =>
+  axios.delete(`/tasks/${taskId}/dependencies/${dependencyId}`);

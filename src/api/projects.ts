@@ -19,7 +19,13 @@ export interface Project {
   actual_end_date?: string;
   description?: string;
   notes?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  division_id?: number;
+  department_id?: number;
+  project_manager_id?: number;
+  tech_lead_id?: number;
+  infrastructure_type?: 'ppoe' | 'hotspot' | 'fiber' | 'wireless' | 'hybrid' | 'network_infrastructure';
+  end_date?: string;
 }
 
 export interface ProjectFinancials {
@@ -78,9 +84,9 @@ export interface ProjectResource {
 }
 
 // Project management
-export const getProjects = (params?: { 
-  skip?: number; 
-  limit?: number; 
+export const getProjects = (params?: {
+  skip?: number;
+  limit?: number;
   status?: string;
   project_type?: string;
   priority?: string;
@@ -160,3 +166,143 @@ export const generateProjectReport = (projectId: number, reportType: string) =>
 
 export const exportProjects = (format: 'csv' | 'excel' | 'pdf' = 'csv') =>
   axios.get(`/projects/export?format=${format}`);
+
+// ===========================================================================
+// MILESTONES API
+// ===========================================================================
+
+export interface Milestone {
+  id: number;
+  project_id: number;
+  name: string;
+  description?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'delayed';
+  due_date?: string;
+  completed_date?: string;
+  order_index: number;
+  created_at?: string;
+}
+
+export type MilestoneCreate = Omit<Milestone, 'id' | 'created_at' | 'status'>;
+export type MilestoneUpdate = Partial<Pick<Milestone, 'status' | 'completed_date' | 'name' | 'due_date'>>;
+
+/**
+ * Get all milestones for a project
+ */
+export const getProjectMilestones = (projectId: number) =>
+  axios.get<Milestone[]>(`/projects/${projectId}/milestones`);
+
+/**
+ * Create a new milestone for a project
+ */
+export const createMilestone = (projectId: number, data: MilestoneCreate) =>
+  axios.post<Milestone>(`/projects/${projectId}/milestones`, data);
+
+/**
+ * Update milestone status/completion
+ */
+export const updateMilestone = (milestoneId: number, data: MilestoneUpdate) =>
+  axios.put<Milestone>(`/projects/milestones/${milestoneId}`, data);
+
+// ===========================================================================
+// BUDGET API
+// ===========================================================================
+
+export type BudgetCategory =
+  | 'labor'
+  | 'materials'
+  | 'equipment'
+  | 'overhead'
+  | 'contingency'
+  | 'other';
+
+export interface BudgetLineItem {
+  id?: number;
+  budget_id?: number;
+  category: BudgetCategory;
+  description: string;
+  quantity: number;
+  unit_cost: number;
+  total_cost: number;
+  actual_cost: number;
+}
+
+export interface ProjectBudget {
+  id: number;
+  project_id: number;
+  total_allocated: number;
+  total_spent: number;
+  approved_at?: string;
+  line_items: BudgetLineItem[];
+}
+
+export interface BudgetSummary {
+  total_allocated: number;
+  total_spent: number;
+  remaining: number;
+  percent_used: number;
+  by_category: Record<BudgetCategory, {
+    allocated: number;
+    spent: number;
+    variance: number;
+  }>;
+}
+
+export type ProjectBudgetCreate = {
+  project_id: number;
+  total_allocated: number;
+  line_items?: Omit<BudgetLineItem, 'id' | 'budget_id'>[];
+};
+
+/**
+ * Create project budget
+ */
+export const createProjectBudget = (projectId: number, data: ProjectBudgetCreate) =>
+  axios.post<ProjectBudget>(`/projects/${projectId}/budget`, data);
+
+/**
+ * Get project budget
+ */
+export const getProjectBudget = (projectId: number) =>
+  axios.get<ProjectBudget>(`/projects/${projectId}/budget`);
+
+/**
+ * Get budget summary with breakdown
+ */
+export const getBudgetSummary = (projectId: number) =>
+  axios.get<BudgetSummary>(`/projects/${projectId}/budget/summary`);
+
+// ===========================================================================
+// TEAM MANAGEMENT API
+// ===========================================================================
+
+export interface ProjectTeamMember {
+  user_id: number;
+  full_name: string;
+  email: string;
+  role: string;
+  department?: string;
+  assigned_date?: string;
+}
+
+export interface ProjectTeam {
+  project_manager?: ProjectTeamMember;
+  tech_lead?: ProjectTeamMember;
+  team_members: ProjectTeamMember[];
+}
+
+/**
+ * Get project team members
+ */
+export const getProjectTeam = (projectId: number) =>
+  axios.get<ProjectTeam>(`/projects/${projectId}/team`);
+
+// ===========================================================================
+// DEPARTMENT FILTERING API
+// ===========================================================================
+
+/**
+ * Get projects by department
+ */
+export const getProjectsByDepartment = (departmentId: number) =>
+  axios.get<Project[]>(`/projects/by-department/${departmentId}`);

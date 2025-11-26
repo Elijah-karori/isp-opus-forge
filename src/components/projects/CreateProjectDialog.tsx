@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
@@ -17,10 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  Loader2, 
-  Building, 
-  Home, 
+import {
+  Loader2,
+  Building,
+  Home,
   Store,
   User,
   Phone,
@@ -42,20 +42,36 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
     customer_email: '',
     customer_phone: '',
     address: '',
+    division_id: '',
+    department_id: '',
+    project_manager_id: '',
+    tech_lead_id: '',
+    infrastructure_type: '' as '' | 'ppoe' | 'hotspot' | 'fiber' | 'wireless' | 'hybrid' | 'network_infrastructure',
+    priority: 'medium' as 'low' | 'medium' | 'high' | 'critical',
     budget: '',
-    description: '',
-    priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
     start_date: '',
-    estimated_end_date: '',
+    end_date: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const projectData = {
-      ...formData,
+      name: formData.name,
+      project_type: formData.project_type,
+      customer_name: formData.customer_name,
+      customer_email: formData.customer_email || undefined,
+      customer_phone: formData.customer_phone || undefined,
+      address: formData.address || undefined,
+      division_id: formData.division_id ? parseInt(formData.division_id) : undefined,
+      department_id: formData.department_id ? parseInt(formData.department_id) : undefined,
+      project_manager_id: formData.project_manager_id ? parseInt(formData.project_manager_id) : undefined,
+      tech_lead_id: formData.tech_lead_id ? parseInt(formData.tech_lead_id) : undefined,
+      infrastructure_type: formData.infrastructure_type || undefined,
+      priority: formData.priority,
       budget: formData.budget ? parseFloat(formData.budget) : undefined,
-      status: 'planning' as const,
+      start_date: formData.start_date || undefined,
+      end_date: formData.end_date || undefined,
     };
 
     onCreate(projectData);
@@ -71,11 +87,20 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
     { value: 'commercial', label: 'Commercial Building', icon: Store },
   ];
 
+  const infrastructureTypes = [
+    { value: 'ppoe', label: 'PPPoE' },
+    { value: 'hotspot', label: 'Hotspot' },
+    { value: 'fiber', label: 'Fiber' },
+    { value: 'wireless', label: 'Wireless' },
+    { value: 'hybrid', label: 'Hybrid' },
+    { value: 'network_infrastructure', label: 'Network Infrastructure' },
+  ];
+
   const priorities = [
     { value: 'low', label: 'Low' },
     { value: 'medium', label: 'Medium' },
     { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' },
+    { value: 'critical', label: 'Critical' },
   ];
 
   return (
@@ -92,7 +117,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
           {/* Project Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Project Information</h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Project Name *</label>
@@ -103,7 +128,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Project Type *</label>
                 <Select value={formData.project_type} onValueChange={(value: any) => handleChange('project_type', value)}>
@@ -124,6 +149,64 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
                     })}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Infrastructure Type</label>
+                <Select value={formData.infrastructure_type} onValueChange={(value: any) => handleChange('infrastructure_type', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select infrastructure" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {infrastructureTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Division ID</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={formData.division_id}
+                  onChange={(e) => handleChange('division_id', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Department ID</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={formData.department_id}
+                  onChange={(e) => handleChange('department_id', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Project Manager ID</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={formData.project_manager_id}
+                  onChange={(e) => handleChange('project_manager_id', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tech Lead ID</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={formData.tech_lead_id}
+                  onChange={(e) => handleChange('tech_lead_id', e.target.value)}
+                />
               </div>
             </div>
 
@@ -153,7 +236,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Budget</label>
                 <div className="relative">
@@ -173,7 +256,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
           {/* Customer Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Customer Information</h3>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Customer Name *</label>
               <div className="relative">
@@ -202,7 +285,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Phone</label>
                 <div className="relative">
@@ -234,7 +317,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
           {/* Timeline */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Project Timeline</h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Start Date</label>
@@ -244,13 +327,13 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
                   onChange={(e) => handleChange('start_date', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">Estimated End Date</label>
+                <label className="text-sm font-medium">End Date</label>
                 <Input
                   type="date"
-                  value={formData.estimated_end_date}
-                  onChange={(e) => handleChange('estimated_end_date', e.target.value)}
+                  value={formData.end_date}
+                  onChange={(e) => handleChange('end_date', e.target.value)}
                 />
               </div>
             </div>
@@ -260,7 +343,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
             <Button variant="outline" onClick={onClose} type="button">
               Cancel
             </Button>
-            <Button 
+            <Button
               type="submit"
               disabled={isLoading}
               className="flex items-center gap-2"

@@ -54,6 +54,7 @@ import WorkflowDashboard from "./pages/WorkflowDashboard";
 import EmployeeRegistration from "./features/hr/EmployeeRegistration";
 import TaskListPage from "@/modules/tasks/pages/TaskListPage";
 import TaskDetailPage from "@/modules/tasks/pages/TaskDetailPage";
+import TaskDashboardPage from "./pages/TaskDashboardPage";
 import PerformanceDashboard from "./features/performance/pages/PerformanceDashboard";
 import Invoices from "./pages/Invoices";
 import InvoiceCreate from "./pages/InvoiceCreate";
@@ -154,6 +155,14 @@ const App = () => (
               }
             />
             {/* Tasks - RBAC v2 */}
+            <Route
+              path="/tasks/dashboard"
+              element={
+                <ProtectedRoute anyPermission={['dashboard:view:all', 'task:read:all', 'task:read:assigned']}>
+                  <TaskDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/tasks"
               element={
