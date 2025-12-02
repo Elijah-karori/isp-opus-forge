@@ -45,7 +45,7 @@ const InvoiceCreate = () => {
         mutationFn: invoicesApi.generateInvoice,
         onSuccess: (response) => {
             toast.success('Invoice created successfully!');
-            navigate(`/invoices/${response.data.id}`);
+            navigate(`/invoices/${response.id}`);
         },
         onError: (error: any) => {
             handleAPIError(error, 'Failed to create invoice');

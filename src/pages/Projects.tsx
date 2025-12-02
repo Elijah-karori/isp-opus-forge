@@ -34,7 +34,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import PermissionGate from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/constants/permissions';
-import { formatCurrency, formatPhone } from '@/utils/format';
+import { formatCurrency, formatPhone, formatPhoneForDisplay } from '@/utils/format';
 import { ProjectDashboard } from '@/components/projects/ProjectDashboard';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 

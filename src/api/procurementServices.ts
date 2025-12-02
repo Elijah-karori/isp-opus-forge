@@ -40,98 +40,136 @@ export interface AutoReorderRequest {
     price_threshold_percent?: number;
 }
 
-// API Functions
+// API Functions - return data directly
 export const procurementServicesApi = {
     // Product Search & Comparison
-    searchProducts: (params: ProductSearchParams) =>
-        apiClient.get('/api/v1search', { params }),
+    searchProducts: async (params: ProductSearchParams) => {
+        const response = await apiClient.get('/api/v1search', { params });
+        return response.data;
+    },
 
-    compareProductPrices: (request: PriceComparisonRequest) =>
-        apiClient.post('/api/v1compare-prices', request),
+    compareProductPrices: async (request: PriceComparisonRequest) => {
+        const response = await apiClient.post('/api/v1compare-prices', request);
+        return response.data;
+    },
 
-    findBestSupplier: (productId: number, quantity: number = 1) =>
-        apiClient.get(`/api/v1${productId}/best-supplier`, {
+    findBestSupplier: async (productId: number, quantity: number = 1) => {
+        const response = await apiClient.get(`/api/v1${productId}/best-supplier`, {
             params: { quantity },
-        }),
+        });
+        return response.data;
+    },
 
-    getProductAlternatives: (productId: number, maxResults: number = 10) =>
-        apiClient.get(`/api/v1${productId}/alternatives`, {
+    getProductAlternatives: async (productId: number, maxResults: number = 10) => {
+        const response = await apiClient.get(`/api/v1${productId}/alternatives`, {
             params: { max_results: maxResults },
-        }),
+        });
+        return response.data;
+    },
 
-    checkProductAvailability: (productId: number, useScraper: boolean = false) =>
-        apiClient.get(`/api/v1${productId}/availability`, {
+    checkProductAvailability: async (productId: number, useScraper: boolean = false) => {
+        const response = await apiClient.get(`/api/v1${productId}/availability`, {
             params: { use_scraper: useScraper },
-        }),
+        });
+        return response.data;
+    },
 
     // Procurement Operations
-    createSmartPurchaseOrder: (request: SmartPurchaseOrderRequest) =>
-        apiClient.post('/api/v1smart-order', request),
+    createSmartPurchaseOrder: async (request: SmartPurchaseOrderRequest) => {
+        const response = await apiClient.post('/api/v1smart-order', request);
+        return response.data;
+    },
 
-    createBulkProcurement: (request: BulkProcurementRequest) =>
-        apiClient.post('/api/v1bulk-order', request),
+    createBulkProcurement: async (request: BulkProcurementRequest) => {
+        const response = await apiClient.post('/api/v1bulk-order', request);
+        return response.data;
+    },
 
-    getPriceHistory: (productId: number, days: number = 90) =>
-        apiClient.get(`/api/v1price-history/${productId}`, {
+    getPriceHistory: async (productId: number, days: number = 90) => {
+        const response = await apiClient.get(`/api/v1price-history/${productId}`, {
             params: { days },
-        }),
+        });
+        return response.data;
+    },
 
-    getAlternativeSuppliers: (productId: number, currentSupplierId: number) =>
-        apiClient.get(`/api/v1alternative-suppliers/${productId}`, {
+    getAlternativeSuppliers: async (productId: number, currentSupplierId: number) => {
+        const response = await apiClient.get(`/api/v1alternative-suppliers/${productId}`, {
             params: { current_supplier_id: currentSupplierId },
-        }),
+        });
+        return response.data;
+    },
 
-    calculateTotalCost: (
+    calculateTotalCost: async (
         supplierId: number,
         items: any[],
         includeShipping: boolean = true,
         includeTax: boolean = true
-    ) =>
-        apiClient.post('/api/v1calculate-cost', items, {
+    ) => {
+        const response = await apiClient.post('/api/v1calculate-cost', items, {
             params: {
                 supplier_id: supplierId,
                 include_shipping: includeShipping,
                 include_tax: includeTax,
             },
-        }),
+        });
+        return response.data;
+    },
 
-    analyzeSpendingTrends: (days: number = 90, groupBy: string = 'supplier') =>
-        apiClient.get('/api/v1spending-trends', {
+    analyzeSpendingTrends: async (days: number = 90, groupBy: string = 'supplier') => {
+        const response = await apiClient.get('/api/v1spending-trends', {
             params: { days, group_by: groupBy },
-        }),
+        });
+        return response.data;
+    },
 };
 
 export const inventoryServicesApi = {
     // Inventory Analytics
-    getLowStockProducts: (thresholdMultiplier: number = 1.0) =>
-        apiClient.get('/api/v1low-stock', {
+    getLowStockProducts: async (thresholdMultiplier: number = 1.0) => {
+        const response = await apiClient.get('/api/v1low-stock', {
             params: { threshold_multiplier: thresholdMultiplier },
-        }),
+        });
+        return response.data;
+    },
 
-    getReorderPredictions: () =>
-        apiClient.get('/api/v1reorder-predictions'),
+    getReorderPredictions: async () => {
+        const response = await apiClient.get('/api/v1reorder-predictions');
+        return response.data;
+    },
 
-    predictReorderDate: (productId: number) =>
-        apiClient.get(`/api/v1${productId}/reorder-prediction`),
+    predictReorderDate: async (productId: number) => {
+        const response = await apiClient.get(`/api/v1${productId}/reorder-prediction`);
+        return response.data;
+    },
 
-    optimizeStockLevels: (productId: number, targetServiceLevel: number = 0.95) =>
-        apiClient.get(`/api/v1${productId}/optimize-levels`, {
+    optimizeStockLevels: async (productId: number, targetServiceLevel: number = 0.95) => {
+        const response = await apiClient.get(`/api/v1${productId}/optimize-levels`, {
             params: { target_service_level: targetServiceLevel },
-        }),
+        });
+        return response.data;
+    },
 
-    getInventoryTurnover: (days: number = 90) =>
-        apiClient.get('/api/v1turnover-analysis', {
+    getInventoryTurnover: async (days: number = 90) => {
+        const response = await apiClient.get('/api/v1turnover-analysis', {
             params: { days },
-        }),
+        });
+        return response.data;
+    },
 
-    identifyDeadStock: (daysThreshold: number = 90) =>
-        apiClient.get('/api/v1dead-stock', {
+    identifyDeadStock: async (daysThreshold: number = 90) => {
+        const response = await apiClient.get('/api/v1dead-stock', {
             params: { days_threshold: daysThreshold },
-        }),
+        });
+        return response.data;
+    },
 
-    autoReorderProduct: (request: AutoReorderRequest) =>
-        apiClient.post(`/api/v1${request.product_id}/auto-reorder`, request),
+    autoReorderProduct: async (request: AutoReorderRequest) => {
+        const response = await apiClient.post(`/api/v1${request.product_id}/auto-reorder`, request);
+        return response.data;
+    },
 
-    getInventoryValuation: () =>
-        apiClient.get('/api/v1valuation'),
+    getInventoryValuation: async () => {
+        const response = await apiClient.get('/api/v1valuation');
+        return response.data;
+    },
 };

@@ -27,23 +27,19 @@ export interface WorkflowGraph {
 
 export const workflowService = {
     async list() {
-        const response = await apiClient.get('/workflows/');
-        return response.data;
+        return apiClient.get('/workflows/');
     },
 
     async getGraph(id: number) {
-        const response = await apiClient.get(`/workflows/graph/${id}`);
-        return response.data;
+        return apiClient.get(`/workflows/graph/${id}`);
     },
 
     async createGraph(data: WorkflowGraph) {
-        const response = await apiClient.post('/workflows/graph', data);
-        return response.data;
+        return apiClient.post('/workflows/graph', data);
     },
 
     async updateGraph(id: number, data: Partial<WorkflowGraph>) {
-        const response = await apiClient.put(`/workflows/graph/${id}`, data);
-        return response.data;
+        return apiClient.put(`/workflows/graph/${id}`, data);
     },
 
     async deleteGraph(id: number) {

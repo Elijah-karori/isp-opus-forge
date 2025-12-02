@@ -47,13 +47,13 @@ export function TaskDashboard() {
     // Fetch task allocation data
     const { data: taskAllocation, isLoading: allocationLoading } = useQuery({
         queryKey: ['dashboard', 'task-allocation'],
-        queryFn: () => dashboardsApi.getTaskAllocation().then(res => res.data),
+        queryFn: () => dashboardsApi.getTaskAllocation(),
     });
 
     // Fetch team workload
     const { data: teamWorkload, isLoading: workloadLoading } = useQuery({
         queryKey: ['dashboard', 'team-workload'],
-        queryFn: () => dashboardsApi.getTeamWorkload().then(res => res.data),
+        queryFn: () => dashboardsApi.getTeamWorkload(),
     });
 
     // Fetch all tasks for statistics

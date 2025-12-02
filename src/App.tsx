@@ -1,4 +1,4 @@
-
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -80,7 +80,6 @@ import LeadPipeline from "./pages/marketing/LeadPipeline";
 //import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
-import React from "react";
 import TechnicianLeaderboard from "./pages/Technicians/TechnicianLeaderboard";
 import CustomerSatisfactionPage from "./pages/Technicians/CustomerSatisfaction";
 

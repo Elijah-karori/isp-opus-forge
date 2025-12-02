@@ -306,3 +306,37 @@ export const getProjectTeam = (projectId: number) =>
  */
 export const getProjectsByDepartment = (departmentId: number) =>
   axios.get<Project[]>(`/projects/by-department/${departmentId}`);
+
+// ===========================================================================
+// PROJECTS API OBJECT (for components that use object syntax)
+// ===========================================================================
+export const projectsApi = {
+  getProjects,
+  getProject,
+  createProject,
+  updateProject,
+  deleteProject,
+  getProjectFinancials,
+  updateProjectBudget,
+  getProjectTasks,
+  addProjectTask,
+  getProjectResources,
+  assignResource,
+  updateResourceAssignment,
+  getProjectTimeline,
+  updateProjectTimeline,
+  getProjectDocuments,
+  uploadProjectDocument,
+  getProjectStats,
+  getProjectsSummary,
+  generateProjectReport,
+  exportProjects,
+  getProjectMilestones,
+  createMilestone,
+  updateMilestone,
+  createProjectBudget,
+  getProjectBudget,
+  getBudgetSummary,
+  getProjectTeam,
+  getProjectsByDepartment,
+};

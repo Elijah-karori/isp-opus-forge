@@ -39,74 +39,112 @@ export interface ProfitabilityReportRequest {
     end_date: string;
 }
 
-// API Functions
+// API Functions - return data directly
 export const financialServicesApi = {
     // Budget Management
-    allocateBudget: (request: BudgetAllocationRequest) =>
-        apiClient.post(`/api/v1/finance/projects/${request.project_id}/budget/allocate`, request),
+    allocateBudget: async (request: BudgetAllocationRequest) => {
+        const response = await apiClient.post(`/api/v1/finance/projects/${request.project_id}/budget/allocate`, request);
+        return response.data;
+    },
 
-    getBudgetSummary: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/projects/${projectId}/budget/summary`),
+    getBudgetSummary: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/projects/${projectId}/budget/summary`);
+        return response.data;
+    },
 
-    trackProjectCosts: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/projects/${projectId}/costs`),
+    trackProjectCosts: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/projects/${projectId}/costs`);
+        return response.data;
+    },
 
-    calculateBudgetVariance: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/projects/${projectId}/variance`),
+    calculateBudgetVariance: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/projects/${projectId}/variance`);
+        return response.data;
+    },
 
-    forecastCompletionCost: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/projects/${projectId}/forecast`),
+    forecastCompletionCost: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/projects/${projectId}/forecast`);
+        return response.data;
+    },
 
     // Invoicing & Payments
-    generateInvoice: (request: InvoiceCreateRequest) =>
-        apiClient.post('/api/v1/finance/invoices/generate', request),
+    generateInvoice: async (request: InvoiceCreateRequest) => {
+        const response = await apiClient.post('/api/v1/finance/invoices/generate', request);
+        return response.data;
+    },
 
-    processPayment: (request: PaymentProcessRequest) =>
-        apiClient.post('/api/v1/finance/payments/process', request),
+    processPayment: async (request: PaymentProcessRequest) => {
+        const response = await apiClient.post('/api/v1/finance/payments/process', request);
+        return response.data;
+    },
 
-    getPaymentSchedule: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/payments/schedule/${projectId}`),
+    getPaymentSchedule: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/payments/schedule/${projectId}`);
+        return response.data;
+    },
 
-    getOverdueInvoices: (daysOverdue: number = 0) =>
-        apiClient.get('/api/v1/finance/payments/overdue', {
+    getOverdueInvoices: async (daysOverdue: number = 0) => {
+        const response = await apiClient.get('/api/v1/finance/payments/overdue', {
             params: { days_overdue: daysOverdue },
-        }),
+        });
+        return response.data;
+    },
 
-    createPaymentMilestones: (projectId: number, paymentTerms: any) =>
-        apiClient.post('/api/v1/finance/payments/milestones', paymentTerms, {
+    createPaymentMilestones: async (projectId: number, paymentTerms: any) => {
+        const response = await apiClient.post('/api/v1/finance/payments/milestones', paymentTerms, {
             params: { project_id: projectId },
-        }),
+        });
+        return response.data;
+    },
 
     // Analytics
-    getInfrastructureProfitability: (startDate?: string, endDate?: string) =>
-        apiClient.get('/api/v1/finance/analytics/infrastructure-profitability', {
+    getInfrastructureProfitability: async (startDate?: string, endDate?: string) => {
+        const response = await apiClient.get('/api/v1/finance/analytics/infrastructure-profitability', {
             params: { start_date: startDate, end_date: endDate },
-        }),
+        });
+        return response.data;
+    },
 
-    recommendBudgetAllocation: (totalBudget: number, periodMonths: number = 12) =>
-        apiClient.get('/api/v1/finance/analytics/budget-allocation', {
+    recommendBudgetAllocation: async (totalBudget: number, periodMonths: number = 12) => {
+        const response = await apiClient.get('/api/v1/finance/analytics/budget-allocation', {
             params: { total_budget: totalBudget, period_months: periodMonths },
-        }),
+        });
+        return response.data;
+    },
 
-    generateProfitabilityReport: (request: ProfitabilityReportRequest) =>
-        apiClient.post('/api/v1/finance/analytics/profitability-report', request),
+    generateProfitabilityReport: async (request: ProfitabilityReportRequest) => {
+        const response = await apiClient.post('/api/v1/finance/analytics/profitability-report', request);
+        return response.data;
+    },
 
-    getMonthlyProfit: (year: number, month: number) =>
-        apiClient.get(`/api/v1/finance/analytics/monthly-profit/${year}/${month}`),
+    getMonthlyProfit: async (year: number, month: number) => {
+        const response = await apiClient.get(`/api/v1/finance/analytics/monthly-profit/${year}/${month}`);
+        return response.data;
+    },
 
-    getFinancialSnapshot: () =>
-        apiClient.get('/api/v1/finance/snapshot'),
+    getFinancialSnapshot: async () => {
+        const response = await apiClient.get('/api/v1/finance/snapshot');
+        return response.data;
+    },
 
-    getProjectProfitability: (projectId: number) =>
-        apiClient.get(`/api/v1/finance/projects/${projectId}/profitability`),
+    getProjectProfitability: async (projectId: number) => {
+        const response = await apiClient.get(`/api/v1/finance/projects/${projectId}/profitability`);
+        return response.data;
+    },
 
     // Project Financial Operations
-    completeProjectFinancial: (projectId: number) =>
-        apiClient.post(`/api/v1/finance/projects/${projectId}/complete`),
+    completeProjectFinancial: async (projectId: number) => {
+        const response = await apiClient.post(`/api/v1/finance/projects/${projectId}/complete`);
+        return response.data;
+    },
 
-    reconcileAccounts: (request: { start_date: string; end_date: string; account_ids?: number[] }) =>
-        apiClient.post('/api/v1/finance/reconcile', request),
+    reconcileAccounts: async (request: { start_date: string; end_date: string; account_ids?: number[] }) => {
+        const response = await apiClient.post('/api/v1/finance/reconcile', request);
+        return response.data;
+    },
 
-    processTaskCompletionFinancial: (taskId: number) =>
-        apiClient.post(`/api/v1/finance/tasks/${taskId}/complete-financial`),
+    processTaskCompletionFinancial: async (taskId: number) => {
+        const response = await apiClient.post(`/api/v1/finance/tasks/${taskId}/complete-financial`);
+        return response.data;
+    },
 };
