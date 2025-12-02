@@ -68,18 +68,21 @@ import EmployeeDirectory from "./pages/hr/EmployeeDirectory";
 import RateCardManager from "./pages/hr/RateCardManager";
 import PayoutCalculator from "./pages/hr/PayoutCalculator";
 import ComplaintsDashboard from "./pages/hr/ComplaintsDashboard";
-import AttendanceLogs from "./pages/hr/AttendanceLogs";
+//import AttendanceLogs from "./pages/hr/AttendanceLogs";
 
 // Marketing Pages
 import CampaignManager from "./pages/marketing/CampaignManager";
 import LeadPipeline from "./pages/marketing/LeadPipeline";
 
 // Technician Pages
-import TechnicianPerformanceDashboard from "./pages/technicians/PerformanceDashboard";
-import TechnicianLeaderboard from "./pages/technicians/TechnicianLeaderboard";
-import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
+//import TechnicianPerformanceDashboard from "./pages/technicians/PerformanceDashboard";
+//import TechnicianLeaderboard from "./pages/technicians/TechnicianLeaderboard";
+//import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import React from "react";
+import TechnicianLeaderboard from "./pages/Technicians/TechnicianLeaderboard";
+import CustomerSatisfactionPage from "./pages/Technicians/CustomerSatisfaction";
 
 const App = () => {
   return (
@@ -171,7 +174,7 @@ const App = () => {
               <Route path="/marketing/leads" element={<LeadPipeline />} />
 
               {/* Technician Routes */}
-              <Route path="/technicians/performance" element={<TechnicianPerformanceDashboard />} />
+              <Route path="/technicians/performance" element={<PerformanceDashboard />} />
               <Route path="/technicians/leaderboard" element={<TechnicianLeaderboard />} />
               <Route path="/technicians/satisfaction" element={<CustomerSatisfactionPage />} />
               <Route
