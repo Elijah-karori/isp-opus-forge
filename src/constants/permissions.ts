@@ -62,6 +62,9 @@ export const INVOICE_PERMISSIONS = {
 // FINANCE
 // ============================================================================
 export const FINANCE_PERMISSIONS = {
+    // General
+    READ_ALL: 'finance:read:all',
+
     // Budgets
     CREATE_BUDGET: 'budget:create:all',
     READ_BUDGET: 'budget:read:all',
@@ -87,6 +90,9 @@ export const FINANCE_PERMISSIONS = {
 // HR (Human Resources)
 // ============================================================================
 export const HR_PERMISSIONS = {
+    // General
+    READ_ALL: 'hr:read:all',
+
     // Employees
     CREATE_EMPLOYEE: 'employee:create:all',
     READ_EMPLOYEE: 'employee:read:all',

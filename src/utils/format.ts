@@ -129,6 +129,9 @@ export const formatPhoneForDisplay = (phone: string): string => {
     return phone;
 };
 
+// Alias for backward compatibility
+export const formatPhone = formatPhoneForDisplay;
+
 // ============================================================================
 // NAME FORMATTING
 // ============================================================================

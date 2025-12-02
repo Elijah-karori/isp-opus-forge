@@ -52,8 +52,6 @@ export const invoicesApi = {
 
     // Create payment milestones
     createPaymentMilestones: (projectId: number, paymentTerms: any) => {
-        return apiClient.post('/api/v1/api/v1/finance/payments/milestones', paymentTerms, {
-            params: { project_id: projectId }
-        });
+        return apiClient.post('/api/v1/api/v1/finance/payments/milestones', { ...paymentTerms, project_id: projectId });
     },
 };

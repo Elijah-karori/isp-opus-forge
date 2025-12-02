@@ -8,6 +8,7 @@ import axios from "./axios";
 
 export interface ProjectsOverviewResponse {
     total_projects: number;
+    active_projects?: number;
     by_status: {
         planning: number;
         in_progress: number;
@@ -23,6 +24,7 @@ export interface ProjectsOverviewResponse {
 
 export interface TaskAllocationResponse {
     total_tasks: number;
+    departments_count?: number;
     by_role: {
         tech_lead: number;
         project_manager: number;
@@ -39,8 +41,13 @@ export interface TaskAllocationResponse {
 export interface BudgetTrackingResponse {
     total_allocated: number;
     total_spent: number;
+    total_budget?: number;
     variance: number;
     variance_percent: number;
+    utilization_percent?: number;
+    remaining?: number;
+    efficiency_score?: number;
+    efficiency_change?: number;
     by_project: Array<{
         project_id: number;
         project_name: string;
@@ -80,34 +87,44 @@ export const dashboardsApi = {
      * Get overview of all projects by status and department
      * Requires: dashboard:view:all OR dashboard:view:department
      */
-    getProjectsOverview: () =>
-        axios.get<ProjectsOverviewResponse>("/dashboards/projects-overview"),
+    getProjectsOverview: async (): Promise<ProjectsOverviewResponse> => {
+        const response = await axios.get<ProjectsOverviewResponse>("/dashboards/projects-overview");
+        return response.data;
+    },
 
     /**
      * Get task distribution by role and department
      * Requires: dashboard:view:all OR dashboard:view:department
      */
-    getTaskAllocation: () =>
-        axios.get<TaskAllocationResponse>("/dashboards/task-allocation"),
+    getTaskAllocation: async (): Promise<TaskAllocationResponse> => {
+        const response = await axios.get<TaskAllocationResponse>("/dashboards/task-allocation");
+        return response.data;
+    },
 
     /**
      * Get budget vs actual spending across all projects
      * Requires: dashboard:view:all OR finance:read:all
      */
-    getBudgetTracking: () =>
-        axios.get<BudgetTrackingResponse>("/dashboards/budget-tracking"),
+    getBudgetTracking: async (): Promise<BudgetTrackingResponse> => {
+        const response = await axios.get<BudgetTrackingResponse>("/dashboards/budget-tracking");
+        return response.data;
+    },
 
     /**
      * Get current workload per team member
      * Requires: dashboard:view:all OR hr:read:all
      */
-    getTeamWorkload: () =>
-        axios.get<TeamWorkloadResponse>("/dashboards/team-workload"),
+    getTeamWorkload: async (): Promise<TeamWorkloadResponse> => {
+        const response = await axios.get<TeamWorkloadResponse>("/dashboards/team-workload");
+        return response.data;
+    },
 
     /**
      * Get comprehensive overview for a specific department
      * Requires: dashboard:view:all OR dashboard:view:department (own department only)
      */
-    getDepartmentOverview: (departmentId: number) =>
-        axios.get<DepartmentOverviewResponse>(`/dashboards/department/${departmentId}/overview`),
+    getDepartmentOverview: async (departmentId: number): Promise<DepartmentOverviewResponse> => {
+        const response = await axios.get<DepartmentOverviewResponse>(`/dashboards/department/${departmentId}/overview`);
+        return response.data;
+    },
 };

@@ -4,13 +4,11 @@ import { OnboardingStatus, OnboardingStep } from '@/types/onboarding.types';
 
 export const onboardingService = {
     async getStatus(): Promise<OnboardingStatus> {
-        const response = await apiClient.get('/onboarding/status');
-        return response.data;
+        return apiClient.get<OnboardingStatus>('/onboarding/status');
     },
 
     async getSteps(): Promise<OnboardingStep[]> {
-        const response = await apiClient.get('/onboarding/steps');
-        return response.data;
+        return apiClient.get<OnboardingStep[]>('/onboarding/steps');
     },
 
     async completeStep(stepId: number): Promise<void> {

@@ -62,6 +62,9 @@ export interface Complaint {
     is_valid?: boolean;
     deduction_amount?: number;
     reported_at: string;
+    resolution?: string;
+    investigation_notes?: string;
+    status?: string;
 }
 
 export interface AttendanceRecord {

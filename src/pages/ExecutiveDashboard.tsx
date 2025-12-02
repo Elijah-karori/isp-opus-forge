@@ -186,7 +186,7 @@ export default function ExecutiveDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {teamWorkload && teamWorkload.slice(0, 5).map((member: any) => (
+                            {teamWorkload?.team_members?.slice(0, 5).map((member: any) => (
                                 <div key={member.user_id} className="flex items-center justify-between">
                                     <div>
                                         <div className="font-medium">{member.user_name}</div>

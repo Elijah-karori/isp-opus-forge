@@ -78,6 +78,9 @@ export interface Complaint {
   description: string;
   is_valid?: boolean;
   reported_at: string;
+  resolution?: string;
+  status?: string;
+  investigation_notes?: string;
 }
 
 export interface ComplaintCreate {
@@ -225,3 +228,33 @@ export const exportAttendance = (params: { start_date: string; end_date: string;
 
 export const exportPayroll = (params: { period_start: string; period_end: string; format?: 'csv' | 'excel'; }) =>
   apiClient.exportPayroll(params);
+
+// ===========================================================================
+// HR API OBJECT (for components that use object syntax)
+// ===========================================================================
+export const hrApi = {
+  getEmployees,
+  getEmployee,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+  getRateCards,
+  createRateCard,
+  getAttendance,
+  recordAttendance,
+  getEmployeeAttendance,
+  calculatePayout,
+  getPendingPayouts,
+  getEmployeePayouts,
+  approvePayout,
+  markPayoutPaid,
+  getComplaints,
+  recordComplaint,
+  getPendingComplaints,
+  investigateComplaint,
+  getPayrollSummary,
+  getEmployeePerformance,
+  exportEmployees,
+  exportAttendance,
+  exportPayroll,
+};
