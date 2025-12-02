@@ -21,6 +21,14 @@ export type AssignedRole =
   | 'customer_support'
   | 'marketing';
 
+export type InfrastructureType =
+  | 'pppoe'
+  | 'hotspot'
+  | 'fiber'
+  | 'wireless'
+  | 'network_infrastructure'
+  | 'other';
+
 export interface Task {
   id: number;
   project_id: number;
@@ -37,6 +45,7 @@ export interface Task {
   priority: TaskPriority;
   estimated_hours?: number;
   actual_hours?: number;
+  infrastructure_type?: InfrastructureType;
 
   // Dates
   due_date?: string;
@@ -51,6 +60,19 @@ export interface Task {
     full_name: string;
     email: string;
   };
+  technician?: {
+    id: number;
+    full_name: string;
+    email: string;
+  };
+  project?: {
+    id: number;
+    name: string;
+    customer_name: string;
+    address?: string;
+  };
+  bom_approved?: boolean;
+  items?: TaskItem[];
 }
 
 export type TaskCreate = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'assignee'>;
@@ -224,3 +246,69 @@ export const getTaskDependencies = (taskId: number) =>
  */
 export const removeTaskDependency = (taskId: number, dependencyId: number) =>
   axios.delete(`/tasks/${taskId}/dependencies/${dependencyId}`);
+
+// ===========================================================================
+// TECHNICIAN INTERFACES
+// ===========================================================================
+
+export interface Technician {
+  id: number;
+  full_name: string;
+  email: string;
+  certification_level?: string;
+  skills?: string[];
+  tasks_assigned: number;
+  tasks_completed: number;
+  completion_rate: number;
+}
+
+// ===========================================================================
+// BOM INTERFACES
+// ===========================================================================
+
+export interface TaskItem {
+  id: number;
+  product_id: number;
+  quantity_required: number;
+  quantity_used: number;
+  notes?: string;
+  product?: {
+    name: string;
+    sku: string;
+    unit_price: number;
+  };
+}
+
+// ===========================================================================
+// ADDITIONAL TASK API
+// ===========================================================================
+
+/**
+ * Get all technicians
+ */
+export const getTechnicians = () =>
+  axios.get<Technician[]>("/technicians");
+
+/**
+ * Get task statistics
+ */
+export const getTaskStats = () =>
+  axios.get("/tasks/stats");
+
+/**
+ * Update Task BOM
+ */
+export const updateTaskBOM = (taskId: number, data: { items: Partial<TaskItem>[] }) =>
+  axios.put(`/tasks/${taskId}/bom`, data);
+
+/**
+ * Approve Task BOM
+ */
+export const approveTaskBOM = (taskId: number) =>
+  axios.post(`/tasks/${taskId}/bom/approve`);
+
+/**
+ * Complete Task
+ */
+export const completeTask = (taskId: number, data: { completion_notes?: string; actual_hours?: number }) =>
+  axios.post(`/tasks/${taskId}/complete`, data);

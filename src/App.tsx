@@ -58,273 +58,316 @@ import TaskDashboardPage from "./pages/TaskDashboardPage";
 import PerformanceDashboard from "./features/performance/pages/PerformanceDashboard";
 import Invoices from "./pages/Invoices";
 import InvoiceCreate from "./pages/InvoiceCreate";
+const ExecutiveDashboard = React.lazy(() => import("./pages/ExecutiveDashboard"));
+import InvoiceManagement from "./pages/finance/InvoiceManagement";
+import SmartProductSearch from "./pages/procurement/SmartProductSearch";
+import InventoryOptimization from "./pages/inventory/InventoryOptimization";
+
+// HR Pages
+import EmployeeDirectory from "./pages/hr/EmployeeDirectory";
+import RateCardManager from "./pages/hr/RateCardManager";
+import PayoutCalculator from "./pages/hr/PayoutCalculator";
+import ComplaintsDashboard from "./pages/hr/ComplaintsDashboard";
+import AttendanceLogs from "./pages/hr/AttendanceLogs";
+
+// Marketing Pages
+import CampaignManager from "./pages/marketing/CampaignManager";
+import LeadPipeline from "./pages/marketing/LeadPipeline";
+
+// Technician Pages
+import PerformanceDashboard from "./pages/technicians/PerformanceDashboard";
+import TechnicianLeaderboard from "./pages/technicians/TechnicianLeaderboard";
+import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
 import InvoiceDetail from "./pages/InvoiceDetail";
+import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 
-const App = () => (
-  <AuthProvider>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route element={<Layout />}>
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/workflows" element={<Workflows />} />
-            <Route
-              path="/workflows/designer"
-              element={
-                <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
-                  <WorkflowDesigner />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workflows/designer/:workflowId"
-              element={
-                <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
-                  <WorkflowDesigner />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workflow-dashboard"
-              element={
-                <ProtectedRoute roles={['admin', 'hr', 'finance', 'procurement']}>
-                  <WorkflowDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workflows/finance"
-              element={
-                <ProtectedRoute roles={['admin', 'finance']}>
-                  <FinanceWorkflows />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workflows/hr"
-              element={
-                <ProtectedRoute roles={['admin', 'hr']}>
-                  <HRWorkflows />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workflows/procurement"
-              element={
-                <ProtectedRoute roles={['admin', 'operations', 'procurement']}>
-                  <ProcurementWorkflows />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/procurement" element={<Procurement />} />
+const App = () => {
+  return (
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <OnboardingWizard />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route element={<Layout />}>
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route
+                path="/workflows/designer"
+                element={
+                  <ProtectedRoute anyPermission={['workflow:create:all', 'admin:full']}>
+                    <WorkflowDesigner />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflows/designer/:workflowId"
+                element={
+                  <ProtectedRoute anyPermission={['workflow:create:all', 'admin:full']}>
+                    <WorkflowDesigner />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflow-dashboard"
+                element={
+                  <ProtectedRoute anyPermission={['workflow:read:all', 'workflow:approve:all']}>
+                    <WorkflowDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflows/finance"
+                element={
+                  <ProtectedRoute anyPermission={['finance:read:all', 'workflow:read:all']}>
+                    <FinanceWorkflows />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflows/hr"
+                element={
+                  <ProtectedRoute anyPermission={['hr:read:all', 'workflow:read:all']}>
+                    <HRWorkflows />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflows/procurement"
+                element={
+                  <ProtectedRoute anyPermission={['procurement:read:all', 'workflow:read:all']}>
+                    <ProcurementWorkflows />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/procurement" element={<Procurement />} />
+              <Route path="/executive-dashboard" element={<ExecutiveDashboard />} />
+              <Route path="/finance/invoices" element={<InvoiceManagement />} />
+              <Route path="/procurement/search" element={<SmartProductSearch />} />
+              <Route path="/inventory/optimization" element={<InventoryOptimization />} />
 
-            <Route
-              path="/marketing"
-              element={
-                <ProtectedRoute roles={['admin', 'marketing']}>
-                  <MarketingPage />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="campaigns" element={<Campaigns />} />
-              <Route path="leads" element={<Leads />} />
-              <Route path="analytics" element={<Analytics />} />
+              {/* HR Routes */}
+              <Route path="/hr/employees" element={<EmployeeDirectory />} />
+              <Route path="/hr/rate-cards" element={<RateCardManager />} />
+              <Route path="/hr/payouts" element={<PayoutCalculator />} />
+              <Route path="/hr/complaints" element={<ComplaintsDashboard />} />
+              <Route path="/hr/attendance" element={<AttendanceLogs />} />
+
+              {/* Marketing Routes */}
+              <Route path="/marketing/campaigns" element={<CampaignManager />} />
+              <Route path="/marketing/leads" element={<LeadPipeline />} />
+
+              {/* Technician Routes */}
+              <Route path="/technicians/performance" element={<PerformanceDashboard />} />
+              <Route path="/technicians/leaderboard" element={<TechnicianLeaderboard />} />
+              <Route path="/technicians/satisfaction" element={<CustomerSatisfactionPage />} />
+              <Route
+                path="/marketing"
+                element={
+                  <ProtectedRoute anyPermission={['marketing:read:all', 'campaign:read:all']}>
+                    <MarketingPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="campaigns" element={<Campaigns />} />
+                <Route path="leads" element={<Leads />} />
+                <Route path="analytics" element={<Analytics />} />
+              </Route>
+
+              {/* Projects - RBAC v2 */}
+              <Route
+                path="/projects"
+                element={
+                  <ProtectedRoute anyPermission={['project:read:all', 'project:read:own', 'project:read:department']}>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Tasks - RBAC v2 */}
+              <Route
+                path="/tasks/dashboard"
+                element={
+                  <ProtectedRoute anyPermission={['dashboard:view:all', 'task:read:all', 'task:read:assigned']}>
+                    <TaskDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute anyPermission={['task:read:all', 'task:read:assigned']}>
+                    <TaskListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/:id"
+                element={
+                  <ProtectedRoute anyPermission={['task:read:all', 'task:read:assigned']}>
+                    <TaskDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory"
+                element={
+                  <ProtectedRoute anyPermission={['inventory:read:all', 'product:read:all']}>
+                    <Inventory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/performance"
+                element={
+                  <ProtectedRoute anyPermission={['performance:read:all', 'performance:read:own']}>
+                    <PerformanceDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/finance"
+                element={
+                  <ProtectedRoute anyPermission={['finance:read:all', 'finance:read:department']}>
+                    <FinancePage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<FinanceDashboard />} />
+                <Route path="budgets" element={<BudgetManagement />} />
+                <Route path="projects/:id" element={<ProjectFinancials />} />
+                <Route path="variances" element={<BOMVariances />} />
+                <Route path="payouts" element={<FinancePayouts />} />
+                <Route path="reports" element={<FinanceReports />} />
+              </Route>
+
+              {/* Invoice Routes - RBAC v2 */}
+              <Route
+                path="/invoices"
+                element={
+                  <ProtectedRoute anyPermission={['invoice:read:all', 'invoice:read:department']}>
+                    <Invoices />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/invoices/create"
+                element={
+                  <ProtectedRoute permission="invoice:create:all">
+                    <InvoiceCreate />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/invoices/:id"
+                element={
+                  <ProtectedRoute anyPermission={['invoice:read:all', 'invoice:read:department']}>
+                    <InvoiceDetail />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/hr"
+                element={
+                  <ProtectedRoute anyPermission={['hr:read:all', 'employee:read:all']}>
+                    <HRPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<HRDashboard />} />
+                <Route path="employees" element={<EmployeeList />} />
+                <Route path="create-employee" element={<ProtectedRoute permission="hr:employee:create:all"><CreateEmployeePage /></ProtectedRoute>} />
+                <Route path="register-employee" element={<ProtectedRoute permission="hr:employee:create:all"><EmployeeRegistration /></ProtectedRoute>} />
+                <Route path="attendance" element={<AttendanceLogs />} />
+                <Route path="payouts" element={<PayoutsManager />} />
+                <Route path="complaints" element={<ComplaintsManager />} />
+                <Route path="reports" element={<HRReports />} />
+              </Route>
+              <Route
+                path="/hr/employees/:id"
+                element={
+                  <ProtectedRoute anyPermission={['hr:read:all', 'employee:read:all']}>
+                    <EmployeeProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/approvals"
+                element={
+                  <ProtectedRoute anyPermission={['workflow:approve:all', 'workflow:approve:department']}>
+                    <Approvals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute anyPermission={['user:read:all', 'admin:full']}>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/menu-management"
+                element={
+                  <ProtectedRoute permission="admin:full">
+                    <MenuManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/suppliers"
+                element={
+                  <ProtectedRoute anyPermission={['supplier:read:all', 'inventory:read:all']}>
+                    <Suppliers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/price-monitoring"
+                element={
+                  <ProtectedRoute anyPermission={['product:read:all', 'inventory:read:all']}>
+                    <PriceMonitoring />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Technician Routes */}
+              <Route
+                path="/technicians"
+                element={
+                  <ProtectedRoute anyPermission={['technician:read:all', 'performance:read:all']}>
+                    <TechnicianPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<TechnicianDashboard />} />
+                <Route path="tools" element={<TechnicianTools />} />
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="tasks" element={<TechnicianTasks />} />
+                <Route path="reports" element={<FinanceReports />} />
+              </Route>
             </Route>
-
-            {/* Projects - RBAC v2 */}
-            <Route
-              path="/projects"
-              element={
-                <ProtectedRoute anyPermission={['project:read:all', 'project:read:own', 'project:read:department']}>
-                  <Projects />
-                </ProtectedRoute>
-              }
-            />
-            {/* Tasks - RBAC v2 */}
-            <Route
-              path="/tasks/dashboard"
-              element={
-                <ProtectedRoute anyPermission={['dashboard:view:all', 'task:read:all', 'task:read:assigned']}>
-                  <TaskDashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks"
-              element={
-                <ProtectedRoute anyPermission={['task:read:all', 'task:read:assigned']}>
-                  <TaskListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks/:id"
-              element={
-                <ProtectedRoute anyPermission={['task:read:all', 'task:read:assigned']}>
-                  <TaskDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/inventory"
-              element={
-                <ProtectedRoute roles={['admin', 'procurement', 'finance']}>
-                  <Inventory />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/performance"
-              element={
-                <ProtectedRoute roles={['admin', 'finance', 'hr']}>
-                  <PerformanceDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/finance"
-              element={
-                <ProtectedRoute roles={['admin', 'finance']}>
-                  <FinancePage />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<FinanceDashboard />} />
-              <Route path="budgets" element={<BudgetManagement />} />
-              <Route path="projects/:id" element={<ProjectFinancials />} />
-              <Route path="variances" element={<BOMVariances />} />
-              <Route path="payouts" element={<FinancePayouts />} />
-              <Route path="reports" element={<FinanceReports />} />
-            </Route>
-
-            {/* Invoice Routes - RBAC v2 */}
-            <Route
-              path="/invoices"
-              element={
-                <ProtectedRoute anyPermission={['invoice:read:all', 'invoice:read:department']}>
-                  <Invoices />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/invoices/create"
-              element={
-                <ProtectedRoute permission="invoice:create:all">
-                  <InvoiceCreate />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/invoices/:id"
-              element={
-                <ProtectedRoute anyPermission={['invoice:read:all', 'invoice:read:department']}>
-                  <InvoiceDetail />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/hr"
-              element={
-                <ProtectedRoute roles={['admin', 'hr', 'finance']}>
-                  <HRPage />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<HRDashboard />} />
-              <Route path="employees" element={<EmployeeList />} />
-              <Route path="create-employee" element={<ProtectedRoute roles={['admin', 'hr']}><CreateEmployeePage /></ProtectedRoute>} />
-              <Route path="register-employee" element={<ProtectedRoute roles={['admin', 'hr']}><EmployeeRegistration /></ProtectedRoute>} />
-              <Route path="attendance" element={<AttendanceLogs />} />
-              <Route path="payouts" element={<PayoutsManager />} />
-              <Route path="complaints" element={<ComplaintsManager />} />
-              <Route path="reports" element={<HRReports />} />
-            </Route>
-            <Route
-              path="/hr/employees/:id"
-              element={
-                <ProtectedRoute roles={['admin', 'hr']}>
-                  <EmployeeProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/approvals"
-              element={
-                <ProtectedRoute roles={['admin', 'finance', 'hr', 'procurement']}>
-                  <Approvals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute roles={['admin']}>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/menu-management"
-              element={
-                <ProtectedRoute roles={['admin', 'superadmin']}>
-                  <MenuManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/suppliers"
-              element={
-                <ProtectedRoute roles={['admin', 'procurement']}>
-                  <Suppliers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/price-monitoring"
-              element={
-                <ProtectedRoute roles={['admin', 'procurement', 'finance']}>
-                  <PriceMonitoring />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Technician Routes */}
-            <Route
-              path="/technicians"
-              element={
-                <ProtectedRoute roles={['admin', 'technician']}>
-                  <TechnicianPage />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<TechnicianDashboard />} />
-              <Route path="tools" element={<TechnicianTools />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="tasks" element={<TechnicianTasks />} />
-              <Route path="reports" element={<FinanceReports />} />
-            </Route>
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </AuthProvider>
-);
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
+  );
+};
 
 export default App;

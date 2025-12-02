@@ -216,9 +216,9 @@ export const getVarianceHistory = (params?: {
 export const createExpense = (data: Partial<Expense>) =>
   axios.post(`/finance/expenses`, data);
 
-export const approveExpense = (expenseId: number, data: { 
-  approved: boolean; 
-  approver_id: number; 
+export const approveExpense = (expenseId: number, data: {
+  approved: boolean;
+  approver_id: number;
   notes?: string;
 }) => axios.post(`/finance/expenses/${expenseId}/approve`, data);
 
@@ -259,6 +259,7 @@ export const financeApi = {
   getSubBudgets,
   createSubBudget,
   createBudgetUsage,
+  getBudgetUsages,
   uploadBudget,
   approveBudgetUsage,
 };

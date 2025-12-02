@@ -10,54 +10,59 @@ describe('workflowsApi', () => {
   });
 
   describe('listPending', () => {
-    it('calls API without role parameter', async () => {
+    it('calls API to get my approvals', async () => {
       const mockData = [{ id: 1, status: 'pending' }];
-      (apiClient.get as any).mockResolvedValue({ data: mockData });
+      (apiClient.get as any).mockResolvedValue(mockData);
 
       const result = await workflowsApi.listPending();
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/v1/workflows/pending');
-      expect(result.data).toEqual(mockData);
+      expect(apiClient.get).toHaveBeenCalledWith('/workflow/my-approvals');
+      expect(result).toEqual(mockData);
     });
 
-    it('calls API with role parameter', async () => {
+    it('ignores role parameter (uses my-approvals)', async () => {
       const mockData = [{ id: 1, status: 'pending' }];
-      (apiClient.get as any).mockResolvedValue({ data: mockData });
+      (apiClient.get as any).mockResolvedValue(mockData);
 
       const result = await workflowsApi.listPending('finance');
 
-      expect(apiClient.get).toHaveBeenCalledWith(
-        '/api/v1/workflows/pending/by-role/finance'
-      );
-      expect(result.data).toEqual(mockData);
-    });
-
-    it('encodes special characters in role', async () => {
-      const mockData = [{ id: 1, status: 'pending' }];
-      (apiClient.get as any).mockResolvedValue({ data: mockData });
-
-      await workflowsApi.listPending('finance manager');
-
-      expect(apiClient.get).toHaveBeenCalledWith(
-        '/api/v1/workflows/pending/by-role/finance%20manager'
-      );
+      expect(apiClient.get).toHaveBeenCalledWith('/workflow/my-approvals');
+      expect(result).toEqual(mockData);
     });
   });
 
   describe('approveInstance', () => {
-    it('sends approve request', async () => {
+    it('sends approve request without comment', async () => {
       const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
+      (apiClient.request as any).mockResolvedValue(mockResponse);
 
       const result = await workflowsApi.approveInstance(123);
 
-      expect(apiClient.post).toHaveBeenCalledWith('/api/v1/workflows/123/approve');
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/123/approve',
+        method: 'POST',
+        params: { comment: undefined }
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('sends approve request with comment', async () => {
+      const mockResponse = { data: { success: true } };
+      (apiClient.request as any).mockResolvedValue(mockResponse);
+
+      const result = await workflowsApi.approveInstance(123, 'Looks good');
+
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/123/approve',
+        method: 'POST',
+        params: { comment: 'Looks good' }
+      });
       expect(result).toEqual(mockResponse);
     });
 
     it('handles approval errors', async () => {
       const error = new Error('Approval failed');
-      (apiClient.post as any).mockRejectedValue(error);
+      (apiClient.request as any).mockRejectedValue(error);
 
       await expect(workflowsApi.approveInstance(123)).rejects.toThrow(
         'Approval failed'
@@ -66,88 +71,76 @@ describe('workflowsApi', () => {
   });
 
   describe('rejectInstance', () => {
-    it('sends reject request', async () => {
+    it('sends reject request without comment', async () => {
       const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
+      (apiClient.request as any).mockResolvedValue(mockResponse);
 
       const result = await workflowsApi.rejectInstance(456);
 
-      expect(apiClient.post).toHaveBeenCalledWith('/api/v1/workflows/456/reject');
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/456/reject',
+        method: 'POST',
+        params: { comment: undefined }
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('sends reject request with comment', async () => {
+      const mockResponse = { data: { success: true } };
+      (apiClient.request as any).mockResolvedValue(mockResponse);
+
+      const result = await workflowsApi.rejectInstance(456, 'Needs revision');
+
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/456/reject',
+        method: 'POST',
+        params: { comment: 'Needs revision' }
+      });
       expect(result).toEqual(mockResponse);
     });
   });
 
   describe('commentInstance', () => {
-    it('sends comment with all parameters', async () => {
+    it('sends comment as query parameter', async () => {
       const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
+      (apiClient.request as any).mockResolvedValue(mockResponse);
 
       const result = await workflowsApi.commentInstance(123, 456, 'Test comment');
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/workflows/123/comment',
-        {
-          instance_id: 123,
-          action: 'comment',
-          user_id: 456,
-          comment: 'Test comment',
-        }
-      );
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/123/comment',
+        method: 'POST',
+        params: { comment: 'Test comment' }
+      });
       expect(result).toEqual(mockResponse);
     });
 
     it('handles empty comments', async () => {
       const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
+      (apiClient.request as any).mockResolvedValue(mockResponse);
 
       await workflowsApi.commentInstance(123, 456, '');
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/workflows/123/comment',
-        {
-          instance_id: 123,
-          action: 'comment',
-          user_id: 456,
-          comment: '',
-        }
-      );
+      expect(apiClient.request).toHaveBeenCalledWith({
+        url: '/workflow/123/comment',
+        method: 'POST',
+        params: { comment: '' }
+      });
     });
   });
 
-  describe('escalate', () => {
-    it('escalates without comment', async () => {
-      const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
-
-      const result = await workflowsApi.escalate(789);
-
-      expect(apiClient.post).toHaveBeenCalledWith('/api/v1/workflows/789/escalate');
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('escalates with comment', async () => {
-      const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
-
-      const result = await workflowsApi.escalate(789, 'Needs senior approval');
-
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/workflows/789/escalate?comment=Needs%20senior%20approval'
-      );
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('encodes special characters in comment', async () => {
-      const mockResponse = { data: { success: true } };
-      (apiClient.post as any).mockResolvedValue(mockResponse);
-
-      await workflowsApi.escalate(789, 'Urgent: Needs review ASAP!');
-
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/workflows/789/escalate?comment=Urgent%3A%20Needs%20review%20ASAP!'
-      );
-    });
-  });
+  // Escalate is no longer in the API spec, commenting out these tests
+  // describe('escalate', () => {
+  //   it('escalates without comment', async () => {
+  //     const mockResponse = { data: { success: true } };
+  //     (apiClient.post as any).mockResolvedValue(mockResponse);
+  //
+  //     const result = await workflowsApi.escalate(789);
+  //
+  //     expect(apiClient.post).toHaveBeenCalledWith('/workflow/789/escalate');
+  //     expect(result).toEqual(mockResponse);
+  //   });
+  // });
 
   describe('error handling', () => {
     it('propagates network errors', async () => {
@@ -164,7 +157,7 @@ describe('workflowsApi', () => {
           data: { detail: 'Internal server error' },
         },
       };
-      (apiClient.post as any).mockRejectedValue(serverError);
+      (apiClient.request as any).mockRejectedValue(serverError);
 
       await expect(workflowsApi.approveInstance(123)).rejects.toMatchObject(
         serverError
@@ -180,7 +173,7 @@ describe('workflowsApi', () => {
       };
       (apiClient.get as any).mockRejectedValue(authError);
 
-      await expect(workflowsApi.listPending('finance')).rejects.toMatchObject(
+      await expect(workflowsApi.listPending()).rejects.toMatchObject(
         authError
       );
     });

@@ -1,157 +1,23 @@
 
 [1m[46m RUN [49m[22m [36mv4.0.10 [39m[90mC:/Users/elija/OneDrive/Desktop/ERP-main (6)/isp-opus-forge-main[39m
 
-stderr | src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > renders dashboard with stats
-ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
-ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+stderr | src/components/onboarding/__tests__/OnboardingWizard.test.tsx > OnboardingWizard > calls completeStep when Next is clicked
+Warning: An update to OnboardingWizard inside a test was not wrapped in act(...).
 
- [31mÔØ»[39m src/pages/__tests__/WorkflowDashboard.test.tsx [2m([22m[2m10 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[33m 50154[2mms[22m[39m
-[31m     [31m├ù[31m renders dashboard with stats[39m[33m 5042[2mms[22m[39m
-[31m     [31m├ù[31m displays empty state when no pending items[39m[33m 5014[2mms[22m[39m
-[31m     [31m├ù[31m groups items by resource type[39m[33m 5020[2mms[22m[39m
-[31m     [31m├ù[31m handles approve action[39m[33m 5012[2mms[22m[39m
-[31m     [31m├ù[31m handles reject action[39m[33m 5007[2mms[22m[39m
-[31m     [31m├ù[31m displays time since update correctly[39m[33m 5017[2mms[22m[39m
-[31m     [31m├ù[31m opens workflow overlay on details click[39m[33m 5012[2mms[22m[39m
-[31m     [31m├ù[31m handles API errors gracefully[39m[33m 5010[2mms[22m[39m
-[31m     [31m├ù[31m filters by user role[39m[33m 5010[2mms[22m[39m
-[31m     [31m├ù[31m renders analytics charts[39m[33m 5006[2mms[22m[39m
+When testing, code that causes React state updates should be wrapped into act(...):
 
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 10 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
 
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > renders dashboard with stats
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:119:3
-    117|   });
-    118| 
-    119|   it('renders dashboard with stats', async () => {
-       |   ^
-    120|     (workflowsApi.listPending as any).mockResolvedValue({
-    121|       data: mockPendingItems,
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at OnboardingWizard (C:/Users/elija/OneDrive/Desktop/ERP-main (6)/isp-opus-forge-main/src/components/onboarding/OnboardingWizard.tsx:19:29)
 
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/10]ÔÄ»
+ [32mÔ£ô[39m src/components/onboarding/__tests__/OnboardingWizard.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 217[2mms[22m[39m
 
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > displays empty state when no pending items
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:135:3
-    133|   });
-    134| 
-    135|   it('displays empty state when no pending items', async () => {
-       |   ^
-    136|     (workflowsApi.listPending as any).mockResolvedValue({ data: [] });
-    137| 
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > groups items by resource type
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:145:3
-    143|   });
-    144| 
-    145|   it('groups items by resource type', async () => {
-       |   ^
-    146|     (workflowsApi.listPending as any).mockResolvedValue({
-    147|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > handles approve action
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:158:3
-    156|   });
-    157| 
-    158|   it('handles approve action', async () => {
-       |   ^
-    159|     (workflowsApi.listPending as any).mockResolvedValue({
-    160|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > handles reject action
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:179:3
-    177|   });
-    178| 
-    179|   it('handles reject action', async () => {
-       |   ^
-    180|     (workflowsApi.listPending as any).mockResolvedValue({
-    181|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > displays time since update correctly
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:200:3
-    198|   });
-    199| 
-    200|   it('displays time since update correctly', async () => {
-       |   ^
-    201|     (workflowsApi.listPending as any).mockResolvedValue({
-    202|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > opens workflow overlay on details click
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:215:3
-    213|   });
-    214| 
-    215|   it('opens workflow overlay on details click', async () => {
-       |   ^
-    216|     (workflowsApi.listPending as any).mockResolvedValue({
-    217|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > handles API errors gracefully
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:236:3
-    234|   });
-    235| 
-    236|   it('handles API errors gracefully', async () => {
-       |   ^
-    237|     (workflowsApi.listPending as any).mockRejectedValue(
-    238|       new Error('Network error')
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > filters by user role
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:249:3
-    247|   });
-    248| 
-    249|   it('filters by user role', async () => {
-       |   ^
-    250|     const financeSpy = vi.fn().mockResolvedValue({ data: mockPendingItÔÇª
-    251|     (workflowsApi.listPending as any) = financeSpy;
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/10]ÔÄ»
-
- FAIL  src/pages/__tests__/WorkflowDashboard.test.tsx > WorkflowDashboard > renders analytics charts
-Error: Test timed out in 5000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ÔØ» src/pages/__tests__/WorkflowDashboard.test.tsx:260:3
-    258|   });
-    259| 
-    260|   it('renders analytics charts', async () => {
-       |   ^
-    261|     (workflowsApi.listPending as any).mockResolvedValue({
-    262|       data: mockPendingItems,
-
-ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/10]ÔÄ»
-
-
-[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[31m10 failed[39m[22m[90m (10)[39m
-[2m   Start at [22m 18:08:13
-[2m   Duration [22m 52.52s[2m (transform 235ms, setup 264ms, collect 1.01s, tests 50.15s, environment 803ms, prepare 17ms)[22m
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 13:29:05
+[2m   Duration [22m 3.77s[2m (transform 343ms, setup 788ms, collect 521ms, tests 217ms, environment 1.86s, prepare 43ms)[22m
 

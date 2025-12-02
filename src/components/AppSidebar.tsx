@@ -1,8 +1,7 @@
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import type { MenuItem } from '@/contexts/AuthContext';
-import { generateMenuFromPermissions } from '@/lib/menuGenerator';
+import { generateUserMenu } from '@/utils/menuBuilder';
 import {
   Sidebar,
   SidebarContent,
@@ -27,10 +26,10 @@ export function AppSidebar() {
   const location = useLocation();
   const { user } = useAuth();
 
-  // NEW: Generate menus from permissions instead of using user.menus
+  // Generate menus from RBAC v2 permissions using comprehensive menu structure
   const menuItems = user?.permissions_v2 && user.permissions_v2.length > 0
-    ? generateMenuFromPermissions(user.permissions_v2)
-    : user?.menus || []; // Fallback to backend menus if no permissions_v2
+    ? generateUserMenu(user.permissions_v2)
+    : [];
 
   const getIcon = (iconName?: string): LucideIcon => {
     if (!iconName) return Icons.Circle;

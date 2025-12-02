@@ -29,6 +29,18 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
         icon: 'LayoutDashboard',
         requiredPermissions: ['*'], // Everyone can access dashboard
         order: 1,
+        children: [
+            {
+                label: 'Overview',
+                path: '/dashboard',
+                requiredPermissions: ['*'],
+            },
+            {
+                label: 'Executive Dashboard',
+                path: '/executive-dashboard',
+                requiredPermissions: ['dashboard:view:all', 'finance:read:all'],
+            },
+        ],
     },
 
     // HR Module
@@ -50,9 +62,9 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
                 requiredPermissions: ['employee:read:all', 'employee:read:department'],
             },
             {
-                label: 'Create Employee',
-                path: '/hr/create-employee',
-                requiredPermissions: ['employee:create:all'],
+                label: 'Rate Cards',
+                path: '/hr/rate-cards',
+                requiredPermissions: ['hr:read:all', 'rate_card:read:all'],
             },
             {
                 label: 'Attendance',
@@ -69,11 +81,6 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
                 path: '/hr/complaints',
                 requiredPermissions: ['complaint:read:all', 'complaint:read:department'],
             },
-            {
-                label: 'Reports',
-                path: '/hr/reports',
-                requiredPermissions: ['hr:read:all', 'report:read:all'],
-            },
         ],
     },
 
@@ -89,6 +96,11 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
                 label: 'Dashboard',
                 path: '/finance',
                 requiredPermissions: ['finance:read:all', 'finance:read:department'],
+            },
+            {
+                label: 'Invoices',
+                path: '/finance/invoices',
+                requiredPermissions: ['finance:read:all', 'invoice:create:all'],
             },
             {
                 label: 'Budgets',
@@ -157,6 +169,11 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
                 requiredPermissions: ['procurement:read:all', 'procurement:read:department'],
             },
             {
+                label: 'Smart Search',
+                path: '/procurement/search',
+                requiredPermissions: ['procurement:read:all', 'product:read:all'],
+            },
+            {
                 label: 'Suppliers',
                 path: '/suppliers',
                 requiredPermissions: ['supplier:read:all'],
@@ -176,6 +193,18 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
         icon: 'Package',
         requiredPermissions: ['inventory:read:all', 'inventory:read:department'],
         order: 7,
+        children: [
+            {
+                label: 'Overview',
+                path: '/inventory',
+                requiredPermissions: ['inventory:read:all', 'inventory:read:department'],
+            },
+            {
+                label: 'Optimization',
+                path: '/inventory/optimization',
+                requiredPermissions: ['inventory:read:all', 'inventory:optimize:all'],
+            },
+        ],
     },
 
     // Workflows Module
@@ -236,21 +265,33 @@ const MENU_DEFINITIONS: MenuDefinition[] = [
                 path: '/marketing/leads',
                 requiredPermissions: ['lead:read:all', 'lead:read:department'],
             },
-            {
-                label: 'Analytics',
-                path: '/marketing/analytics',
-                requiredPermissions: ['marketing:read:all'],
-            },
         ],
     },
 
-    // Performance Module
+    // Technician Performance Module
     {
         label: 'Performance',
-        path: '/performance',
+        path: '/technicians',
         icon: 'BarChart3',
         requiredPermissions: ['performance:read:all', 'performance:read:department'],
         order: 11,
+        children: [
+            {
+                label: 'Dashboard',
+                path: '/technicians/performance',
+                requiredPermissions: ['performance:read:all'],
+            },
+            {
+                label: 'Leaderboard',
+                path: '/technicians/leaderboard',
+                requiredPermissions: ['performance:read:all'],
+            },
+            {
+                label: 'Satisfaction',
+                path: '/technicians/satisfaction',
+                requiredPermissions: ['performance:read:all'],
+            },
+        ],
     },
 
     // Approvals Module

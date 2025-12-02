@@ -3,11 +3,13 @@ import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
 import { Permission } from "@/constants/permissions";
 import { generateMenuFromPermissions } from "@/lib/menuGenerator";
+
 interface MenuItem {
   key?: string;
   label: string;
   path: string;
   icon?: string;
+  permission?: string;
   children?: MenuItem[];
 }
 

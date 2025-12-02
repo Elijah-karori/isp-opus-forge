@@ -51,6 +51,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
     budget: '',
     start_date: '',
     end_date: '',
+    description: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,6 +73,7 @@ export function CreateProjectDialog({ onClose, onCreate, isLoading }: CreateProj
       budget: formData.budget ? parseFloat(formData.budget) : undefined,
       start_date: formData.start_date || undefined,
       end_date: formData.end_date || undefined,
+      description: formData.description || undefined,
     };
 
     onCreate(projectData);

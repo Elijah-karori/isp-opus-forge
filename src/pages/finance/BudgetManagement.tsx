@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  getMasterBudgets, 
-  getSubBudgets, 
+import {
+  getMasterBudgets,
+  getSubBudgets,
   getBudgetUsages,
   createMasterBudget,
   createSubBudget,
@@ -214,7 +214,7 @@ function MasterBudgetCard({ master, isExpanded, onToggle, onCreateSub, onCreateU
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onToggle}>
+            <Button variant="ghost" size="sm" onClick={onToggle} aria-label={isExpanded ? "Collapse budget" : "Expand budget"}>
               {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
             <div>

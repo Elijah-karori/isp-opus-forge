@@ -153,8 +153,11 @@ describe('QuickApprovalCard', () => {
     const approveButton = screen.getByText('Approve');
     fireEvent.click(approveButton);
 
-    expect(approveButton).toBeDisabled();
-    expect(screen.getByText('Reject')).toBeDisabled();
+    // Wait for the button state to update
+    await waitFor(() => {
+      expect(approveButton).toBeDisabled();
+      expect(screen.getByText('Reject')).toBeDisabled();
+    }, { timeout: 100 });
   });
 
   it('handles API errors', async () => {

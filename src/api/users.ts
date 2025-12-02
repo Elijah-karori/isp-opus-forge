@@ -105,8 +105,8 @@ export const activateUser = (userId: number) =>
   axios.post(`/users/${userId}/activate`);
 
 // Role management
-export const getRoles = () =>
-  axios.get("/users/roles");
+export const getRoles = (params?: { skip?: number; limit?: number }) =>
+  axios.get("/users/roles", { params });
 
 export const getRole = (roleId: number) =>
   axios.get(`/users/roles/${roleId}`);

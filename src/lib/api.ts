@@ -543,72 +543,72 @@ class ApiClient {
   // WORKFLOWS & APPROVALS
   // -------------------------------------------------------------------
   async getWorkflows(params?: any) {
-    return this.request<any>({ url: '/workflows/', params });
+    return this.request<any>({ url: '/workflow/', params });
   }
 
   async getWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflows/${workflowId}` });
+    return this.request<any>({ url: `/workflow/${workflowId}` });
   }
 
   async deleteWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflows/${workflowId}`, method: 'DELETE' });
+    return this.request<any>({ url: `/workflow/${workflowId}`, method: 'DELETE' });
   }
 
   async createWorkflowGraph(data: any) {
-    return this.request<any>({ url: '/workflows/graph', method: 'POST', data });
+    return this.request<any>({ url: '/workflow/graph', method: 'POST', data });
   }
 
   async updateWorkflowGraph(workflowId: number, data: any) {
-    return this.request<any>({ url: `/workflows/${workflowId}/graph`, method: 'PUT', data });
+    return this.request<any>({ url: `/workflow/${workflowId}/graph`, method: 'PUT', data });
   }
 
   async publishWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflows/${workflowId}/publish`, method: 'POST' });
+    return this.request<any>({ url: `/workflow/${workflowId}/publish`, method: 'POST' });
   }
 
   async cloneWorkflow(workflowId: number, newName: string) {
     return this.request<any>({ 
-      url: `/workflows/${workflowId}/clone`, 
+      url: `/workflow/${workflowId}/clone`, 
       method: 'POST',
       params: { new_name: newName }
     });
   }
 
   async startWorkflow(data: any) {
-    return this.request<any>({ url: '/workflows/start', method: 'POST', data });
+    return this.request<any>({ url: '/workflow/start', method: 'POST', data });
   }
 
   async performWorkflowAction(instanceId: number, action: string, comment?: string) {
     return this.request<any>({ 
-      url: `/workflows/instances/${instanceId}/actions`, 
+      url: `/workflow/instances/${instanceId}/actions`, 
       method: 'POST',
       params: { action, comment }
     });
   }
 
   async getMyApprovals() {
-    return this.request<any>({ url: '/workflows/my-approvals' });
+    return this.request<any>({ url: '/workflow/my-approvals' });
   }
 
   async getWorkflowStats() {
-    return this.request<any>({ url: '/workflows/stats' });
+    return this.request<any>({ url: '/workflow/stats' });
   }
 
   async commentWorkflow(instanceId: number, comment: string) {
     return this.request<any>({ 
-      url: `/workflows/${instanceId}/comment`, 
+      url: `/workflow/${instanceId}/comment`, 
       method: 'POST',
       params: { comment },
     });
   }
 
   async getPendingWorkflows() {
-    return this.request<any>({ url: "/workflows/pending" });
+    return this.request<any>({ url: "/workflow/pending" });
   }
 
   async approveWorkflow(instanceId: number, comment?: string) {
     return this.request<any>({ 
-      url: `/workflows/${instanceId}/approve`, 
+      url: `/workflow/${instanceId}/approve`, 
       method: "POST",
       params: { comment }
     });
@@ -616,14 +616,14 @@ class ApiClient {
 
   async rejectWorkflow(instanceId: number, comment?: string) {
     return this.request<any>({ 
-      url: `/workflows/${instanceId}/reject`, 
+      url: `/workflow/${instanceId}/reject`, 
       method: "POST",
       params: { comment }
     });
   }
 
   async workflowAction(module: string, itemId: number, action: string, data: any) {
-    return this.request<any>({ url: `/workflows/${module}/${itemId}/${action}`, method: "POST", data });
+    return this.request<any>({ url: `/workflow/${module}/${itemId}/${action}`, method: "POST", data });
   }
 
   // -------------------------------------------------------------------

@@ -15,4 +15,10 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
+// Automatically unwrap data from responses
+instance.interceptors.response.use(
+  (response) => response.data,
+  (error) => Promise.reject(error)
+);
+
 export default instance;
