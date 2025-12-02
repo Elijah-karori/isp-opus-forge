@@ -68,17 +68,29 @@ describe('Invoices Page', () => {
             </QueryClientProvider>
         );
 
+        // Wait for all invoices to render initially
         await waitFor(() => {
             expect(screen.getByText('INV-2024-001')).toBeInTheDocument();
+            expect(screen.getByText('INV-2024-002')).toBeInTheDocument();
+            expect(screen.getByText('INV-2024-003')).toBeInTheDocument();
+            expect(screen.getByText('INV-2024-004')).toBeInTheDocument();
         });
 
-        const pendingFilter = screen.getByRole('button', { name: /pending/i });
-        fireEvent.click(pendingFilter);
+        // Find and click the Pending filter button
+        const buttons = screen.getAllByRole('button');
+        const pendingButton = buttons.find(button => button.textContent === 'Pending');
 
+        expect(pendingButton).toBeDefined();
+        fireEvent.click(pendingButton!);
+
+        // After clicking, only pending invoice should be visible
+        // INV-2024-003 has amount_paid='0.00' and due_date in future, so it's pending
         await waitFor(() => {
             expect(screen.getByText('INV-2024-003')).toBeInTheDocument();
-            expect(screen.queryByText('INV-2024-001')).not.toBeInTheDocument();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
+
+        // Paid invoice should not be visible
+        expect(screen.queryByText('INV-2024-001')).not.toBeInTheDocument();
     });
 
     it('navigates to create invoice page', async () => {

@@ -75,7 +75,7 @@ import CampaignManager from "./pages/marketing/CampaignManager";
 import LeadPipeline from "./pages/marketing/LeadPipeline";
 
 // Technician Pages
-import PerformanceDashboard from "./pages/technicians/PerformanceDashboard";
+import TechnicianPerformanceDashboard from "./pages/technicians/PerformanceDashboard";
 import TechnicianLeaderboard from "./pages/technicians/TechnicianLeaderboard";
 import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
 import InvoiceDetail from "./pages/InvoiceDetail";
@@ -171,7 +171,7 @@ const App = () => {
               <Route path="/marketing/leads" element={<LeadPipeline />} />
 
               {/* Technician Routes */}
-              <Route path="/technicians/performance" element={<PerformanceDashboard />} />
+              <Route path="/technicians/performance" element={<TechnicianPerformanceDashboard />} />
               <Route path="/technicians/leaderboard" element={<TechnicianLeaderboard />} />
               <Route path="/technicians/satisfaction" element={<CustomerSatisfactionPage />} />
               <Route

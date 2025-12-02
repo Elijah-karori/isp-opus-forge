@@ -84,7 +84,7 @@ const Invoices = () => {
                 amount: '180000.00',
                 amount_paid: '0.00',
                 status: 'pending',
-                due_date: '2024-12-30',
+                due_date: '2025-12-30',
                 payment_date: null
             },
             {
