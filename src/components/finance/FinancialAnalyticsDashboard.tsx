@@ -32,7 +32,7 @@ export function FinancialAnalyticsDashboard() {
     });
 
     // Infrastructure Profitability
-    const { data: infra Profitability, isLoading: infraLoading } = useQuery({
+    const { data: infraProfitability, isLoading: infraLoading } = useQuery({
         queryKey: ['infrastructure-profitability', dateRange],
         queryFn: () =>
             financialServicesApi.getInfrastructureProfitability(
