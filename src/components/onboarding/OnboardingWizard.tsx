@@ -5,10 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { 
-    Loader2, 
-    CheckCircle2, 
-    Circle, 
+import {
+    Loader2,
+    CheckCircle2,
+    Circle,
     Sparkles,
     User,
     Navigation,
@@ -26,7 +26,7 @@ const stepIcons: Record<string, React.ReactNode> = {
 
 export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComplete }) => {
     const { isAuthenticated, user } = useAuth();
-    const { status, loading, completeStep, skipOnboarding, startOnboarding } = useOnboarding();
+    const { status, loading, error, completeStep, skipOnboarding, startOnboarding } = useOnboarding();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [direction, setDirection] = useState<'next' | 'prev'>('next');
@@ -62,7 +62,7 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
 
         setIsTransitioning(true);
         setDirection('next');
-        
+
         await completeStep(currentStep.id);
 
         setTimeout(() => {
@@ -93,12 +93,12 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
 
     return (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div 
+            <div
                 className={`
                     w-full max-w-2xl transform transition-all duration-300 ease-out
-                    ${isTransitioning 
-                        ? direction === 'next' 
-                            ? 'opacity-0 translate-x-8' 
+                    ${isTransitioning
+                        ? direction === 'next'
+                            ? 'opacity-0 translate-x-8'
                             : 'opacity-0 -translate-x-8'
                         : 'opacity-100 translate-x-0'
                     }
@@ -126,8 +126,8 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
                         {/* Step Indicators */}
                         <div className="flex justify-between px-4">
                             {status.steps.map((step, index) => (
-                                <div 
-                                    key={step.id} 
+                                <div
+                                    key={step.id}
                                     className={`
                                         flex flex-col items-center transition-all duration-300
                                         ${index === currentStepIndex ? 'scale-110' : 'scale-100'}
@@ -136,10 +136,10 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
                                     <div className={`
                                         w-10 h-10 rounded-full flex items-center justify-center
                                         transition-all duration-300
-                                        ${step.completed 
-                                            ? 'bg-green-500 text-white' 
-                                            : index === currentStepIndex 
-                                                ? 'bg-primary text-primary-foreground ring-4 ring-primary/20' 
+                                        ${step.completed
+                                            ? 'bg-green-500 text-white'
+                                            : index === currentStepIndex
+                                                ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
                                                 : 'bg-muted text-muted-foreground'
                                         }
                                     `}>
@@ -154,8 +154,8 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
                                     <span className={`
                                         text-xs mt-2 text-center max-w-[70px] font-medium
                                         transition-colors duration-300
-                                        ${index === currentStepIndex 
-                                            ? 'text-foreground' 
+                                        ${index === currentStepIndex
+                                            ? 'text-foreground'
                                             : 'text-muted-foreground'
                                         }
                                     `}>
@@ -293,7 +293,7 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
                                     Previous
                                 </Button>
                             )}
-                            <Button 
+                            <Button
                                 onClick={handleNext}
                                 disabled={isTransitioning}
                                 className="min-w-[100px]"

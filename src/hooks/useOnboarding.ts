@@ -151,7 +151,7 @@ export const useOnboarding = () => {
                 variant: 'destructive',
             });
         }
-    }, [loadStatus, toast]);
+    };
 
     const startOnboarding = async () => {
         if (!status) return;
@@ -177,7 +177,7 @@ export const useOnboarding = () => {
                 variant: 'destructive',
             });
         }
-    }, [loadStatus, toast]);
+    };
 
     const skipOnboarding = async () => {
         if (!status) return;
