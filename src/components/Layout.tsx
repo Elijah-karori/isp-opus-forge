@@ -1,12 +1,33 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Menu } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user needs onboarding (demo mode - check localStorage)
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const onboardingKey = `onboarding_completed_${user.id}`;
+      const completed = localStorage.getItem(onboardingKey);
+      if (!completed) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [isAuthenticated, user]);
+
+  const handleOnboardingComplete = () => {
+    if (user) {
+      localStorage.setItem(`onboarding_completed_${user.id}`, 'true');
+    }
+    setShowOnboarding(false);
+  };
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -39,6 +60,11 @@ export const Layout = () => {
           </main>
         </div>
       </div>
+
+      {/* Onboarding Wizard */}
+      {showOnboarding && (
+        <OnboardingWizard onComplete={handleOnboardingComplete} />
+      )}
     </SidebarProvider>
   );
 };
