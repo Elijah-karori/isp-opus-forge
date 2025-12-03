@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Loader2, 
-  User as UserIcon, 
+import {
+  Loader2,
+  User as UserIcon,
   Shield,
-  Mail, 
-  Phone, 
+  Mail,
+  Phone,
   Calendar,
   Building,
   Save,
@@ -24,10 +24,12 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 const Profile = () => {
   const { user, setUser } = useAuth();
   const { toast } = useToast();
+  const { resetOnboarding } = useOnboarding();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -95,7 +97,7 @@ const Profile = () => {
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (passwordData.new_password !== passwordData.confirm_password) {
       toast({
         title: "Password Mismatch",
@@ -251,7 +253,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button 
+                  <Button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
                     className="flex items-center gap-2"
@@ -421,7 +423,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button 
+                  <Button
                     type="submit"
                     disabled={changePasswordMutation.isPending}
                     className="flex items-center gap-2"
@@ -435,6 +437,29 @@ const Profile = () => {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Onboarding Reset */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Onboarding Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="font-medium">Reset Onboarding Progress</p>
+                  <p className="text-sm text-muted-foreground">
+                    This will reset your onboarding progress and show the welcome wizard again.
+                  </p>
+                </div>
+                <Button variant="outline" onClick={resetOnboarding}>
+                  Reset Onboarding
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

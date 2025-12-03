@@ -9,7 +9,7 @@ import { Loader2, CheckCircle2, Circle } from 'lucide-react';
 
 export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComplete }) => {
     const { isAuthenticated } = useAuth();
-    const { status, loading, completeStep, skipOnboarding, startOnboarding } = useOnboarding();
+    const { status, loading, error, completeStep, skipOnboarding, startOnboarding } = useOnboarding();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
     // Start onboarding if not already started
@@ -21,9 +21,9 @@ export const OnboardingWizard: React.FC<{ onComplete?: () => void }> = ({ onComp
 
     if (!isAuthenticated) return null;
 
-    if (loading) {
+    if (loading || (!status && !error)) {
         return (
-            <div className="flex items-center justify-center h-96">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );

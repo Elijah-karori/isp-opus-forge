@@ -1,5 +1,5 @@
 // Custom Hook for Onboarding
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { onboardingService } from '@/services/onboarding.service';
 import { OnboardingStatus } from '@/types/onboarding.types';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ export const useOnboarding = () => {
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
 
-    const loadStatus = async () => {
+    const loadStatus = useCallback(async () => {
         if (!isAuthenticated) {
             setLoading(false);
             return;
@@ -33,7 +33,7 @@ export const useOnboarding = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isAuthenticated, toast]);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -41,9 +41,9 @@ export const useOnboarding = () => {
         } else {
             setLoading(false);
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, loadStatus]);
 
-    const completeStep = async (stepId: number) => {
+    const completeStep = useCallback(async (stepId: number) => {
         try {
             await onboardingService.completeStep(stepId);
             await loadStatus(); // Reload status
@@ -60,9 +60,9 @@ export const useOnboarding = () => {
                 variant: 'destructive',
             });
         }
-    };
+    }, [loadStatus, toast]);
 
-    const startOnboarding = async () => {
+    const startOnboarding = useCallback(async () => {
         try {
             await onboardingService.startOnboarding();
             await loadStatus();
@@ -79,9 +79,9 @@ export const useOnboarding = () => {
                 variant: 'destructive',
             });
         }
-    };
+    }, [loadStatus, toast]);
 
-    const skipOnboarding = async () => {
+    const skipOnboarding = useCallback(async () => {
         try {
             await onboardingService.skipOnboarding();
             await loadStatus();
@@ -98,7 +98,28 @@ export const useOnboarding = () => {
                 variant: 'destructive',
             });
         }
-    };
+    }, [loadStatus, toast]);
+
+    const resetOnboarding = useCallback(async () => {
+        try {
+            await onboardingService.resetOnboarding();
+            await loadStatus();
+            toast({
+                title: 'Onboarding Reset',
+                description: 'Your onboarding progress has been reset.',
+            });
+            // Optional: Reload page to force wizard to appear if it doesn't automatically
+            window.location.reload();
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.detail || err.message || 'Failed to reset onboarding';
+            setError(errorMessage);
+            toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+            });
+        }
+    }, [loadStatus, toast]);
 
     return {
         status,
@@ -107,6 +128,7 @@ export const useOnboarding = () => {
         completeStep,
         startOnboarding,
         skipOnboarding,
+        resetOnboarding,
         reload: loadStatus,
     };
 };

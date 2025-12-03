@@ -21,5 +21,9 @@ export const onboardingService = {
 
     async skipOnboarding(): Promise<void> {
         await apiClient.post('/onboarding/skip', {});
+    },
+
+    async resetOnboarding(): Promise<void> {
+        await apiClient.post('/onboarding/reset', {});
     }
 };
