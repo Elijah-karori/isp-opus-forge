@@ -1,10 +1,15 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { toast } from '@/hooks/use-toast';
 
+const baseURL = import.meta.env.VITE_API_BASE_URL?.endsWith("/api/v1")
+  ? import.meta.env.VITE_API_BASE_URL
+  : `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   },
   timeout: 30000,
 });
