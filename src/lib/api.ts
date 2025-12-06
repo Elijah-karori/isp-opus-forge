@@ -24,6 +24,10 @@ class ApiClient {
   constructor(baseUrl: string) {
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
     });
 
     this.axiosInstance.interceptors.request.use((config) => {

@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
-import apiClient from '@/lib/apiClient';
+import axios from 'axios';
+
+// Create a separate client for health checks (root level, not /api/v1)
+const healthClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  headers: {
+    'ngrok-skip-browser-warning': 'true',
+  },
+});
 
 export const ConnectionStatus = () => {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
@@ -9,7 +17,7 @@ export const ConnectionStatus = () => {
   const checkConnection = async () => {
     setIsChecking(true);
     try {
-      await apiClient.get('/health', { timeout: 5000 });
+      await healthClient.get('/health', { timeout: 5000 });
       setIsConnected(true);
     } catch {
       setIsConnected(false);
