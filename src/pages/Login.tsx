@@ -15,6 +15,7 @@ import {
   Building
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ConnectionStatus } from '@/components/ConnectionStatus';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -72,6 +73,9 @@ const Login = () => {
           <p className="mt-2 text-gray-600">
             Sign in to your account to continue
           </p>
+          <div className="mt-3 flex justify-center">
+            <ConnectionStatus />
+          </div>
         </div>
 
         {/* Login Card */}
