@@ -22,6 +22,7 @@ import { CreateMasterBudgetDialog } from '@/components/finance/CreateMasterBudge
 import { CreateSubBudgetDialog } from '@/components/finance/CreateSubBudgetDialog';
 import { CreateBudgetUsageDialog } from '@/components/finance/CreateBudgetUsageDialog';
 import { UploadBudgetDialog } from '@/components/finance/UploadBudgetDialog';
+import { BudgetTemplateDownload } from '@/components/finance/BudgetTemplateDownload';
 
 export default function BudgetManagement() {
   const [selectedMaster, setSelectedMaster] = useState<number | null>(null);
@@ -83,6 +84,7 @@ export default function BudgetManagement() {
           <p className="text-muted-foreground">Manage master budgets, sub-budgets, and track spending</p>
         </div>
         <div className="flex gap-2">
+          <BudgetTemplateDownload />
           <Button onClick={() => setShowUpload(true)} variant="outline">
             <Upload className="h-4 w-4 mr-2" />
             Upload Excel
