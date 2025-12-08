@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import axios from '@/api/axios';
 
 interface BudgetTemplateDownloadProps {
     projectName?: string;
@@ -17,21 +18,17 @@ export const BudgetTemplateDownload: React.FC<BudgetTemplateDownloadProps> = ({
     const handleDownload = async () => {
         setDownloading(true);
         try {
-            const token = localStorage.getItem('access_token');
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-            const response = await fetch(
-                `${apiUrl}/api/v1/finance/budget-template?project_name=${encodeURIComponent(projectName)}`,
+            const response = await axios.get(
+                `/finance/budget-template`,
                 {
-                    headers: { Authorization: `Bearer ${token}` },
+                    params: { project_name: projectName },
+                    responseType: 'blob',
                 }
-            );
+            ) as unknown as Blob;
 
-            if (!response.ok) {
-                throw new Error('Download failed');
-            }
-
-            const blob = await response.blob();
+            const blob = new Blob([response], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
