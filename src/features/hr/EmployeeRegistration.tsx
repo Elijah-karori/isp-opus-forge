@@ -1,4 +1,4 @@
-import apiClient from "@/lib/apiClient";
+import { apiClient } from '@/lib/api';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ export default function EmployeeRegistration() {
     try {
         // This is a placeholder for creating an employee and starting a workflow.
         // In a real application, you would have a user and role system to get the IDs from.
-        const employee = await apiClient.post("/hr/employees", {
+        const employee: any = await apiClient.post("/hr/employees", {
             user_id: 1, // Placeholder user_id
             employee_code: `EMP-${Date.now()}`,
             engagement_type: 'FULL_TIME',
@@ -29,7 +29,7 @@ export default function EmployeeRegistration() {
         await apiClient.post("/api/v1/workflows/start", {
           workflow_id: 1, // Employee Onboarding Workflow
           related_model: "EmployeeProfile",
-          related_id: employee.data.id, // ID from the created employee
+          related_id: employee.id, // ID from the created employee
           initiated_by: 1, // Placeholder initiated_by
         });
         setSuccess("Employee registered and workflow started!");

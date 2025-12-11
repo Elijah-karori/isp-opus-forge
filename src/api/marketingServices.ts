@@ -1,5 +1,7 @@
 // Marketing API Client
-import apiClient from './axios';
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export interface Campaign {
     id: number;
@@ -27,16 +29,9 @@ export interface Lead {
 }
 
 export const marketingApi = {
-    // Campaigns
-    createCampaign: (data: Partial<Campaign>) =>
-        apiClient.post<Campaign>('/api/v1/marketing/campaigns', data),
-
-    getCampaignPerformance: (campaignId: number) =>
-        apiClient.get(`/api/v1/marketing/campaigns/${campaignId}/performance`),
-
-    // Leads
-    recordLead: (data: Partial<Lead>) =>
-        apiClient.post<Lead>('/api/v1/marketing/leads', data),
+    createCampaign: (data: Partial<Campaign>) => axios.post<Campaign>('/marketing/campaigns', data),
+    getCampaignPerformance: (campaignId: number) => axios.get(`/marketing/campaigns/${campaignId}/performance`),
+    recordLead: (data: Partial<Lead>) => axios.post<Lead>('/marketing/leads', data),
 };
 
 export default marketingApi;

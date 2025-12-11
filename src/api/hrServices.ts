@@ -1,5 +1,7 @@
 // HR Services API Client
-import apiClient from './axios';
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 // ========== Types ==========
 export interface EmployeeProfile {
@@ -81,118 +83,38 @@ export interface AttendanceRecord {
 }
 
 // ========== API Calls ==========
-
 export const hrApi = {
-    // Employee Management
-    listEmployees: (params?: {
-        engagement_type?: string;
-        is_active?: boolean;
-        skip?: number;
-        limit?: number;
-    }) => apiClient.get<EmployeeProfile[]>('/api/v1/hr/employees', { params }),
-
-    createEmployee: (data: Partial<EmployeeProfile>) =>
-        apiClient.post<EmployeeProfile>('/api/v1/hr/employees', data),
-
-    getEmployee: (employeeId: number) =>
-        apiClient.get<EmployeeProfile>(`/api/v1/hr/employees/${employeeId}`),
-
-    toggleEmployeeStatus: (userId: number) =>
-        apiClient.patch(`/api/v1/hr/employees/${userId}/toggle-status`),
-
-    // Rate Cards
-    createRateCard: (data: Partial<RateCard>) =>
-        apiClient.post<RateCard>('/api/v1/hr/rate-cards', data),
-
-    getEmployeeRateCards: (employeeId: number, activeOnly: boolean = true) =>
-        apiClient.get<RateCard[]>(`/api/v1/hr/rate-cards/${employeeId}`, {
-            params: { active_only: activeOnly },
-        }),
-
-    // Payouts
-    calculatePayout: (data: {
-        employee_id: number;
-        period_start: string;
-        period_end: string;
-        task_id?: number;
-        user_id?: number;
-    }) => apiClient.post<Payout>('/api/v1/hr/payouts/calculate', data),
-
-    getPendingPayouts: (limit: number = 50) =>
-        apiClient.get<Payout[]>('/api/v1/hr/payouts/pending', { params: { limit } }),
-
-    getEmployeePayouts: (employeeId: number, limit: number = 10) =>
-        apiClient.get<Payout[]>(`/api/v1/hr/payouts/employee/${employeeId}`, {
-            params: { limit },
-        }),
-
-    approvePayout: (payoutId: number, data: { approved: boolean; notes?: string }) =>
-        apiClient.post<Payout>(`/api/v1/hr/payouts/${payoutId}/approve`, data),
-
-    markPayoutPaid: (
-        payoutId: number,
-        paymentMethod: string,
-        paymentReference: string
-    ) =>
-        apiClient.post<Payout>(`/api/v1/hr/payouts/${payoutId}/mark-paid`, null, {
-            params: { payment_method: paymentMethod, payment_reference: paymentReference },
-        }),
-
-    // Complaints
-    recordComplaint: (data: Partial<Complaint>) =>
-        apiClient.post<Complaint>('/api/v1/hr/complaints', data),
-
-    listComplaints: (employeeId?: number) =>
-        apiClient.get<Complaint[]>('/api/v1/hr/complaints', {
-            params: { employee_id: employeeId },
-        }),
-
-    getPendingComplaints: (limit: number = 50) =>
-        apiClient.get<Complaint[]>('/api/v1/hr/complaints/pending', { params: { limit } }),
-
-    investigateComplaint: (
-        complaintId: number,
-        isValid: boolean,
-        investigationNotes: string,
-        resolution?: string
-    ) =>
-        apiClient.post<Complaint>(`/api/v1/hr/complaints/${complaintId}/investigate`, null, {
-            params: {
-                is_valid: isValid,
-                investigation_notes: investigationNotes,
-                resolution,
-            },
-        }),
-
-    // Attendance
-    recordAttendance: (data: Partial<AttendanceRecord>) =>
-        apiClient.post<AttendanceRecord>('/api/v1/hr/attendance', data),
-
+    listEmployees: (params?: { engagement_type?: string; is_active?: boolean; skip?: number; limit?: number; }) => 
+        axios.get<EmployeeProfile[]>('/hr/employees', { params }),
+    createEmployee: (data: Partial<EmployeeProfile>) => axios.post<EmployeeProfile>('/hr/employees', data),
+    getEmployee: (employeeId: number) => axios.get<EmployeeProfile>(`/hr/employees/${employeeId}`),
+    toggleEmployeeStatus: (userId: number) => axios.patch(`/hr/employees/${userId}/toggle-status`),
+    createRateCard: (data: Partial<RateCard>) => axios.post<RateCard>('/hr/rate-cards', data),
+    getEmployeeRateCards: (employeeId: number, activeOnly: boolean = true) => 
+        axios.get<RateCard[]>(`/hr/rate-cards/${employeeId}`, { params: { active_only: activeOnly } }),
+    calculatePayout: (data: { employee_id: number; period_start: string; period_end: string; task_id?: number; user_id?: number; }) => 
+        axios.post<Payout>('/hr/payouts/calculate', data),
+    getPendingPayouts: (limit: number = 50) => axios.get<Payout[]>('/hr/payouts/pending', { params: { limit } }),
+    getEmployeePayouts: (employeeId: number, limit: number = 10) => 
+        axios.get<Payout[]>(`/hr/payouts/employee/${employeeId}`, { params: { limit } }),
+    approvePayout: (payoutId: number, data: { approved: boolean; notes?: string }) => 
+        axios.post<Payout>(`/hr/payouts/${payoutId}/approve`, data),
+    markPayoutPaid: (payoutId: number, paymentMethod: string, paymentReference: string) =>
+        axios.post<Payout>(`/hr/payouts/${payoutId}/mark-paid`, { payment_method: paymentMethod, payment_reference: paymentReference }),
+    recordComplaint: (data: Partial<Complaint>) => axios.post<Complaint>('/hr/complaints', data),
+    listComplaints: (employeeId?: number) => axios.get<Complaint[]>('/hr/complaints', { params: { employee_id: employeeId } }),
+    getPendingComplaints: (limit: number = 50) => axios.get<Complaint[]>('/hr/complaints/pending', { params: { limit } }),
+    investigateComplaint: (complaintId: number, isValid: boolean, investigationNotes: string, resolution?: string) =>
+        axios.post<Complaint>(`/hr/complaints/${complaintId}/investigate`, { is_valid: isValid, investigation_notes: investigationNotes, resolution }),
+    recordAttendance: (data: Partial<AttendanceRecord>) => axios.post<AttendanceRecord>('/hr/attendance', data),
     getEmployeeAttendance: (employeeId: number, startDate: string, endDate: string) =>
-        apiClient.get<AttendanceRecord[]>(`/api/v1/hr/attendance/${employeeId}`, {
-            params: { start_date: startDate, end_date: endDate },
-        }),
-
-    // Reports
+        axios.get<AttendanceRecord[]>(`/hr/attendance/${employeeId}`, { params: { start_date: startDate, end_date: endDate } }),
     getPayrollSummary: (periodStart: string, periodEnd: string) =>
-        apiClient.get('/api/v1/hr/reports/payroll-summary', {
-            params: { period_start: periodStart, period_end: periodEnd },
-        }),
-
-    getEmployeePerformanceReport: (
-        employeeId: number,
-        periodStart: string,
-        periodEnd: string
-    ) =>
-        apiClient.get(`/api/v1/hr/reports/employee-performance/${employeeId}`, {
-            params: { period_start: periodStart, period_end: periodEnd },
-        }),
-
-    // Workflow
+        axios.get('/hr/reports/payroll-summary', { params: { period_start: periodStart, period_end: periodEnd } }),
+    getEmployeePerformanceReport: (employeeId: number, periodStart: string, periodEnd: string) =>
+        axios.get(`/hr/reports/employee-performance/${employeeId}`, { params: { period_start: periodStart, period_end: periodEnd } }),
     approveWorkflowInstance: (instanceId: number, comment?: string) =>
-        apiClient.post(`/api/v1/hr/workflow/${instanceId}/approve`, null, {
-            params: { comment },
-        }),
+        axios.post(`/hr/workflow/${instanceId}/approve`, { comment }),
 };
 
 export default hrApi;

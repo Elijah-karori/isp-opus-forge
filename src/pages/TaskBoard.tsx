@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "../api/axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export default function TaskBoard(){
   const [tasks, setTasks] = useState<any[]>([]);

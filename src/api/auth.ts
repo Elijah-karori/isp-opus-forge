@@ -1,4 +1,6 @@
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export const login = (email: string, password: string) =>
   axios.post("/auth/login", { username: email, password });

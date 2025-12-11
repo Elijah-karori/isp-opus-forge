@@ -1,4 +1,6 @@
-import apiClient from "@/lib/api-client";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export interface MenuItem {
   id?: number;
@@ -23,40 +25,17 @@ export interface MenusByRole {
 }
 
 // Menu Items CRUD
-export const getMenuItems = () =>
-  apiClient.get<MenuItem[]>("/menus/items");
-
-export const getMenuItem = (id: number) =>
-  apiClient.get<MenuItem>(`/menus/items/${id}`);
-
-export const createMenuItem = (data: Omit<MenuItem, 'id'>) =>
-  apiClient.post<MenuItem>("/menus/items", data);
-
-export const updateMenuItem = (id: number, data: Partial<MenuItem>) =>
-  apiClient.patch<MenuItem>(`/menus/items/${id}`, data);
-
-export const deleteMenuItem = (id: number) =>
-  apiClient.delete(`/menus/items/${id}`);
+export const getMenuItems = () => axios.get<MenuItem[]>("/menus/items");
+export const getMenuItem = (id: number) => axios.get<MenuItem>(`/menus/items/${id}`);
+export const createMenuItem = (data: Omit<MenuItem, 'id'>) => axios.post<MenuItem>("/menus/items", data);
+export const updateMenuItem = (id: number, data: Partial<MenuItem>) => axios.patch<MenuItem>(`/menus/items/${id}`, data);
+export const deleteMenuItem = (id: number) => axios.delete(`/menus/items/${id}`);
 
 // Role-Menu Assignments
-export const getRoleMenus = (role: string) =>
-  apiClient.get<MenuItem[]>(`/menus/roles/${role}`);
-
-export const getAllRoleMenus = () =>
-  apiClient.get<MenusByRole>("/menus/roles");
-
-export const assignMenuToRole = (data: Omit<RoleMenuAssignment, 'id' | 'created_at'>) =>
-  apiClient.post<RoleMenuAssignment>("/menus/roles/assign", data);
-
-export const removeMenuFromRole = (roleMenuId: number) =>
-  apiClient.delete(`/menus/roles/assign/${roleMenuId}`);
-
-export const bulkAssignMenusToRole = (role: string, menuItemIds: number[]) =>
-  apiClient.post("/menus/roles/bulk-assign", { role_name: role, menu_item_ids: menuItemIds });
-
-export const reorderMenuItems = (updates: { id: number; order_index: number }[]) =>
-  apiClient.post("/menus/items/reorder", { updates });
-
-// Get available roles for assignment
-export const getAvailableRoles = () =>
-  apiClient.get<string[]>("/menus/available-roles");
+export const getRoleMenus = (role: string) => axios.get<MenuItem[]>(`/menus/roles/${role}`);
+export const getAllRoleMenus = () => axios.get<MenusByRole>("/menus/roles");
+export const assignMenuToRole = (data: Omit<RoleMenuAssignment, 'id' | 'created_at'>) => axios.post<RoleMenuAssignment>("/menus/roles/assign", data);
+export const removeMenuFromRole = (roleMenuId: number) => axios.delete(`/menus/roles/assign/${roleMenuId}`);
+export const bulkAssignMenusToRole = (role: string, menuItemIds: number[]) => axios.post("/menus/roles/bulk-assign", { role_name: role, menu_item_ids: menuItemIds });
+export const reorderMenuItems = (updates: { id: number; order_index: number }[]) => axios.post("/menus/items/reorder", { updates });
+export const getAvailableRoles = () => axios.get<string[]>("/menus/available-roles");

@@ -1,4 +1,6 @@
-import api from "./axios";
+import { apiClient } from '@/lib/api';
+
+const api = apiClient.axios;
 
 export async function getPriceHistory(productId: number) {
   const res = await api.get(`/api/v1/scrapers/price-history/${productId}`);

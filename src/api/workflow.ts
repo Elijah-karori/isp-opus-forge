@@ -1,5 +1,7 @@
 // src/api/workflows.ts
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export interface WorkflowInstance {
   id: number;
