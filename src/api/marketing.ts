@@ -1,4 +1,6 @@
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export const postMarketing = (payload: any) =>
   axios.post("/marketing/posts", payload);

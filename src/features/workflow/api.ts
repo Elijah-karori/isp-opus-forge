@@ -1,18 +1,13 @@
-import apiClient from "@/lib/apiClient";
+import { apiClient } from '@/lib/api';
 
 export async function fetchPendingWorkflows() {
-  const res = await apiClient.get("/workflows/pending");
-  return res.data;
+  return apiClient.get("/workflows/pending");
 }
 
 export async function getWorkflowDetails(id: number) {
-  const res = await apiClient.get(`/workflows/${id}`);
-  return res.data;
+  return apiClient.get(`/workflows/${id}`);
 }
 
 export async function performWorkflowAction(id: number, action: "approve" | "reject" | "escalate", comment?: string) {
-  const res = await apiClient.post(`/workflows/${id}/${action}`, {
-    comment,
-  });
-  return res.data;
+  return apiClient.post(`/workflows/${id}/${action}`, { comment });
 }

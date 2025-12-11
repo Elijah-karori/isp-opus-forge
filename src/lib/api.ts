@@ -20,6 +20,7 @@ interface AuthToken {
 
 class ApiClient {
   private axiosInstance: AxiosInstance;
+  public axios: AxiosInstance; // Expose raw axios for legacy code
 
   constructor(baseUrl: string) {
     this.axiosInstance = axios.create({
@@ -62,6 +63,8 @@ class ApiClient {
         return Promise.reject(new Error(errorMessage));
       }
     );
+    
+    this.axios = this.axiosInstance;
   }
 
   setToken(token: string) {

@@ -1,5 +1,7 @@
 // src/api/dashboards.ts
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 /**
  * Dashboard API client for RBAC v2 endpoints

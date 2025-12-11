@@ -1,5 +1,7 @@
 // src/api/tasks.ts
-import axios from "./axios";
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 // ===========================================================================
 // TASK INTERFACES

@@ -11,8 +11,10 @@ import { Label } from '@/components/ui/label';
 import { AlertTriangle, CheckCircle, XCircle, Clock, Loader2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import axios from '@/api/axios';
+import { apiClient } from '@/lib/api';
 import { format } from 'date-fns';
+
+const axios = apiClient.axios;
 
 interface Complaint {
   id: number;

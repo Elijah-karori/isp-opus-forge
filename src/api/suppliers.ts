@@ -1,4 +1,6 @@
-import api from "./axios";
+import { apiClient } from '@/lib/api';
+
+const api = apiClient.axios;
 
 export async function getSuppliers() {
   const res = await api.get("/api/v1/inventory/suppliers");

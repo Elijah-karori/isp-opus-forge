@@ -1,4 +1,6 @@
-import apiClient from './axios';
+import { apiClient } from '@/lib/api';
+
+const axios = apiClient.axios;
 
 export interface TechnicianKPI {
     technician_id: number;
@@ -18,44 +20,21 @@ export interface CustomerSatisfaction {
     id: number;
     task_id: number;
     technician_id: number;
-    rating: number; // 1-5
+    rating: number;
     feedback?: string;
     created_at: string;
 }
 
 export const technicianApi = {
-    // Performance
-    getTechnicianPerformance: (technicianId: number, params?: {
-        period_start?: string;
-        period_end?: string;
-    }) =>
-        apiClient.get<TechnicianKPI>(`/api/v1/technicians/${technicianId}/performance`, { params }),
-
-    getLeaderboard: (params?: {
-        period_start?: string;
-        period_end?: string;
-        limit?: number;
-    }) =>
-        apiClient.get<TechnicianKPI[]>('/api/v1/technicians/leaderboard', { params }),
-
-    // Customer Satisfaction
-    recordSatisfaction: (data: {
-        task_id: number;
-        rating: number;
-        feedback?: string;
-    }) =>
-        apiClient.post<CustomerSatisfaction>('/api/v1/technicians/satisfaction', data),
-
-    listSatisfaction: (params?: {
-        technician_id?: number;
-        task_id?: number;
-        limit?: number;
-    }) =>
-        apiClient.get<CustomerSatisfaction[]>('/api/v1/technicians/satisfaction', { params }),
-
-    // Altitude (permission level)
-    getTechnicianAltitude: (technicianId: number) =>
-        apiClient.get(`/api/v1/technicians/${technicianId}/altitude`),
+    getTechnicianPerformance: (technicianId: number, params?: { period_start?: string; period_end?: string; }) =>
+        axios.get<TechnicianKPI>(`/technicians/${technicianId}/performance`, { params }),
+    getLeaderboard: (params?: { period_start?: string; period_end?: string; limit?: number; }) =>
+        axios.get<TechnicianKPI[]>('/technicians/leaderboard', { params }),
+    recordSatisfaction: (data: { task_id: number; rating: number; feedback?: string; }) =>
+        axios.post<CustomerSatisfaction>('/technicians/satisfaction', data),
+    listSatisfaction: (params?: { technician_id?: number; task_id?: number; limit?: number; }) =>
+        axios.get<CustomerSatisfaction[]>('/technicians/satisfaction', { params }),
+    getTechnicianAltitude: (technicianId: number) => axios.get(`/technicians/${technicianId}/altitude`),
 };
 
 export default technicianApi;
