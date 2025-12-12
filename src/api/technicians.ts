@@ -32,47 +32,21 @@ export interface Technician {
   certifications?: string[];
 }
 
-// API hooks based on the blueprint
-
-/**
- * Fetch detailed performance KPIs for a technician.
- * @param technicianId The ID of the technician.
- * @param params Optional date range.
- */
+// API functions - these return unwrapped data (apiClient already extracts response.data)
 export const getTechnicianPerformance = (technicianId: number, params?: { period_start?: string; period_end?: string }) => 
-  apiClient.get<TechnicianKPI>(`/technicians/${technicianId}/performance`, { params });
+  apiClient.getTechnicianPerformance(technicianId, params);
 
-/**
- * Fetch all customer reviews for a specific technician.
- * @param technicianId The ID of the technician.
- */
 export const getCustomerSatisfactionReviews = (technicianId: number) => 
-  apiClient.get<CustomerSatisfaction[]>(`/technicians/satisfaction?technician_id=${technicianId}`);
+  apiClient.getCustomerSatisfaction({ technician_id: technicianId });
 
-/**
- * Record customer satisfaction feedback for a task.
- * @param data The satisfaction data.
- */
 export const recordCustomerSatisfaction = (data: { task_id: number; rating: number; feedback?: string }) => 
-  apiClient.post('/technicians/satisfaction', data);
+  apiClient.recordCustomerSatisfaction(data);
 
-/**
- * Fetch the technician leaderboard.
- * @param params Optional query parameters like limit.
- */
 export const getTechnicianLeaderboard = (params?: { limit?: number }) => 
-  apiClient.get('/technicians/leaderboard', { params });
+  apiClient.getTechnicianLeaderboard(params);
 
-/**
- * Get a list of technicians.
- * @param params Optional parameters like active_only.
- */
 export const getTechnicians = (params?: { active_only?: boolean }) =>
-  apiClient.get('/technicians', { params });
+  apiClient.getTechnicians(params);
 
-/**
- * Get a technician's altitude level and permissions.
- * @param technicianId The ID of the technician.
- */
 export const getTechnicianAltitude = (technicianId: number) =>
-  apiClient.get(`/technicians/${technicianId}/altitude`);
+  apiClient.getTechnicianAltitude(technicianId);

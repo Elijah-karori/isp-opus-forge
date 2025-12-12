@@ -5,12 +5,16 @@ export default function TechnicianRequests(){
   const [tasks, setTasks] = useState<any[]>([]);
   const [req, setReq] = useState({ subject:"", details:"", request_type:"hr_assistance" });
 
-  useEffect(()=>{ fetchMyTasks().then(r=>setTasks(r.data)).catch(()=>{}) },[]);
+  useEffect(()=>{ 
+    fetchMyTasks()
+      .then(r => setTasks(r?.data || r || []))
+      .catch(()=>{});
+  },[]);
 
   const submit = async (e:any) => {
     e.preventDefault();
     try {
-      const res = await createTechnicianRequest(req);
+      await createTechnicianRequest(req);
       alert("Request sent");
       setReq({ subject:"", details:"", request_type:"hr_assistance" });
     } catch(e) { alert("Failed"); }

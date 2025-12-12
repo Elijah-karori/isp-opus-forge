@@ -82,7 +82,8 @@ export function AttendanceTracker() {
     });
   };
 
-  const attendanceList = attendance?.data || [];
+  // apiClient already unwraps response.data
+  const attendanceList = Array.isArray(attendance) ? attendance : (attendance?.data || []);
 
   return (
     <div className="space-y-6">
