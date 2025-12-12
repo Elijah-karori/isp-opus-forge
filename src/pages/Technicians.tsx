@@ -59,9 +59,10 @@ const TechnicianDashboard = () => {
     );
   }
 
-  const technicianList = technicians?.data || [];
-  const leaderboardData = Array.isArray(leaderboard) ? leaderboard : [];
-  const attendanceList = recentAttendance?.data || [];
+  // Data is already unwrapped by apiClient
+  const technicianList = Array.isArray(technicians) ? technicians : (technicians?.data || []);
+  const leaderboardData = Array.isArray(leaderboard) ? leaderboard : (leaderboard?.data || []);
+  const attendanceList = Array.isArray(recentAttendance) ? recentAttendance : (recentAttendance?.data || []);
 
   const activeTechnicians = technicianList.filter((tech: Technician) => tech.is_active);
   const onDutyTechnicians = attendanceList.filter((att: AttendanceRecord) => 

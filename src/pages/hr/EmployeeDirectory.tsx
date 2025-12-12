@@ -42,7 +42,10 @@ export default function EmployeeDirectory() {
 
     const { data: employees, isLoading } = useQuery({
         queryKey: ['employees'],
-        queryFn: () => hrApi.listEmployees().then((res) => res.data),
+        queryFn: async () => {
+            const res = await hrApi.listEmployees();
+            return res.data; // axios response has .data
+        },
     });
 
     const createMutation = useMutation({

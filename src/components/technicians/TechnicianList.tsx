@@ -24,7 +24,8 @@ export function TechnicianList() {
     return variants[status] || variants.inactive;
   };
 
-  const technicianList = technicians || [];
+  // apiClient already unwraps response.data
+  const technicianList = Array.isArray(technicians) ? technicians : (technicians?.data || []);
 
   return (
     <Card>

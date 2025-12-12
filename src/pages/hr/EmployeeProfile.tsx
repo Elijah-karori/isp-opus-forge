@@ -51,10 +51,11 @@ export function EmployeeProfile() {
   });
 
   const isLoading = isLoadingEmployee || isLoadingRateCards || isLoadingPerformance || isLoadingComplaints;
-  const employee = employeeData?.data as Employee;
-  const rateCards = (rateCardsData?.data || []) as RateCard[];
-  const performance = performanceData?.data as EmployeePerformance;
-  const complaints = (complaintsData?.data || []) as Complaint[];
+  // apiClient methods already unwrap response.data
+  const employee = employeeData as Employee;
+  const rateCards = (rateCardsData || []) as RateCard[];
+  const performance = performanceData as EmployeePerformance;
+  const complaints = (complaintsData || []) as Complaint[];
 
   const canEditProfile = employee && (
     canAccess({ requiredRoles: ['admin', 'hr_manager'] }) || 

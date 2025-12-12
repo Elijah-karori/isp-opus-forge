@@ -39,7 +39,8 @@ export function TechnicianPerformance() {
     return <div>Loading performance data...</div>;
   }
 
-  const leaderboardData = Array.isArray(leaderboard?.data) ? leaderboard.data : (Array.isArray(leaderboard) ? leaderboard : []);
+  // apiClient already unwraps response.data
+  const leaderboardData = Array.isArray(leaderboard) ? leaderboard : (leaderboard?.data || []);
 
   // Sample performance data for charts
   const performanceMetrics = [
