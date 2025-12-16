@@ -325,7 +325,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                {teamWorkload.team_members.slice(0, 10).map(member => (
+                                {(teamWorkload.team_members || []).slice(0, 10).map(member => (
                                     <div key={member.user_id} className="flex items-center justify-between p-3 rounded-lg border">
                                         <div className="flex-1">
                                             <p className="font-medium">{member.full_name}</p>
