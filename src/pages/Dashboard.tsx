@@ -251,14 +251,14 @@ export default function Dashboard() {
                                 <div className="p-4 rounded-lg border">
                                     <p className="text-sm text-muted-foreground">Total Allocated</p>
                                     <p className="text-2xl font-bold">
-                                        KES {budgetTracking.total_allocated.toLocaleString()}
+                                        KES {(budgetTracking.total_allocated ?? 0).toLocaleString()}
                                     </p>
                                 </div>
 
                                 <div className="p-4 rounded-lg border">
                                     <p className="text-sm text-muted-foreground">Total Spent</p>
                                     <p className="text-2xl font-bold">
-                                        KES {budgetTracking.total_spent.toLocaleString()}
+                                        KES {(budgetTracking.total_spent ?? 0).toLocaleString()}
                                     </p>
                                 </div>
 
@@ -277,7 +277,7 @@ export default function Dashboard() {
                                     <p className="text-sm text-muted-foreground">Variance %</p>
                                     <p className={`text-2xl font-bold ${budgetTracking.variance_percent >= 0 ? 'text-green-600' : 'text-red-600'
                                         }`}>
-                                        {budgetTracking.variance_percent.toFixed(1)}%
+                                        {budgetTracking.variance_percent?.toFixed?.(1) || '0.0'}%
                                     </p>
                                 </div>
                             </div>
@@ -291,13 +291,13 @@ export default function Dashboard() {
                                                 <span className="text-sm">{project.project_name}</span>
                                                 <div className="flex gap-4 text-sm">
                                                     <span className="text-muted-foreground">
-                                                        Allocated: KES {project.allocated.toLocaleString()}
+                                                        Allocated: KES {(project.allocated ?? 0).toLocaleString()}
                                                     </span>
                                                     <span className="text-muted-foreground">
-                                                        Spent: KES {project.spent.toLocaleString()}
+                                                        Spent: KES {(project.spent ?? 0).toLocaleString()}
                                                     </span>
                                                     <span className={project.variance >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                        Variance: KES {Math.abs(project.variance).toLocaleString()}
+                                                        Variance: KES {Math.abs(project.variance ?? 0).toLocaleString()}
                                                     </span>
                                                 </div>
                                             </div>
@@ -352,7 +352,7 @@ export default function Dashboard() {
                                                     />
                                                 </div>
                                                 <p className="text-xs text-muted-foreground mt-1">
-                                                    {member.workload_percent}%
+                                                    {(member.workload_percent ?? 0)}%
                                                 </p>
                                             </div>
                                         </div>
