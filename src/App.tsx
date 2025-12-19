@@ -2,7 +2,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -79,7 +79,8 @@ import LeadPipeline from "./pages/marketing/LeadPipeline";
 //import TechnicianLeaderboard from "./pages/technicians/TechnicianLeaderboard";
 //import CustomerSatisfactionPage from "./pages/technicians/CustomerSatisfaction";
 import InvoiceDetail from "./pages/InvoiceDetail";
-import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import QuickStartGuide from "@/components/onboarding/QuickStartGuide";
+import { HelpMenu } from "@/components/onboarding/HelpMenu";
 import TechnicianLeaderboard from "./pages/Technicians/TechnicianLeaderboard";
 import CustomerSatisfactionPage from "./pages/Technicians/CustomerSatisfaction";
 
@@ -89,15 +90,23 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <OnboardingWizard />
-        <BrowserRouter>
-          <Routes>
+        <QuickStartGuide />
+        <div className="min-h-screen bg-background">
+          <div className="fixed top-4 right-4 z-40">
+            <HelpMenu />
+          </div>
+          <BrowserRouter>
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route element={<Layout />}>
+            <Route element={
+              <Layout>
+                <Outlet />
+              </Layout>
+            }>
               <Route
                 path="/dashboard"
                 element={
@@ -360,13 +369,11 @@ const App = () => {
                 <Route index element={<TechnicianDashboard />} />
                 <Route path="tools" element={<TechnicianTools />} />
                 <Route path="attendance" element={<Attendance />} />
-                <Route path="tasks" element={<TechnicianTasks />} />
-                <Route path="reports" element={<FinanceReports />} />
               </Route>
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
       </TooltipProvider>
     </AuthProvider>
   );

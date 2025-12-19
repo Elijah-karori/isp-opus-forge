@@ -1,48 +1,63 @@
+// =====================================================================
+// FILE: src/api/rbac.ts
+// RBAC (Role-Based Access Control) API Client
+// =====================================================================
+
 import { apiClient } from '@/lib/api';
+import type {
+    PermissionV2,
+    PermissionCheckResponse,
+    MyPermissionsResponse,
+} from '@/types/api.types';
 
-export interface PermissionV2 {
-    name: string;
-    resource: string;
-    action: string;
-    scope: string;
-    description?: string;
-}
-
-export interface PermissionCheckResponse {
-    permission: string;
-    granted: boolean;
-}
+// =====================================================================
+// TYPES
+// =====================================================================
 
 export interface PermissionsBatchResponse {
     [permission: string]: boolean;
 }
 
-export interface MyPermissionsResponse {
-    permissions: PermissionV2[];
-    count: number;
+export interface BatchPermissionCheckRequest {
+    permissions: string[];
 }
+
+// Re-export types for convenience
+export type { PermissionV2, PermissionCheckResponse, MyPermissionsResponse };
+
+// =====================================================================
+// RBAC API OPERATIONS
+// =====================================================================
 
 export const rbacApi = {
     /**
      * Check if current user has a specific permission
+     * Example: permission = "project:create:all"
      */
-    checkPermission: (permission: string) => {
-        return apiClient.get<PermissionCheckResponse>('/api/v1/rbac/check', {
-            params: { permission }
+    checkPermission: async (permission: string): Promise<PermissionCheckResponse> => {
+        return apiClient.get<PermissionCheckResponse>('/rbac/check', {
+            permission,
         });
     },
 
     /**
      * Check multiple permissions at once
+     * Request body: { permissions: ["project:create:all", "task:read:assigned"] }
      */
-    checkPermissionsBatch: (permissions: string[]) => {
-        return apiClient.post<PermissionsBatchResponse>('/api/v1/rbac/check-batch', permissions);
+    checkPermissionsBatch: async (
+        permissions: string[]
+    ): Promise<PermissionsBatchResponse> => {
+        return apiClient.post<PermissionsBatchResponse>('/rbac/check-batch', {
+            permissions,
+        });
     },
 
     /**
-     * Get all permissions for current user
+     * Get all permissions for current user (including inherited from role hierarchy)
      */
-    getMyPermissions: () => {
-        return apiClient.get<MyPermissionsResponse>('/api/v1/rbac/my-permissions');
+    getMyPermissions: async (): Promise<MyPermissionsResponse> => {
+        return apiClient.get<MyPermissionsResponse>('/rbac/my-permissions');
     },
 };
+
+export default rbacApi;

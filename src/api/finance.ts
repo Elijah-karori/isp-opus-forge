@@ -243,25 +243,200 @@ export const getBudgetVsActualReport = (projectId?: number) =>
 export const getFinanceDashboardStats = () =>
   axios.get(`/finance/dashboard/stats`);
 
+// =====================================================================
+// M-PESA TYPES
+// =====================================================================
+
+export interface STKPushRequest {
+  phone_number: string;
+  amount: number;
+  account_reference: string;
+  transaction_desc?: string;
+}
+
+export interface C2BSimulateRequest {
+  phone_number: string;
+  amount: number;
+  bill_ref_number: string;
+}
+
+export interface DynamicQRRequest {
+  amount: number;
+  merchant_name: string;
+  ref_no: string;
+  trx_code?: string;
+}
+
+export interface B2CRequest {
+  phone_number: string;
+  amount: number;
+  remarks: string;
+  occasion?: string;
+}
+
+export interface B2BRequest {
+  amount: number;
+  receiver_shortcode: string;
+  account_reference: string;
+}
+
+export interface TaxRemittanceRequest {
+  amount: number;
+  payer_id: string;
+  tax_type: string;
+}
+
+export interface RatibaRequest {
+  phone_number: string;
+  amount: number;
+  start_date: string;
+  end_date: string;
+  frequency: string;
+  account_reference: string;
+}
+
+export interface BankPaymentRequest {
+  account_number: string;
+  amount: number;
+  currency?: string;
+}
+
+// =====================================================================
+// M-PESA OPERATIONS
+// =====================================================================
+
+/**
+ * Trigger M-Pesa STK Push
+ */
+export const triggerSTKPush = async (data: STKPushRequest) => {
+  const response = await axios.post('/finance/mpesa/stkpush', data);
+  return response.data;
+};
+
+/**
+ * Simulate C2B Transaction (Sandbox)
+ */
+export const simulateC2B = async (data: C2BSimulateRequest) => {
+  const response = await axios.post('/finance/mpesa/c2b/simulate', data);
+  return response.data;
+};
+
+/**
+ * Generate Dynamic QR Code
+ */
+export const generateDynamicQR = async (data: DynamicQRRequest) => {
+  const response = await axios.post('/finance/mpesa/qr/generate', data);
+  return response.data;
+};
+
+/**
+ * B2C Payment / Salary / Pochi
+ */
+export const triggerB2CPayment = async (data: B2CRequest) => {
+  const response = await axios.post('/finance/mpesa/b2c/pay', data);
+  return response.data;
+};
+
+/**
+ * B2B Payment (PayBill/BuyGoods)
+ */
+export const triggerB2BPayment = async (data: B2BRequest) => {
+  const response = await axios.post('/finance/mpesa/b2b/pay', data);
+  return response.data;
+};
+
+/**
+ * KRA Tax Remittance
+ */
+export const remitKRATax = async (data: TaxRemittanceRequest) => {
+  const response = await axios.post('/finance/mpesa/tax/remit', data);
+  return response.data;
+};
+
+/**
+ * Check M-Pesa Account Balance
+ */
+export const checkMpesaBalance = async () => {
+  const response = await axios.get('/finance/mpesa/balance');
+  return response.data;
+};
+
+/**
+ * Create Standing Order (Ratiba)
+ */
+export const createRatibaOrder = async (data: RatibaRequest) => {
+  const response = await axios.post('/finance/mpesa/ratiba/create', data);
+  return response.data;
+};
+
+// =====================================================================
+// NCBA BANKING
+// =====================================================================
+
+/**
+ * Trigger NCBA Bank Payment
+ */
+export const triggerNCBAPayment = async (data: BankPaymentRequest) => {
+  const response = await axios.post('/finance/ncba/pay', data);
+  return response.data;
+};
+
 // Export as single API object for easier testing
 export const financeApi = {
+  // Variances
   getPendingVariances,
   approveBomVariance,
+  detectTaskVariances,
+  getVarianceHistory,
+
+  // Project Financials
   getProjectFinancials,
   getProjectsFinancialSummary,
-  getVarianceHistory,
+
+  // Expenses
   createExpense,
   approveExpense,
+
+  // Reports
   getFinancialSummary,
   getProfitLossReport,
   getBudgetVsActualReport,
   getFinanceDashboardStats,
+
+  // Master Budgets
   getMasterBudgets,
+  getMasterBudget,
   createMasterBudget,
+  updateMasterBudget,
+  deleteMasterBudget,
+  uploadBudget,
+
+  // Sub Budgets
   getSubBudgets,
+  getSubBudget,
   createSubBudget,
+  updateSubBudget,
+  deleteSubBudget,
+
+  // Budget Usages
   createBudgetUsage,
   getBudgetUsages,
-  uploadBudget,
   approveBudgetUsage,
+
+  // M-Pesa
+  mpesa: {
+    triggerSTKPush,
+    simulateC2B,
+    generateDynamicQR,
+    triggerB2CPayment,
+    triggerB2BPayment,
+    remitKRATax,
+    checkMpesaBalance,
+    createRatibaOrder,
+  },
+
+  // NCBA Banking
+  ncba: {
+    triggerPayment: triggerNCBAPayment,
+  },
 };
