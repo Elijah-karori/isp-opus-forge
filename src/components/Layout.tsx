@@ -6,6 +6,7 @@ import { LogOut, Menu } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -35,28 +36,36 @@ export const Layout = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
         <AppSidebar />
 
-        <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4">
-            <SidebarTrigger>
+        <div className="flex flex-1 flex-col relative">
+          <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-white/10 bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl px-6">
+            <SidebarTrigger className="text-slate-600 dark:text-slate-400 hover:bg-white/20">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
 
             <div className="flex-1" />
-            
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">{user?.full_name}</span>
-              <Button onClick={logout} variant="ghost" size="sm">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+
+            <div className="flex items-center gap-6">
+              <NotificationDropdown />
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{user?.full_name}</span>
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                  {user?.roles_v2?.[0]?.name || 'Member'}
+                </span>
+              </div>
+              <Button onClick={logout} variant="ghost" size="sm" className="h-10 w-10 sm:w-auto rounded-xl hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400">
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline font-bold">Logout</span>
               </Button>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-6">
-            <Outlet />
+          <main className="flex-1 overflow-y-auto p-6 lg:p-10">
+            <div className="relative">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>

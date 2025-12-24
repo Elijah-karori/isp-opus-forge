@@ -379,6 +379,12 @@ export const COMPLETE_MENU: MenuItem[] = [
                 path: '/admin/menu-management',
                 permission: 'admin:full',
             },
+            {
+                key: 'admin-audit',
+                label: 'Audit Logs',
+                path: '/audit-logs',
+                anyPermissions: ['admin:full', 'audit:read:all'],
+            },
         ],
     },
 ];

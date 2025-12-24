@@ -331,8 +331,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('🔄 Auth initialization useEffect running...');
     (async () => {
       try {
-        const token = localStorage.getItem("auth_token");
-        console.log('🔑 Token from storage:', token ? 'exists' : 'none');
+        // Check for Magic Link token in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const magicToken = urlParams.get('token');
+
+        let token = localStorage.getItem("auth_token");
+
+        if (magicToken) {
+          console.log('🔗 Magic Link token found in URL, verifying...');
+          try {
+            const response = await apiClient.request<any>({
+              url: '/auth/passwordless/verify',
+              method: 'GET',
+              params: { token: magicToken }
+            });
+
+            if (response && response.access_token) {
+              token = response.access_token;
+              apiClient.setToken(token);
+              console.log('✅ Magic Link verified successfully');
+
+              // Clean up URL
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          } catch (error) {
+            console.error('❌ Magic Link verification failed:', error);
+          }
+        }
+
+        console.log('🔑 Token status:', token ? 'exists' : 'none');
 
         if (!token) {
           console.log('❌ No token found, setting loading to false');

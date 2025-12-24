@@ -4,9 +4,10 @@ import { dashboardsApi } from '@/api/dashboards';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
-    BarChart,
     TrendingUp,
+    TrendingDown,
     AlertCircle,
     CheckCircle2,
     DollarSign,
@@ -15,14 +16,26 @@ import {
     Users,
     Briefcase,
     Target,
-    Loader2
+    Loader2,
+    ChevronRight,
+    Plus,
+    Bell,
+    Clock,
+    AlertTriangle,
+    ArrowRight
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PermissionGate from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/constants/permissions';
 
 export default function Dashboard() {
     const { user } = useAuth();
+    const navigate = useNavigate();
+
+    // Greeting Logic
+    const now = new Date();
+    const greeting = now.getHours() < 12 ? 'Good Morning' : now.getHours() < 18 ? 'Good Afternoon' : 'Good Evening';
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
     // Projects Overview
     const { data: projectsOverview, isLoading: projectsLoading } = useQuery({
@@ -58,358 +71,281 @@ export default function Dashboard() {
 
     const isLoading = projectsLoading || tasksLoading || budgetLoading || workloadLoading;
 
+    // Derived stats for unified view
+    const stats = {
+        outstanding: taskAllocation?.total_tasks ?? 0,
+        delayed: projectsOverview?.by_status?.on_hold ?? 0,
+        budgetUsed: budgetTracking?.total_spent
+            ? Math.round((budgetTracking.total_spent / (budgetTracking.total_budget || 1)) * 100)
+            : 0,
+    };
+
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground mt-2">
-                    Welcome back, {user?.full_name || 'User'}
-                </p>
-                <div className="flex gap-2 mt-2">
-                    {user?.roles_v2?.map(role => (
-                        <Badge key={role.id} variant="secondary">
-                            {role.name}
-                        </Badge>
-                    ))}
+        <div className="min-h-full -m-6 p-6 lg:p-10 bg-slate-50 dark:bg-[#0f172a] overflow-x-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+
+            <div className="max-w-[1600px] mx-auto space-y-8">
+                {/* Modern Header Section */}
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white/40 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/20 dark:border-white/10 shadow-2xl shadow-blue-500/5">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400 font-semibold tracking-wide uppercase text-xs">
+                            <Clock className="h-4 w-4" />
+                            {dateStr}
+                        </div>
+                        <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
+                            {greeting}, {user?.full_name?.split(' ')[0] || 'User'}
+                            <span className="hidden sm:inline">👋</span>
+                        </h1>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {user?.roles_v2?.map(role => (
+                                <Badge key={role.id} variant="secondary" className="bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-none px-3">
+                                    {role.name}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Button variant="outline" className="h-12 border-white/20 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 rounded-2xl px-6">
+                            <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
+                            Reports
+                        </Button>
+                        <Button className="h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-xl shadow-blue-500/30 px-8 font-semibold transition-all hover:scale-105 active:scale-95" onClick={() => navigate('/projects')}>
+                            <Plus className="h-5 w-5 mr-2" />
+                            New Project
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 relative">
+                            <Bell className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+                            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
+                        </Button>
+                    </div>
                 </div>
-            </div>
 
-            {/* Loading State */}
-            {isLoading && (
-                <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            )}
-
-            {/* Projects Overview */}
-            {projectsOverview && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <FolderKanban className="h-5 w-5" />
-                            Projects Overview
-                        </CardTitle>
-                        <CardDescription>
-                            Status breakdown of all projects
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <div className="p-4 rounded-lg border">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Total Projects</p>
-                                        <p className="text-2xl font-bold">{projectsOverview?.total_projects ?? 0}</p>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Left Column - Stats & Overview (8 cols) */}
+                    <div className="lg:col-span-8 space-y-8">
+                        {/* Quick Stats Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                            <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-none shadow-xl shadow-blue-500/20 text-white rounded-[2rem] overflow-hidden group">
+                                <CardContent className="p-6 relative">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10 transition-transform group-hover:scale-125">
+                                        <ClipboardList className="h-24 w-24" />
                                     </div>
-                                    <Briefcase className="h-8 w-8 text-blue-500" />
-                                </div>
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950/20">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">In Progress</p>
-                                        <p className="text-2xl font-bold text-green-600">
-                                            {projectsOverview?.by_status?.in_progress ?? 0}
-                                        </p>
+                                    <p className="text-blue-100 font-medium mb-1 flex items-center gap-2">
+                                        <Clock className="h-4 w-4" />
+                                        Active Tasks
+                                    </p>
+                                    <div className="flex items-end justify-between mt-2">
+                                        <h3 className="text-4xl font-black">{stats.outstanding}</h3>
+                                        <TrendingUp className="h-6 w-6 text-blue-200" />
                                     </div>
-                                    <Target className="h-8 w-8 text-green-600" />
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
 
-                            <div className="p-4 rounded-lg border border-green-200">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Completed</p>
-                                        <p className="text-2xl font-bold text-green-700">
-                                            {projectsOverview?.by_status?.completed ?? 0}
-                                        </p>
+                            <Card className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-white/20 dark:border-white/10 shadow-xl shadow-slate-500/5 rounded-[2rem] hover:border-amber-500/50 transition-colors">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium mb-1">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        Delayed Projects
                                     </div>
-                                    <CheckCircle2 className="h-8 w-8 text-green-700" />
-                                </div>
-                            </div>
+                                    <div className="flex items-end justify-between mt-2">
+                                        <h3 className="text-4xl font-black text-slate-900 dark:text-white">{stats.delayed}</h3>
+                                        <span className="text-xs text-muted-foreground font-medium px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-full">
+                                            Priority High
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                            <div className="p-4 rounded-lg border border-blue-200">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Planning</p>
-                                        <p className="text-2xl font-bold text-blue-600">
-                                            {projectsOverview?.by_status?.planning ?? 0}
-                                        </p>
+                            <Card className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-white/20 dark:border-white/10 shadow-xl shadow-slate-500/5 rounded-[2rem]">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-medium mb-1">
+                                        <DollarSign className="h-4 w-4" />
+                                        Budget Usage
                                     </div>
-                                    <BarChart className="h-8 w-8 text-blue-600" />
-                                </div>
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-orange-200">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">On Hold</p>
-                                        <p className="text-2xl font-bold text-orange-600">
-                                            {projectsOverview?.by_status?.on_hold ?? 0}
-                                        </p>
+                                    <div className="space-y-3 mt-3">
+                                        <div className="flex items-end justify-between">
+                                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">{stats.budgetUsed}%</h3>
+                                            <span className="text-xs text-muted-foreground">{budgetTracking?.total_budget ? `KES ${Math.round(budgetTracking.total_budget / 1000)}k` : 'N/A'}</span>
+                                        </div>
+                                        <Progress value={stats.budgetUsed} className="h-2 bg-slate-100 dark:bg-white/5 overflow-hidden">
+                                            <div className="h-full bg-indigo-500 rounded-full" />
+                                        </Progress>
                                     </div>
-                                    <AlertCircle className="h-8 w-8 text-orange-600" />
-                                </div>
-                            </div>
-
-                            <div className="p-4 rounded-lg border border-red-200">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Cancelled</p>
-                                        <p className="text-2xl font-bold text-red-600">
-                                            {projectsOverview?.by_status?.cancelled ?? 0}
-                                        </p>
-                                    </div>
-                                    <AlertCircle className="h-8 w-8 text-red-600" />
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         </div>
 
-                        <div className="mt-4 flex justify-end">
-                            <PermissionGate anyPermission={['project:read:all', 'project:read:own']}>
-                                <Link to="/projects">
-                                    <Button size="sm">
-                                        View All Projects
+                        {/* Projects Overview - High Fidelity */}
+                        <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-500/5">
+                            <CardHeader className="p-8 pb-0 border-none">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <CardTitle className="text-2xl font-black">Active Projects</CardTitle>
+                                        <CardDescription className="text-base">Real-time status across departments</CardDescription>
+                                    </div>
+                                    <Button variant="ghost" className="rounded-2xl hover:bg-white/60 dark:hover:bg-white/5 text-blue-600 dark:text-blue-400" onClick={() => navigate('/projects')}>
+                                        View All
+                                        <ArrowRight className="h-4 w-4 ml-2" />
                                     </Button>
-                                </Link>
-                            </PermissionGate>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Task Allocation */}
-            {taskAllocation && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ClipboardList className="h-5 w-5" />
-                            Task Allocation
-                        </CardTitle>
-                        <CardDescription>
-                            Task distribution across roles
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                            <div className="p-4 rounded-lg border">
-                                <p className="text-sm text-muted-foreground">Total Tasks</p>
-                                <p className="text-2xl font-bold">{taskAllocation?.total_tasks ?? 0}</p>
-                            </div>
-
-                            <div className="p-4 rounded-lg border">
-                                <p className="text-sm text-muted-foreground">Tech Lead</p>
-                                <p className="text-xl font-bold">{taskAllocation?.by_role?.tech_lead ?? 0}</p>
-                            </div>
-
-                            <div className="p-4 rounded-lg border">
-                                <p className="text-sm text-muted-foreground">Project Manager</p>
-                                <p className="text-xl font-bold">{taskAllocation?.by_role?.project_manager ?? 0}</p>
-                            </div>
-
-                            <div className="p-4 rounded-lg border">
-                                <p className="text-sm text-muted-foreground">Technician</p>
-                                <p className="text-xl font-bold">{taskAllocation?.by_role?.technician ?? 0}</p>
-                            </div>
-
-                            <div className="p-4 rounded-lg border">
-                                <p className="text-sm text-muted-foreground">Marketing</p>
-                                <p className="text-xl font-bold">{taskAllocation?.by_role?.marketing ?? 0}</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 flex justify-end">
-                            <PermissionGate anyPermission={['task:read:all', 'task:read:assigned']}>
-                                <Link to="/tasks">
-                                    <Button size="sm">
-                                        View All Tasks
-                                    </Button>
-                                </Link>
-                            </PermissionGate>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Budget Tracking */}
-            <PermissionGate anyPermission={[PERMISSIONS.FINANCE.READ_ALL, PERMISSIONS.DASHBOARD.VIEW_ALL]}>
-                {budgetTracking && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <DollarSign className="h-5 w-5" />
-                                Budget Tracking
-                            </CardTitle>
-                            <CardDescription>
-                                Financial overview across projects
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-4 md:grid-cols-4">
-                                <div className="p-4 rounded-lg border">
-                                    <p className="text-sm text-muted-foreground">Total Allocated</p>
-                                    <p className="text-2xl font-bold">
-                                        KES {(budgetTracking.total_allocated ?? 0).toLocaleString()}
-                                    </p>
                                 </div>
-
-                                <div className="p-4 rounded-lg border">
-                                    <p className="text-sm text-muted-foreground">Total Spent</p>
-                                    <p className="text-2xl font-bold">
-                                        KES {(budgetTracking.total_spent ?? 0).toLocaleString()}
-                                    </p>
-                                </div>
-
-                                <div className={`p-4 rounded-lg border ${budgetTracking.variance >= 0
-                                    ? 'border-green-200 bg-green-50 dark:bg-green-950/20'
-                                    : 'border-red-200 bg-red-50 dark:bg-red-950/20'
-                                    }`}>
-                                    <p className="text-sm text-muted-foreground">Variance</p>
-                                    <p className={`text-2xl font-bold ${budgetTracking.variance >= 0 ? 'text-green-600' : 'text-red-600'
-                                        }`}>
-                                        KES {Math.abs(budgetTracking.variance).toLocaleString()}
-                                    </p>
-                                </div>
-
-                                <div className="p-4 rounded-lg border">
-                                    <p className="text-sm text-muted-foreground">Variance %</p>
-                                    <p className={`text-2xl font-bold ${budgetTracking.variance_percent >= 0 ? 'text-green-600' : 'text-red-600'
-                                        }`}>
-                                        {budgetTracking.variance_percent?.toFixed?.(1) || '0.0'}%
-                                    </p>
-                                </div>
-                            </div>
-
-                            {budgetTracking.by_project && budgetTracking.by_project.length > 0 && (
-                                <div className="mt-6">
-                                    <h4 className="text-sm font-semibold mb-3">Top Variances</h4>
-                                    <div className="space-y-2">
-                                        {budgetTracking.by_project.slice(0, 5).map(project => (
-                                            <div key={project.project_id} className="flex items-center justify-between p-2 rounded border">
-                                                <span className="text-sm">{project.project_name}</span>
-                                                <div className="flex gap-4 text-sm">
-                                                    <span className="text-muted-foreground">
-                                                        Allocated: KES {(project.allocated ?? 0).toLocaleString()}
-                                                    </span>
-                                                    <span className="text-muted-foreground">
-                                                        Spent: KES {(project.spent ?? 0).toLocaleString()}
-                                                    </span>
-                                                    <span className={project.variance >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                        Variance: KES {Math.abs(project.variance ?? 0).toLocaleString()}
-                                                    </span>
+                            </CardHeader>
+                            <CardContent className="p-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {projectsOverview?.by_status && Object.entries(projectsOverview.by_status).slice(0, 4).map(([status, count]) => (
+                                        <div key={status} className="group p-5 rounded-3xl bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white dark:hover:bg-white/10 transition-all hover:scale-[1.02] cursor-pointer">
+                                            <div className="flex items-center justify-between">
+                                                <div className="space-y-1">
+                                                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-blue-500 transition-colors">
+                                                        {status.replace('_', ' ')}
+                                                    </p>
+                                                    <p className="text-3xl font-black">{count}</p>
+                                                </div>
+                                                <div className="p-3 rounded-2xl bg-slate-100 dark:bg-white/5 group-hover:bg-blue-500/20 group-hover:text-blue-500 transition-all">
+                                                    <FolderKanban className="h-6 w-6" />
                                                 </div>
                                             </div>
-                                        ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Recent Activity / Tasks */}
+                        <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-500/5">
+                            <CardHeader className="p-8 pb-4">
+                                <CardTitle className="text-2xl font-black">Performance Overview</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-8 pt-0">
+                                <div className="space-y-4">
+                                    <div className="p-6 rounded-3xl bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                                                <CheckCircle2 className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-lg">On-Time Delivery</p>
+                                                <p className="text-sm text-muted-foreground">94.2% average across all projects</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-2xl font-black text-green-600 dark:text-green-400">+2.4%</p>
+                                            <p className="text-xs text-muted-foreground">vs last month</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-500/10 flex items-center gap-3">
+                                        <AlertCircle className="h-5 w-5 text-blue-500" />
+                                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                                            You have <span className="font-bold">{stats.outstanding} active tasks</span> assigned to you this week.
+                                        </p>
                                     </div>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
-            </PermissionGate>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-            {/* Team Workload */}
-            <PermissionGate anyPermission={[PERMISSIONS.HR.READ_ALL, PERMISSIONS.DASHBOARD.VIEW_ALL]}>
-                {teamWorkload && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Users className="h-5 w-5" />
-                                Team Workload
-                            </CardTitle>
-                            <CardDescription>
-                                Current team member assignments
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {(teamWorkload.team_members || []).slice(0, 10).map(member => (
-                                    <div key={member.user_id} className="flex items-center justify-between p-3 rounded-lg border">
-                                        <div className="flex-1">
-                                            <p className="font-medium">{member.full_name}</p>
-                                            <p className="text-sm text-muted-foreground">{member.role}</p>
+                    {/* Right Column - Sidebars & Alerts (4 cols) */}
+                    <div className="lg:col-span-4 space-y-8">
+                        {/* Priority Alerts */}
+                        <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-red-500/5">
+                            <CardHeader className="p-8 pb-4">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-xl font-black flex items-center gap-2">
+                                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                                        Priority Alerts
+                                    </CardTitle>
+                                    <Badge className="bg-red-500 text-white border-none rounded-full px-2">3 New</Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-8 pt-0 space-y-4">
+                                <div className="p-5 rounded-[1.5rem] bg-amber-500/10 border border-amber-500/20 space-y-2 group cursor-pointer hover:bg-amber-500/15 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <p className="text-sm font-bold text-amber-900 dark:text-amber-400">Budget Warning</p>
+                                        <span className="text-[10px] text-amber-600/70 font-semibold uppercase">2h ago</span>
+                                    </div>
+                                    <p className="text-sm text-amber-800/90 dark:text-amber-200/80 leading-relaxed">
+                                        Fiber Installation - Westlands has exceeded 85% of allocated budget.
+                                    </p>
+                                </div>
+
+                                <div className="p-5 rounded-[1.5rem] bg-red-500/10 border border-red-500/20 space-y-2 group cursor-pointer hover:bg-red-500/15 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <p className="text-sm font-bold text-red-900 dark:text-red-400">Delayed Task</p>
+                                        <span className="text-[10px] text-red-600/70 font-semibold uppercase">4h ago</span>
+                                    </div>
+                                    <p className="text-sm text-red-800/90 dark:text-red-200/80 leading-relaxed">
+                                        BOM approval pending for CBD Network project (Overdue 2 days).
+                                    </p>
+                                </div>
+
+                                <Button variant="secondary" className="w-full rounded-[1.5rem] h-12 bg-slate-100 dark:bg-white/5 font-bold">
+                                    Clear All Alerts
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* Quick Actions Panel */}
+                        <Card className="bg-gradient-to-br from-indigo-900 to-blue-900 text-white border-none rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-500/20">
+                            <CardHeader className="p-8 pb-4">
+                                <CardTitle className="text-xl font-black">Quick Actions</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-8 pt-0 grid grid-cols-2 gap-3">
+                                <Button className="h-20 flex-col gap-2 rounded-3xl bg-white/10 hover:bg-white/20 border border-white/10" onClick={() => navigate('/tasks')}>
+                                    <ClipboardList className="h-6 w-6" />
+                                    <span className="text-xs font-bold">New Task</span>
+                                </Button>
+                                <Button className="h-20 flex-col gap-2 rounded-3xl bg-white/10 hover:bg-white/20 border border-white/10" onClick={() => navigate('/invoices/create')}>
+                                    <DollarSign className="h-6 w-6" />
+                                    <span className="text-xs font-bold">Invoice</span>
+                                </Button>
+                                <Button className="h-20 flex-col gap-2 rounded-3xl bg-white/10 hover:bg-white/20 border border-white/10" onClick={() => navigate('/inventory')}>
+                                    <Target className="h-6 w-6" />
+                                    <span className="text-xs font-bold">Stock</span>
+                                </Button>
+                                <Button className="h-20 flex-col gap-2 rounded-3xl bg-white/10 hover:bg-white/20 border border-white/10" onClick={() => navigate('/hr')}>
+                                    <Users className="h-6 w-6" />
+                                    <span className="text-xs font-bold">Team</span>
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* Team Workload Summary */}
+                        <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-[2.5rem] shadow-2xl shadow-blue-500/5">
+                            <CardHeader className="p-8 pb-4 border-none">
+                                <CardTitle className="text-xl font-black flex items-center gap-2">
+                                    <Users className="h-5 w-5 text-blue-500" />
+                                    Active Team
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-8 pt-0 space-y-5">
+                                {teamWorkload?.team_members?.slice(0, 3).map((member, i) => (
+                                    <div key={i} className="flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 border border-white/50 dark:border-white/5">
+                                                {member.full_name[0]}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold group-hover:text-blue-500 transition-colors">{member.full_name}</p>
+                                                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{member.role}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-6 items-center">
-                                            <div className="text-center">
-                                                <p className="text-sm text-muted-foreground">Active</p>
-                                                <p className="text-lg font-bold">{member.active_tasks}</p>
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-sm text-muted-foreground">Completed</p>
-                                                <p className="text-lg font-bold text-green-600">{member.completed_tasks}</p>
-                                            </div>
-                                            <div className="w-24">
-                                                <p className="text-sm text-muted-foreground mb-1">Workload</p>
-                                                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full ${member.workload_percent > 80 ? 'bg-red-500' :
-                                                            member.workload_percent > 60 ? 'bg-orange-500' :
-                                                                'bg-green-500'
-                                                            }`}
-                                                        style={{ width: `${Math.min(member.workload_percent, 100)}%` }}
-                                                    />
-                                                </div>
-                                                <p className="text-xs text-muted-foreground mt-1">
-                                                    {(member.workload_percent ?? 0)}%
-                                                </p>
-                                            </div>
-                                        </div>
+                                        <Badge className="bg-green-500/10 text-green-600 dark:text-green-400 border-none px-2 rounded-lg">
+                                            {member.active_tasks} Tasks
+                                        </Badge>
                                     </div>
                                 ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-            </PermissionGate>
-
-            {/* Quick Actions */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                    <CardDescription>Common tasks and navigation</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <PermissionGate permission={PERMISSIONS.PROJECT.CREATE_ALL}>
-                            <Link to="/projects">
-                                <Button variant="outline" className="w-full">
-                                    <FolderKanban className="mr-2 h-4 w-4" />
-                                    New Project
+                                <Button variant="link" className="w-full text-blue-600 dark:text-blue-400 font-bold" onClick={() => navigate('/hr')}>
+                                    Management View
                                 </Button>
-                            </Link>
-                        </PermissionGate>
-
-                        <PermissionGate permission={PERMISSIONS.TASK.CREATE_ALL}>
-                            <Link to="/tasks">
-                                <Button variant="outline" className="w-full">
-                                    <ClipboardList className="mr-2 h-4 w-4" />
-                                    New Task
-                                </Button>
-                            </Link>
-                        </PermissionGate>
-
-                        <PermissionGate permission={PERMISSIONS.INVOICE.CREATE_ALL}>
-                            <Link to="/invoices/create">
-                                <Button variant="outline" className="w-full">
-                                    <DollarSign className="mr-2 h-4 w-4" />
-                                    New Invoice
-                                </Button>
-                            </Link>
-                        </PermissionGate>
-
-                        <PermissionGate anyPermission={[PERMISSIONS.FINANCE.READ_ALL, PERMISSIONS.DASHBOARD.VIEW_ALL]}>
-                            <Link to="/projects">
-                                <Button variant="outline" className="w-full">
-                                    <TrendingUp className="mr-2 h-4 w-4" />
-                                    View Reports
-                                </Button>
-                            </Link>
-                        </PermissionGate>
+                            </CardContent>
+                        </Card>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
