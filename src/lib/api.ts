@@ -1,26 +1,32 @@
 // =====================================================================
 // FILE: src/lib/api.ts
+// Comprehensive API Client for ISP ERP
 // =====================================================================
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
+import type {
+  AuthToken,
+  LoginCredentials,
+  UserCreate,
+  UserCreatePasswordless,
+  PasswordSetRequest,
+  User,
+  AdminDashboardMetrics,
+  AuditTrail,
+  AuditStats,
+  RoleV2,
+  RoleHierarchy,
+  Project,
+  Task,
+} from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.endsWith("/api/v1")
   ? import.meta.env.VITE_API_BASE_URL
   : `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface AuthToken {
-  access_token: string;
-  token_type: string;
-}
-
 class ApiClient {
   private axiosInstance: AxiosInstance;
-  public axios: AxiosInstance; // Expose raw axios for legacy code
+  public axios: AxiosInstance;
 
   constructor(baseUrl: string) {
     this.axiosInstance = axios.create({
@@ -43,8 +49,11 @@ class ApiClient {
       (response) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem("auth_token");
-          window.location.href = "/login";
+          const isAuthEndpoint = error.config?.url?.includes('/auth/');
+          if (!isAuthEndpoint) {
+            localStorage.removeItem("auth_token");
+            window.location.href = "/login";
+          }
         }
 
         const errorData = error.response?.data as { detail?: any };
@@ -100,9 +109,11 @@ class ApiClient {
     return this.request<T>({ url, method: 'DELETE' });
   }
 
-  // -------------------------------------------------------------------
+  // =========================================================================
   // AUTHENTICATION
-  // -------------------------------------------------------------------
+  // =========================================================================
+  
+  /** Standard OAuth2 Password Login */
   async login(credentials: LoginCredentials): Promise<AuthToken> {
     const formData = new URLSearchParams();
     formData.append("username", credentials.username);
@@ -116,572 +127,300 @@ class ApiClient {
     return response.data;
   }
 
+  /** Refresh access token */
   async refreshToken(): Promise<AuthToken> {
-    return this.request<AuthToken>({ 
-      url: "/auth/refresh", 
-      method: "POST" 
-    });
+    return this.request<AuthToken>({ url: "/auth/refresh", method: "POST" });
   }
 
-  async registerUser(data: any): Promise<any> {
-    return this.request<any>({ 
-      url: "/auth/register", 
-      method: "POST", 
-      data 
-    });
+  /** Standard registration with password */
+  async register(data: UserCreate): Promise<any> {
+    return this.request<any>({ url: "/auth/register", method: "POST", data });
   }
 
-  async getCurrentUser(): Promise<any> {
-    return this.request<any>({ url: "/auth/me" });
+  /** Get current user profile with RBAC data */
+  async getCurrentUser(): Promise<User> {
+    return this.request<User>({ url: "/auth/me" });
   }
 
-  // -------------------------------------------------------------------
-  // PROJECTS & TASKS
-  // -------------------------------------------------------------------
-  async getProjects(params?: { skip?: number; limit?: number; status?: string }) {
-    return this.request<any>({ url: '/projects/', method: 'GET', params });
-  }
-
-  async getProject(projectId: number) {
-    return this.request<any>({ url: `/projects/${projectId}` });
-  }
-
-  async createProject(data: any) {
-    return this.request<any>({ url: "/projects/", method: "POST", data });
-  }
-
-  async updateProject(projectId: number, data: any) {
-    return this.request<any>({ url: `/projects/${projectId}`, method: "PATCH", data });
-  }
-
-  async deleteProject(projectId: number) {
-    return this.request<any>({ url: `/projects/${projectId}`, method: "DELETE" });
-  }
-  
-  async createProjectFromLead(leadId: number, data: any) {
-    return this.createProject({ ...data, lead_id: leadId });
-  }
-
-  async getTasks(params?: any) {
-    return this.request<any>({ url: '/tasks/', method: 'GET', params });
-  }
-
-  async getTask(taskId: number) {
-    return this.request<any>({ url: `/tasks/${taskId}` });
-  }
-
-  async createTask(data: any) {
-    return this.request<any>({ url: "/tasks/", method: "POST", data });
-  }
-
-  async updateTask(taskId: number, data: any) {
-    return this.request<any>({ url: `/tasks/${taskId}`, method: "PATCH", data });
-  }
-
-  async updateTaskBOM(taskId: number, data: any) {
-    return this.request<any>({ url: `/tasks/${taskId}/update-bom`, method: "POST", data });
-  }
-
-  async approveTaskBOM(taskId: number) {
-    return this.request<any>({ url: `/tasks/${taskId}/approve-bom`, method: "POST" });
-  }
-
-  async completeTask(taskId: number, data: any) {
-    return this.request<any>({ url: `/tasks/${taskId}/complete`, method: "POST", data });
-  }
-
-  async createTaskBOM(taskId: number, data: any) {
-    return this.request<any>({ url: `/tasks/${taskId}/bom`, method: "POST", data });
-  }
-
-  // -------------------------------------------------------------------
-  // INVENTORY
-  // -------------------------------------------------------------------
-  async getProducts(params?: any) {
-    return this.request<any>({ url: '/inventory/products', params });
-  }
-
-  async getProduct(productId: number) {
-    return this.request<any>({ url: `/inventory/products/${productId}` });
-  }
-
-  async createProduct(data: any) {
-    return this.request<any>({ url: "/inventory/products", method: "POST", data });
-  }
-
-  async updateProduct(productId: number, data: any) {
-    return this.request<any>({ url: `/inventory/products/${productId}`, method: "PATCH", data });
-  }
-
-  async getSuppliers(params?: any) {
-    return this.request<any>({ url: '/inventory/suppliers', params });
-  }
-
-  async getSupplier(supplierId: number) {
-    return this.request<any>({ url: `/inventory/suppliers/${supplierId}` });
-  }
-
-  async createSupplier(data: any) {
-    return this.request<any>({ url: "/inventory/suppliers", method: "POST", data });
-  }
-
-  async updateSupplier(supplierId: number, data: any) {
-    return this.request<any>({ url: `/inventory/suppliers/${supplierId}`, method: "PATCH", data });
-  }
-
-  async searchInventory(query: string) {
-    return this.request<any>({ url: '/inventory/search', params: { q: query } });
-  }
-
-  async getInventoryStats() {
-    return this.request<any>({ url: "/inventory/stats" });
-  }
-
-  async getLowStockAlerts() {
-    return this.request<any>({ url: "/inventory/alerts/low-stock" });
-  }
-
-  // -------------------------------------------------------------------
-  // TECHNICIANS & SATISFACTION
-  // -------------------------------------------------------------------
-  async getTechnicians(params?: { active_only?: boolean }) {
-    return this.request<any>({ url: '/technicians', params });
-  }
-
-  async getTechnician(technicianId: number) {
-    return this.request<any>({ url: `/technicians/${technicianId}` });
-  }
-
-  async createTechnician(data: any) {
-    return this.request<any>({ url: "/technicians", method: "POST", data });
-  }
-
-  async getTechnicianLeaderboard(params?: { limit?: number }) {
-    return this.request<any>({ url: '/technicians/leaderboard', params });
-  }
-
-  async getTechnicianPerformance(technicianId: number, params?: any) {
-    return this.request<any>({ url: `/technicians/${technicianId}/performance`, params });
-  }
-
-  async getTechnicianTasks(technicianId: number, params?: any) {
-    return this.request<any>({ url: `/technicians/${technicianId}/tasks`, params });
-  }
-
-  async getTechnicianAltitude(technicianId: number) {
-    return this.request<any>({ url: `/technicians/${technicianId}/altitude` });
-  }
-
-  async approveTaskCompletion(taskId: number, data: { approved: boolean; notes?: string }) {
-    return this.request<any>({ url: `/technicians/tasks/${taskId}/approve`, method: "POST", data });
-  }
-
-  async getCustomerSatisfaction(params?: any) {
-    return this.request<any>({ url: '/technicians/satisfaction', params });
-  }
-
-  async recordCustomerSatisfaction(data: { task_id: number; rating: number; feedback?: string }) {
-    return this.request<any>({ url: '/technicians/satisfaction', method: "POST", data });
-  }
-
-  // -------------------------------------------------------------------
-  // FINANCE
-  // -------------------------------------------------------------------
-  async getPendingVariances(limit = 50) {
-    return this.request<any>({ url: '/finance/variances/pending', params: { limit } });
-  }
-
-  async getVarianceHistory(params?: any) {
-    return this.request<any>({ url: '/finance/variances/history', params });
-  }
-
-  async approveVariance(varianceId: number, data: any) {
-    return this.request<any>({ url: `/finance/variances/${varianceId}/approve`, method: "POST", data });
-  }
-
-  async detectTaskVariances(taskId: number) {
-    return this.request<any>({ url: `/finance/tasks/${taskId}/detect-variances`, method: "POST" });
-  }
-
-  async getProjectFinancials(projectId: number) {
-    return this.request<any>({ url: `/finance/projects/${projectId}/financials` });
-  }
-
-  async getFinancialAccounts() {
-    return this.request<any>({ url: '/finance/financial-accounts/' });
-  }
-
-  async createFinancialAccount(data: any) {
-    return this.request<any>({ url: '/finance/financial-accounts/', method: 'POST', data });
-  }
-
-  async getFinancialAccount(accountId: number) {
-    return this.request<any>({ url: `/finance/financial-accounts/${accountId}` });
-  }
-
-  async uploadBudget(data: any) {
-    return this.request<any>({ url: '/finance/upload-budget/', method: 'POST', data });
-  }
-
-  async getProjectsFinancialSummary(params?: any) {
-    return this.request<any>({ url: '/finance/projects/summary', params });
-  }
-
-  async getFinancialSummary(params?: any) {
-    return this.request<any>({ url: '/finance/summary', params });
-  }
-
-  async getFinanceDashboardStats() {
-    return this.request<any>({ url: "/finance/dashboard/stats" });
-  }
-
-  async getExpenses(params?: any) {
-    return this.request<any>({ url: '/finance/expenses', params });
-  }
-
-  async createExpense(data: any) {
-    return this.request<any>({ url: "/finance/expenses", method: "POST", data });
-  }
-
-  async approveExpense(expenseId: number, data: any) {
-    return this.request<any>({ url: `/finance/expenses/${expenseId}/approve`, method: "POST", data });
-  }
-
-  // -------------------------------------------------------------------
-  // HR
-  // -------------------------------------------------------------------
-  async getEmployees(params?: any) {
-    return this.request<any>({ url: '/hr/employees', params });
-  }
-
-  async getEmployee(employeeId: number) {
-    return this.request<any>({ url: `/hr/employees/${employeeId}` });
-  }
-
-  async createEmployee(data: any) {
-    return this.request<any>({ url: "/hr/employees", method: "POST", data });
-  }
-
-  async updateEmployee(employeeId: number, data: any) {
-    return this.request<any>({ url: `/hr/employees/${employeeId}`, method: "PATCH", data });
-  }
-
-  async deleteEmployee(employeeId: number) {
-    return this.request<any>({ url: `/hr/employees/${employeeId}`, method: "DELETE" });
-  }
-
-  async toggleEmployeeStatus(userId: number) {
-    return this.request<any>({ url: `/hr/employees/${userId}/toggle-status`, method: 'PATCH' });
-  }
-
-  async getRateCards(employeeId?: number) {
-    return this.request<any>({ 
-      url: '/hr/rate-cards', 
-      params: employeeId ? { employee_id: employeeId } : undefined 
-    });
-  }
-
-  async getEmployeeRateCards(employeeId: number) {
-    return this.request<any>({ url: `/hr/rate-cards/${employeeId}` });
-  }
-
-  async createRateCard(data: any) {
-    return this.request<any>({ url: "/hr/rate-cards", method: "POST", data });
-  }
-
-  async getEmployeeAttendance(employeeId: number, params?: any) {
-    return this.request<any>({ url: `/hr/attendance/${employeeId}`, params });
-  }
-
-  async getAttendance(params?: any) {
-    return this.request<any>({ url: '/hr/attendance', params });
-  }
-
-  async recordAttendance(data: any) {
-    return this.request<any>({ url: "/hr/attendance", method: "POST", data });
-  }
-
-  async getComplaints(params?: any) {
-    return this.request<any>({ url: '/hr/complaints', params });
-  }
-
-  async recordComplaint(data: any) {
-    return this.request<any>({ url: "/hr/complaints", method: "POST", data });
-  }
-
-  async getPendingComplaints(limit: number = 50) {
-    return this.request<any>({ url: '/hr/complaints/pending', params: { limit } });
-  }
-
-  async investigateComplaint(complaintId: number, data: any) {
-    return this.request<any>({ url: `/hr/complaints/${complaintId}/investigate`, method: "POST", data });
-  }
-
-  async getPayrollSummary(params?: any) {
-    return this.request<any>({ url: '/hr/reports/payroll-summary', params });
-  }
-
-  async getEmployeePerformance(employeeId: number, params?: any) {
-    return this.request<any>({ url: `/hr/reports/employee-performance/${employeeId}`, params });
-  }
-
-  async exportEmployees(format: string = 'csv') {
-    return this.request<any>({ url: '/hr/employees/export', params: { format } });
-  }
-
-  async exportAttendance(params?: any) {
-    return this.request<any>({ url: '/hr/attendance/export', params });
-  }
-
-  async exportPayroll(params?: any) {
-    return this.request<any>({ url: '/hr/payroll/export', params });
-  }
-
-  async getPendingPayouts(params?: { limit?: number }) {
-    return this.request<any>({ url: '/hr/payouts/pending', params });
-  }
-
-  async getEmployeePayouts(employeeId: number, limit: number = 10) {
-    return this.request<any>({ url: `/hr/payouts/employee/${employeeId}`, params: { limit } });
-  }
-
-  async calculatePayout(data: any) {
-    return this.request<any>({ url: "/hr/payouts/calculate", method: "POST", data });
-  }
-
-  async approvePayout(payoutId: number, data: any) {
-    return this.request<any>({ url: `/hr/payouts/${payoutId}/approve`, method: "POST", data });
-  }
+  // =========================================================================
+  // PASSWORDLESS AUTH
+  // =========================================================================
 
-  async markPayoutPaid(payoutId: number, paymentMethod: string, paymentReference: string) {
-    return this.request<any>({ 
-      url: `/hr/payouts/${payoutId}/mark-paid`, 
+  /** Request magic link email */
+  async requestPasswordlessLogin(email: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>({
+      url: "/auth/passwordless/request",
       method: "POST",
-      data: { payment_method: paymentMethod, payment_reference: paymentReference },
+      params: { email },
     });
   }
 
-  // -------------------------------------------------------------------
-  // PROCUREMENT
-  // -------------------------------------------------------------------
-  // Note: Suppliers moved to Inventory based on OpenAPI spec
-  async getPurchases(params?: any) {
-    return this.request<any>({ url: '/procurement/purchases', params });
-  }
-
-  async getPurchaseOrder(orderId: number) {
-    return this.request<any>({ url: `/procurement/purchases/${orderId}` });
-  }
-
-  async createPurchaseOrder(data: any) {
-    return this.request<any>({ url: "/procurement/purchases", method: "POST", data });
-  }
-
-  async updatePurchaseOrder(orderId: number, data: any) {
-    return this.request<any>({ url: `/procurement/purchases/${orderId}`, method: "PATCH", data });
-  }
-
-  async approvePurchase(purchaseId: number, data: any) {
-    return this.request<any>({ url: `/procurement/purchases/${purchaseId}/approve`, method: "POST", data });
-  }
-
-  async getProcurementStats() {
-    return this.request<any>({ url: "/procurement/stats" });
-  }
-
-  async getSupplierPerformance(supplierId?: number) {
-    return this.request<any>({ url: '/procurement/supplier-performance', params: { supplier_id: supplierId } });
-  }
-
-  // -------------------------------------------------------------------
-  // MARKETING
-  // -------------------------------------------------------------------
-  async getCampaigns(params?: any) {
-    return this.request<any>({ url: '/marketing/campaigns', params });
-  }
-
-  async getCampaign(campaignId: number) {
-    return this.request<any>({ url: `/marketing/campaigns/${campaignId}` });
-  }
-
-  async createCampaign(data: any) {
-    return this.request<any>({ url: "/marketing/campaigns", method: "POST", data });
-  }
-
-  async getLeads(params?: any) {
-    return this.request<any>({ url: '/marketing/leads', params });
-  }
-  
-  async createLead(data: any) {
-    return this.request<any>({ url: '/marketing/leads', method: 'POST', data });
-  }
-
-  async approveCampaign(campaignId: number, data: any) {
-    return this.request<any>({ url: `/marketing/campaigns/${campaignId}/approve`, method: "POST", data });
-  }
-
-  // -------------------------------------------------------------------
-  // SCRAPERS & PRICE MONITORING
-  // -------------------------------------------------------------------
-  async triggerSupplierScrape(supplierId: number) {
-    return this.request<any>({ url: `/scrapers/suppliers/${supplierId}/scrape`, method: "POST" });
-  }
-
-  async scrapeGenericUrl(data: any) {
-    return this.request<any>({ url: "/scrapers/scrape-generic", method: "POST", data });
-  }
-
-  async scrapeAllSuppliers() {
-    return this.request<any>({ url: "/scrapers/scrape-all", method: "POST" });
-  }
-
-  async getPriceHistory(productId: number, limit: number = 100) {
-    return this.request<any>({ url: `/scrapers/price-history/${productId}`, params: { limit } });
-  }
-
-  async getRecentPriceDrops(days: number = 7, min_drop_percent: number = 5.0) {
-    return this.request<any>({ 
-      url: '/scrapers/price-drops', 
-      params: { days, min_drop_percent } 
+  /** Verify magic link token */
+  async verifyPasswordlessToken(token: string): Promise<AuthToken> {
+    return this.request<AuthToken>({
+      url: "/auth/passwordless/verify",
+      method: "GET",
+      params: { token },
     });
   }
 
-  // -------------------------------------------------------------------
-  // WORKFLOWS & APPROVALS
-  // -------------------------------------------------------------------
-  async getWorkflows(params?: any) {
-    return this.request<any>({ url: '/workflow/', params });
-  }
+  // =========================================================================
+  // OTP REGISTRATION FLOW
+  // =========================================================================
 
-  async getWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflow/${workflowId}` });
-  }
-
-  async deleteWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflow/${workflowId}`, method: 'DELETE' });
-  }
-
-  async createWorkflowGraph(data: any) {
-    return this.request<any>({ url: '/workflow/graph', method: 'POST', data });
-  }
-
-  async updateWorkflowGraph(workflowId: number, data: any) {
-    return this.request<any>({ url: `/workflow/${workflowId}/graph`, method: 'PUT', data });
-  }
-
-  async publishWorkflow(workflowId: number) {
-    return this.request<any>({ url: `/workflow/${workflowId}/publish`, method: 'POST' });
-  }
-
-  async cloneWorkflow(workflowId: number, newName: string) {
-    return this.request<any>({ 
-      url: `/workflow/${workflowId}/clone`, 
-      method: 'POST',
-      params: { new_name: newName }
-    });
-  }
-
-  async startWorkflow(data: any) {
-    return this.request<any>({ url: '/workflow/start', method: 'POST', data });
-  }
-
-  async performWorkflowAction(instanceId: number, action: string, comment?: string) {
-    return this.request<any>({ 
-      url: `/workflow/instances/${instanceId}/actions`, 
-      method: 'POST',
-      params: { action, comment }
-    });
-  }
-
-  async getMyApprovals() {
-    return this.request<any>({ url: '/workflow/my-approvals' });
-  }
-
-  async getWorkflowStats() {
-    return this.request<any>({ url: '/workflow/stats' });
-  }
-
-  async commentWorkflow(instanceId: number, comment: string) {
-    return this.request<any>({ 
-      url: `/workflow/${instanceId}/comment`, 
-      method: 'POST',
-      params: { comment },
-    });
-  }
-
-  async getPendingWorkflows() {
-    return this.request<any>({ url: "/workflow/pending" });
-  }
-
-  async approveWorkflow(instanceId: number, comment?: string) {
-    return this.request<any>({ 
-      url: `/workflow/${instanceId}/approve`, 
+  /** Step 1: Request OTP for registration (creates inactive user) */
+  async requestRegistrationOTP(data: UserCreatePasswordless): Promise<{ message: string }> {
+    return this.request<{ message: string }>({
+      url: "/auth/register/otp/request",
       method: "POST",
-      params: { comment }
+      data,
     });
   }
 
-  async rejectWorkflow(instanceId: number, comment?: string) {
-    return this.request<any>({ 
-      url: `/workflow/${instanceId}/reject`, 
+  /** Step 2: Verify OTP and activate user (auto-login) */
+  async verifyRegistrationOTP(email: string, otp: string): Promise<AuthToken> {
+    return this.request<AuthToken>({
+      url: "/auth/register/otp/verify",
       method: "POST",
-      params: { comment }
+      params: { email, otp },
     });
   }
 
-  async workflowAction(module: string, itemId: number, action: string, data: any) {
-    return this.request<any>({ url: `/workflow/${module}/${itemId}/${action}`, method: "POST", data });
+  /** Set password after passwordless registration */
+  async setPassword(data: PasswordSetRequest): Promise<{ message: string }> {
+    return this.request<{ message: string }>({
+      url: "/auth/set-password",
+      method: "POST",
+      data,
+    });
   }
 
-  // -------------------------------------------------------------------
-  // TASK STATISTICS
-  // -------------------------------------------------------------------
-  async getTaskStats() {
-    return this.request<any>({ url: "/tasks/stats" });
+  // =========================================================================
+  // RBAC
+  // =========================================================================
+
+  /** Check single permission */
+  async checkPermission(permission: string): Promise<{ permission: string; granted: boolean }> {
+    return this.request<{ permission: string; granted: boolean }>({
+      url: "/rbac/check",
+      params: { permission },
+    });
   }
 
-  // -------------------------------------------------------------------
-  // USERS & PERMISSIONS
-  // -------------------------------------------------------------------
-  async getUsers() {
-    return this.request<any>({ url: "/users/" });
+  /** Check multiple permissions at once */
+  async checkPermissionsBatch(permissions: string[]): Promise<Record<string, boolean>> {
+    return this.request<Record<string, boolean>>({
+      url: "/rbac/check-batch",
+      method: "POST",
+      data: { permissions },
+    });
   }
 
-  async getUser(userId: number) {
-    return this.request<any>({ url: `/users/${userId}` });
+  /** Get all user permissions */
+  async getMyPermissions(): Promise<{ permissions: string[]; count: number }> {
+    return this.request<{ permissions: string[]; count: number }>({
+      url: "/rbac/my-permissions",
+    });
   }
 
-  async updateUser(userId: number, data: any) {
-    return this.request<any>({ url: `/users/${userId}`, method: "PUT", data });
+  // =========================================================================
+  // RBAC MANAGEMENT
+  // =========================================================================
+
+  /** Get sorted users list */
+  async getSortedUsers(sortBy = 'email', algorithm = 'quick'): Promise<User[]> {
+    return this.request<User[]>({
+      url: "/management/rbac/users/sorted",
+      params: { sort_by: sortBy, algorithm },
+    });
   }
 
-  async createUser(data: any) {
-    return this.request<any>({ url: "/users/", method: "POST", data });
+  /** Get role hierarchy tree */
+  async getRoleHierarchyTree(): Promise<RoleHierarchy[]> {
+    return this.request<RoleHierarchy[]>({ url: "/management/rbac/roles/tree" });
   }
 
-  async deleteUser(userId: number) {
-    return this.request<any>({ url: `/users/${userId}`, method: "DELETE" });
+  /** Get sorted roles */
+  async getSortedRoles(sortBy = 'name', algorithm = 'merge'): Promise<RoleV2[]> {
+    return this.request<RoleV2[]>({
+      url: "/management/rbac/roles/sorted",
+      params: { sort_by: sortBy, algorithm },
+    });
   }
 
-  async restoreUser(userId: number) {
-    return this.request<any>({ url: `/users/${userId}/restore`, method: "POST" });
+  /** Update user status (suspend/activate) */
+  async updateUserStatus(userId: number, data: { status: string; reason?: string }): Promise<any> {
+    return this.request<any>({
+      url: `/management/rbac/users/${userId}/status`,
+      method: "PATCH",
+      data,
+    });
   }
 
-  async getMyMenu() {
-    return this.request<any>({ url: "/users/me/menu" });
+  // =========================================================================
+  // MANAGEMENT DASHBOARDS
+  // =========================================================================
+
+  /** Admin dashboard metrics */
+  async getAdminDashboardMetrics(days = 7): Promise<AdminDashboardMetrics> {
+    return this.request<AdminDashboardMetrics>({
+      url: "/management/dashboards/admin/metrics",
+      params: { days },
+    });
   }
 
-  // -------------------------------------------------------------------
-  // HEALTH & SYSTEM
-  // -------------------------------------------------------------------
-  async healthCheck() {
+  /** Auditor heatmap */
+  async getAuditorHeatmap(): Promise<any> {
+    return this.request<any>({ url: "/management/dashboards/auditor/heatmap" });
+  }
+
+  /** Auditor audit trails */
+  async getAuditTrails(params?: {
+    limit?: number;
+    resource?: string;
+    result?: string;
+  }): Promise<AuditTrail[]> {
+    return this.request<AuditTrail[]>({
+      url: "/management/dashboards/auditor/trails",
+      params,
+    });
+  }
+
+  /** Tester coverage report */
+  async getTesterCoverage(): Promise<any> {
+    return this.request<any>({ url: "/management/dashboards/tester/coverage" });
+  }
+
+  // =========================================================================
+  // AUDIT LOGS
+  // =========================================================================
+
+  async getAuditLogs(params?: {
+    skip?: number;
+    limit?: number;
+    user_id?: number;
+    action?: string;
+    resource?: string;
+    date_from?: string;
+    date_to?: string;
+  }): Promise<any[]> {
+    return this.request<any[]>({ url: "/audit/", params });
+  }
+
+  async getAuditStats(days = 7): Promise<AuditStats> {
+    return this.request<AuditStats>({ url: "/audit/stats", params: { days } });
+  }
+
+  async exportAuditLogs(format = 'csv', days = 30): Promise<any> {
+    return this.request<any>({ url: "/audit/export", params: { format, days } });
+  }
+
+  // =========================================================================
+  // PROJECTS
+  // =========================================================================
+
+  async getProjects(params?: {
+    skip?: number;
+    limit?: number;
+    status?: string;
+    division_id?: number;
+    department_id?: number;
+    infrastructure_type?: string;
+  }): Promise<Project[]> {
+    return this.request<Project[]>({ url: "/projects/", params });
+  }
+
+  async getProject(projectId: number): Promise<Project> {
+    return this.request<Project>({ url: `/projects/${projectId}` });
+  }
+
+  async createProject(data: any): Promise<Project> {
+    return this.request<Project>({ url: "/projects/", method: "POST", data });
+  }
+
+  async updateProject(projectId: number, data: any): Promise<Project> {
+    return this.request<Project>({ url: `/projects/${projectId}`, method: "PUT", data });
+  }
+
+  async deleteProject(projectId: number): Promise<void> {
+    return this.request<void>({ url: `/projects/${projectId}`, method: "DELETE" });
+  }
+
+  async getProjectsByDepartment(departmentId: number): Promise<Project[]> {
+    return this.request<Project[]>({ url: `/projects/by-department/${departmentId}` });
+  }
+
+  // =========================================================================
+  // TASKS
+  // =========================================================================
+
+  async getTasks(params?: {
+    skip?: number;
+    limit?: number;
+    project_id?: number;
+    status?: string;
+    assigned_role?: string;
+    department_id?: number;
+    priority?: string;
+  }): Promise<Task[]> {
+    return this.request<Task[]>({ url: "/tasks/", params });
+  }
+
+  async getMyTasks(): Promise<Task[]> {
+    return this.request<Task[]>({ url: "/tasks/my-assignments" });
+  }
+
+  async getTask(taskId: number): Promise<Task> {
+    return this.request<Task>({ url: `/tasks/${taskId}` });
+  }
+
+  async createTask(data: any): Promise<Task> {
+    return this.request<Task>({ url: "/tasks/", method: "POST", data });
+  }
+
+  async updateTask(taskId: number, data: any): Promise<Task> {
+    return this.request<Task>({ url: `/tasks/${taskId}`, method: "PUT", data });
+  }
+
+  async getTasksByDepartment(departmentId: number): Promise<Task[]> {
+    return this.request<Task[]>({ url: `/tasks/by-department/${departmentId}` });
+  }
+
+  // =========================================================================
+  // USERS
+  // =========================================================================
+
+  async getUsers(): Promise<User[]> {
+    return this.request<User[]>({ url: "/users/" });
+  }
+
+  async getUser(userId: number): Promise<User> {
+    return this.request<User>({ url: `/users/${userId}` });
+  }
+
+  async updateUser(userId: number, data: any): Promise<User> {
+    return this.request<User>({ url: `/users/${userId}`, method: "PUT", data });
+  }
+
+  async createUser(data: UserCreate): Promise<User> {
+    return this.request<User>({ url: "/users/", method: "POST", data });
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    return this.request<void>({ url: `/users/${userId}`, method: "DELETE" });
+  }
+
+  async getMyMenu(): Promise<any[]> {
+    return this.request<any[]>({ url: "/users/me/menu" });
+  }
+
+  // =========================================================================
+  // HEALTH
+  // =========================================================================
+
+  async healthCheck(): Promise<any> {
     return this.request<any>({ url: "/health" });
-  }
-
-  async getRoot() {
-    return this.request<any>({ url: "/" });
   }
 }
 
-// Export a single shared instance
 export const apiClient = new ApiClient(API_BASE_URL);

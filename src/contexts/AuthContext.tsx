@@ -1,58 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { apiClient } from "@/lib/api";
+import type { User, PermissionV2, RoleV2, MenuItem } from "@/types";
 
-// ============================================================================
-// RBAC v2 Types
-// ============================================================================
-export interface PermissionV2 {
-  name: string;
-  resource: string;
-  action: string;
-  scope: string;
-  description?: string;
-}
-
-export interface RoleV2 {
-  id: number;
-  name: string;
-  level: number;
-  description?: string;
-}
-
-interface CompanyInfo { id: number; name: string; }
-interface DivisionInfo { id: number; name: string; }
-interface DepartmentInfo { id: number; name: string; }
-
-export interface MenuItem {
-  key?: string;
-  label: string;
-  path: string;
-  icon?: string;
-  permission?: string;
-  children?: MenuItem[];
-}
-
-// ============================================================================
-// User Interface (Enhanced with RBAC v2)
-// ============================================================================
-interface User {
-  id: number;
-  email: string;
-  full_name?: string;
-  role: string;
-  roles?: string[];
-  menus?: MenuItem[];
-  roles_v2?: RoleV2[];
-  permissions_v2?: PermissionV2[];
-  rbac_version?: 'v1' | 'v2';
-  company?: CompanyInfo;
-  division?: DivisionInfo;
-  department?: DepartmentInfo;
-  phone?: string;
-  position?: string;
-  is_active?: boolean;
-}
+// Re-export types for backwards compatibility
+export type { PermissionV2, RoleV2, MenuItem } from "@/types";
 
 interface JWTPayload { sub: string | number; roles?: string[]; exp: number; }
 
