@@ -62,7 +62,7 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      await apiClient.registerUser({
+      await apiClient.register({
         email: formData.email,
         password: formData.password,
         full_name: formData.full_name,
