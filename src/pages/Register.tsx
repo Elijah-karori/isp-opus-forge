@@ -9,17 +9,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, User, Building2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { checkRateLimit, recordAttempt, formatRemainingTime } from '@/lib/rate-limiter';
+import { getSafeErrorMessage, otpSchema } from '@/lib/validation';
 
 const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  full_name: z.string().min(2, 'Full name is required'),
-  company_name: z.string().optional(),
+  email: z.string().trim().email('Invalid email address').max(254, 'Email too long'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password too long'),
+  full_name: z.string().trim().min(2, 'Full name is required').max(100, 'Name too long')
+    .refine(val => !val.includes('<') && !val.includes('>'), 'Invalid characters'),
+  company_name: z.string().max(100, 'Company name too long').optional(),
 });
 
 type RegisterData = z.infer<typeof registerSchema>;
 
 type Step = 'register' | 'otp' | 'success';
+
+// Rate limit keys
+const RATE_LIMIT_REGISTER = 'register';
+const RATE_LIMIT_OTP = 'register-otp';
+const RATE_LIMIT_RESEND = 'resend-otp';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -48,6 +56,17 @@ export default function Register() {
     e.preventDefault();
     setErrors({});
 
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_REGISTER);
+    if (rateLimit.isLimited) {
+      toast({
+        title: 'Too Many Attempts',
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const result = registerSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof RegisterData, string>> = {};
@@ -63,21 +82,23 @@ export default function Register() {
     setIsLoading(true);
     try {
       await apiClient.register({
-        email: formData.email,
-        password: formData.password,
-        full_name: formData.full_name,
-        company_name: formData.company_name || undefined,
+        email: result.data.email,
+        password: result.data.password,
+        full_name: result.data.full_name,
+        company_name: result.data.company_name || undefined,
       });
       
+      recordAttempt(RATE_LIMIT_REGISTER, true);
       toast({
         title: 'Registration successful',
         description: 'Please check your email for the OTP verification code.',
       });
       setStep('otp');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_REGISTER, false);
       toast({
         title: 'Registration failed',
-        description: error.message || 'An error occurred during registration.',
+        description: getSafeErrorMessage(error, 'An error occurred during registration.'),
         variant: 'destructive',
       });
     } finally {
@@ -88,7 +109,20 @@ export default function Register() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (otp.length !== 6) {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_OTP);
+    if (rateLimit.isLimited) {
+      toast({
+        title: 'Too Many Attempts',
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate OTP
+    const otpValidation = otpSchema.safeParse(otp);
+    if (!otpValidation.success) {
       toast({
         title: 'Invalid OTP',
         description: 'Please enter the 6-digit code sent to your email.',
@@ -101,18 +135,23 @@ export default function Register() {
     try {
       await apiClient.post('/auth/verify-otp', {
         email: formData.email,
-        otp: otp,
+        otp: otpValidation.data,
       });
       
+      recordAttempt(RATE_LIMIT_OTP, true);
       toast({
         title: 'Email verified!',
         description: 'Your account has been verified successfully.',
       });
       setStep('success');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_OTP, false);
+      const rateStatus = checkRateLimit(RATE_LIMIT_OTP);
       toast({
         title: 'Verification failed',
-        description: error.message || 'Invalid or expired OTP. Please try again.',
+        description: rateStatus.attemptsLeft > 0
+          ? `${getSafeErrorMessage(error, 'Invalid or expired OTP')}. ${rateStatus.attemptsLeft} attempts remaining.`
+          : getSafeErrorMessage(error, 'Invalid or expired OTP. Please try again.'),
         variant: 'destructive',
       });
     } finally {
@@ -121,17 +160,30 @@ export default function Register() {
   };
 
   const handleResendOtp = async () => {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_RESEND);
+    if (rateLimit.isLimited) {
+      toast({
+        title: 'Too Many Attempts',
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       await apiClient.post('/auth/resend-otp', { email: formData.email });
+      recordAttempt(RATE_LIMIT_RESEND, true);
       toast({
         title: 'OTP Resent',
         description: 'A new verification code has been sent to your email.',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_RESEND, false);
       toast({
         title: 'Failed to resend OTP',
-        description: error.message || 'Please try again later.',
+        description: getSafeErrorMessage(error, 'Please try again later.'),
         variant: 'destructive',
       });
     } finally {
@@ -162,6 +214,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={100}
                   />
                 </div>
                 {errors.full_name && <p className="text-sm text-destructive">{errors.full_name}</p>}
@@ -180,6 +233,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={254}
                   />
                 </div>
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -198,6 +252,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={128}
                   />
                 </div>
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
@@ -215,6 +270,7 @@ export default function Register() {
                     onChange={handleInputChange}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={100}
                   />
                 </div>
               </div>
