@@ -26,12 +26,27 @@ import {
   Send,
   ChevronRight,
   Fingerprint,
-  KeyRound
+  KeyRound,
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
+import { checkRateLimit, recordAttempt, formatRemainingTime } from '@/lib/rate-limiter';
+import { 
+  loginSchema, 
+  emailSchema, 
+  otpSchema, 
+  passwordSchema,
+  getSafeErrorMessage 
+} from '@/lib/validation';
 
 type LoginView = 'main' | 'magic-link' | 'otp-verify' | 'forgot-password' | 'reset-password';
+
+// Rate limit keys
+const RATE_LIMIT_LOGIN = 'login';
+const RATE_LIMIT_MAGIC_LINK = 'magic-link';
+const RATE_LIMIT_FORGOT_PASSWORD = 'forgot-password';
+const RATE_LIMIT_OTP = 'otp-verify';
 
 const Login = () => {
   const [view, setView] = useState<LoginView>('main');
@@ -45,6 +60,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   
   // Forgot password states
   const [forgotEmail, setForgotEmail] = useState('');
@@ -58,19 +74,46 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
+
+    // Check rate limit before attempting login
+    const rateLimit = checkRateLimit(RATE_LIMIT_LOGIN);
+    if (rateLimit.isLimited) {
+      toast({
+        title: "Too Many Attempts",
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate input
+    const validation = loginSchema.safeParse(formData);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0]?.message || 'Invalid input';
+      setValidationError(firstError);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await login(formData.username, formData.password);
+      recordAttempt(RATE_LIMIT_LOGIN, true); // Success - clear rate limit
       toast({
         title: "Login Successful",
         description: "Welcome to ISP Connect ERP",
       });
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_LOGIN, false); // Failed - increment rate limit
+      const rateStatus = checkRateLimit(RATE_LIMIT_LOGIN);
+      
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid credentials",
+        description: rateStatus.attemptsLeft > 0 
+          ? `${getSafeErrorMessage(error, 'Invalid credentials')}. ${rateStatus.attemptsLeft} attempts remaining.`
+          : getSafeErrorMessage(error, 'Invalid credentials'),
         variant: "destructive",
       });
     } finally {
@@ -79,10 +122,23 @@ const Login = () => {
   };
 
   const handleMagicLinkRequest = async () => {
-    if (!magicLinkEmail) {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_MAGIC_LINK);
+    if (rateLimit.isLimited) {
       toast({
-        title: "Email Required",
-        description: "Please enter your email address",
+        title: "Too Many Attempts",
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate email
+    const emailValidation = emailSchema.safeParse(magicLinkEmail);
+    if (!emailValidation.success) {
+      toast({
+        title: "Invalid Email",
+        description: emailValidation.error.errors[0]?.message || "Please enter a valid email address",
         variant: "destructive",
       });
       return;
@@ -90,16 +146,18 @@ const Login = () => {
 
     setIsSendingMagicLink(true);
     try {
-      await apiClient.requestPasswordlessLogin(magicLinkEmail);
+      await apiClient.requestPasswordlessLogin(emailValidation.data);
+      recordAttempt(RATE_LIMIT_MAGIC_LINK, true);
       toast({
         title: "Magic Link Sent!",
         description: "Check your email for the login link",
       });
       setView('otp-verify');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_MAGIC_LINK, false);
       toast({
         title: "Failed to Send",
-        description: error.message || "Could not send magic link",
+        description: getSafeErrorMessage(error, "Could not send magic link"),
         variant: "destructive",
       });
     } finally {
@@ -108,7 +166,20 @@ const Login = () => {
   };
 
   const handleOtpVerify = async () => {
-    if (otpValue.length !== 6) {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_OTP);
+    if (rateLimit.isLimited) {
+      toast({
+        title: "Too Many Attempts",
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate OTP
+    const otpValidation = otpSchema.safeParse(otpValue);
+    if (!otpValidation.success) {
       toast({
         title: "Invalid Code",
         description: "Please enter the 6-digit code",
@@ -119,17 +190,22 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      const result = await apiClient.verifyPasswordlessToken(otpValue);
+      const result = await apiClient.verifyPasswordlessToken(otpValidation.data);
+      recordAttempt(RATE_LIMIT_OTP, true);
       apiClient.setToken(result.access_token);
       toast({
         title: "Login Successful",
         description: "Welcome to ISP Connect ERP",
       });
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_OTP, false);
+      const rateStatus = checkRateLimit(RATE_LIMIT_OTP);
       toast({
         title: "Verification Failed",
-        description: error.message || "Invalid or expired code",
+        description: rateStatus.attemptsLeft > 0
+          ? `${getSafeErrorMessage(error, 'Invalid or expired code')}. ${rateStatus.attemptsLeft} attempts remaining.`
+          : getSafeErrorMessage(error, 'Invalid or expired code'),
         variant: "destructive",
       });
     } finally {
@@ -138,10 +214,23 @@ const Login = () => {
   };
 
   const handleForgotPasswordRequest = async () => {
-    if (!forgotEmail) {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_FORGOT_PASSWORD);
+    if (rateLimit.isLimited) {
       toast({
-        title: "Email Required",
-        description: "Please enter your email address",
+        title: "Too Many Attempts",
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate email
+    const emailValidation = emailSchema.safeParse(forgotEmail);
+    if (!emailValidation.success) {
+      toast({
+        title: "Invalid Email",
+        description: emailValidation.error.errors[0]?.message || "Please enter a valid email address",
         variant: "destructive",
       });
       return;
@@ -149,37 +238,55 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      await apiClient.post('/auth/forgot-password', { email: forgotEmail });
+      await apiClient.post('/auth/forgot-password', { email: emailValidation.data });
+      recordAttempt(RATE_LIMIT_FORGOT_PASSWORD, true);
       toast({
         title: "Reset Link Sent!",
         description: "Check your email for the password reset link",
       });
       setView('reset-password');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_FORGOT_PASSWORD, false);
+      // Don't reveal if email exists or not for security
       toast({
-        title: "Failed to Send",
-        description: error.message || "Could not send reset email",
-        variant: "destructive",
+        title: "Request Processed",
+        description: "If this email exists, you will receive reset instructions",
       });
+      setView('reset-password');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResetPassword = async () => {
-    if (!resetToken || resetToken.length < 6) {
+    // Check rate limit
+    const rateLimit = checkRateLimit(RATE_LIMIT_OTP);
+    if (rateLimit.isLimited) {
       toast({
-        title: "Token Required",
-        description: "Please enter the reset code from your email",
+        title: "Too Many Attempts",
+        description: `Please wait ${formatRemainingTime(rateLimit.remainingMs)} before trying again`,
         variant: "destructive",
       });
       return;
     }
 
-    if (newPassword.length < 8) {
+    // Validate token
+    const tokenValidation = otpSchema.safeParse(resetToken);
+    if (!tokenValidation.success) {
       toast({
-        title: "Password Too Short",
-        description: "Password must be at least 8 characters",
+        title: "Invalid Code",
+        description: "Please enter the 6-digit reset code from your email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password
+    const passwordValidation = passwordSchema.safeParse(newPassword);
+    if (!passwordValidation.success) {
+      toast({
+        title: "Invalid Password",
+        description: passwordValidation.error.errors[0]?.message || "Password must be at least 8 characters",
         variant: "destructive",
       });
       return;
@@ -197,9 +304,10 @@ const Login = () => {
     setIsLoading(true);
     try {
       await apiClient.post('/auth/reset-password', {
-        token: resetToken,
+        token: tokenValidation.data,
         new_password: newPassword,
       });
+      recordAttempt(RATE_LIMIT_OTP, true);
       toast({
         title: "Password Reset!",
         description: "You can now sign in with your new password",
@@ -209,10 +317,14 @@ const Login = () => {
       setResetToken('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      recordAttempt(RATE_LIMIT_OTP, false);
+      const rateStatus = checkRateLimit(RATE_LIMIT_OTP);
       toast({
         title: "Reset Failed",
-        description: error.message || "Could not reset password",
+        description: rateStatus.attemptsLeft > 0
+          ? `${getSafeErrorMessage(error, 'Invalid or expired code')}. ${rateStatus.attemptsLeft} attempts remaining.`
+          : getSafeErrorMessage(error, 'Could not reset password'),
         variant: "destructive",
       });
     } finally {
@@ -229,6 +341,8 @@ const Login = () => {
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear validation error when user starts typing
+    if (validationError) setValidationError(null);
   };
 
   // Main Login View
@@ -327,6 +441,14 @@ const Login = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Validation Error Display */}
+            {validationError && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/20 border border-red-500/30">
+                <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-300">{validationError}</p>
+              </div>
+            )}
 
             {/* Sign In Button */}
             <Button

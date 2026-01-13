@@ -56,17 +56,41 @@ class ApiClient {
           }
         }
 
+        // SECURITY: Sanitize error messages to prevent information leakage
+        // Never expose raw backend errors, database schemas, or stack traces
         const errorData = error.response?.data as { detail?: any };
-        let errorMessage = "An unexpected error occurred.";
-
+        
+        // Map known safe error patterns to user-friendly messages
+        const safeErrorMappings: Record<string, string> = {
+          'invalid credentials': 'Invalid username or password',
+          'invalid password': 'Invalid username or password',
+          'user not found': 'Invalid username or password',
+          'email already exists': 'This email is already registered',
+          'invalid token': 'Invalid or expired token',
+          'expired token': 'Your session has expired. Please try again',
+          'invalid otp': 'Invalid verification code',
+          'expired otp': 'Verification code has expired',
+          'too many attempts': 'Too many attempts. Please try again later',
+          'account locked': 'Account has been locked. Please contact support',
+          'account not verified': 'Please verify your email first',
+          'email required': 'Email address is required',
+          'password required': 'Password is required',
+        };
+        
+        let errorMessage = "An unexpected error occurred. Please try again.";
+        
         if (errorData?.detail) {
-          if (typeof errorData.detail === 'object') {
-            errorMessage = JSON.stringify(errorData.detail);
-          } else {
-            errorMessage = errorData.detail.toString();
+          const detailStr = typeof errorData.detail === 'string' 
+            ? errorData.detail.toLowerCase() 
+            : JSON.stringify(errorData.detail).toLowerCase();
+          
+          // Check for known safe error patterns
+          for (const [pattern, safeMessage] of Object.entries(safeErrorMappings)) {
+            if (detailStr.includes(pattern)) {
+              errorMessage = safeMessage;
+              break;
+            }
           }
-        } else if (error.message) {
-          errorMessage = error.message;
         }
         
         return Promise.reject(new Error(errorMessage));
